@@ -78,35 +78,35 @@ function ContactPage() {
           </div>
 
           <aside className="space-y-6 lg:col-span-2">
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <h3 className="font-display text-lg font-semibold">Kontak langsung</h3>
+            <div className="card-pop p-6">
+              <h3 className="font-display text-lg font-extrabold">Kontak langsung</h3>
               <ul className="mt-4 space-y-3 text-sm">
                 <li className="flex items-start gap-3">
-                  <MessageCircle className="mt-0.5 h-4 w-4 text-teal" />
-                  <a href="https://wa.me/6281200000000" className="hover:text-teal">WhatsApp: +62 812 0000 0000</a>
+                  <MessageCircle className="mt-0.5 h-4 w-4 text-mint-deep" />
+                  <a href="https://wa.me/6281200000000" className="hover:text-mint-deep">WhatsApp: +62 812 0000 0000</a>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Mail className="mt-0.5 h-4 w-4 text-teal" />
-                  <a href="mailto:halo@baboo.id" className="hover:text-teal">halo@baboo.id</a>
+                  <Mail className="mt-0.5 h-4 w-4 text-mint-deep" />
+                  <a href="mailto:halo@baboo.id" className="hover:text-mint-deep">halo@baboo.id</a>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Phone className="mt-0.5 h-4 w-4 text-teal" />
+                  <Phone className="mt-0.5 h-4 w-4 text-mint-deep" />
                   <span>+62 21 0000 0000</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-4 w-4 text-teal" />
+                  <MapPin className="mt-0.5 h-4 w-4 text-mint-deep" />
                   <span>Jakarta, Indonesia</span>
                 </li>
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <h3 className="font-display text-lg font-semibold">Ikuti kami</h3>
+            <div className="card-pop p-6">
+              <h3 className="font-display text-lg font-extrabold">Ikuti kami</h3>
               <div className="mt-4 flex gap-3">
-                <a href="#" aria-label="Instagram" className="grid h-10 w-10 place-items-center rounded-lg bg-muted hover:bg-navy hover:text-teal">
+                <a href="#" aria-label="Instagram" className="grid h-10 w-10 place-items-center rounded-xl border-2 border-navy bg-cream-deep hover:bg-navy hover:text-mint">
                   <Instagram className="h-4 w-4" />
                 </a>
-                <a href="#" aria-label="LinkedIn" className="grid h-10 w-10 place-items-center rounded-lg bg-muted hover:bg-navy hover:text-teal">
+                <a href="#" aria-label="LinkedIn" className="grid h-10 w-10 place-items-center rounded-xl border-2 border-navy bg-cream-deep hover:bg-navy hover:text-mint">
                   <Linkedin className="h-4 w-4" />
                 </a>
               </div>
