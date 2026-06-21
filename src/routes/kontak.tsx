@@ -12,10 +12,7 @@ export const Route = createFileRoute("/kontak")({
   head: () => ({
     meta: [
       { title: "Kontak — Baboo.id" },
-      {
-        name: "description",
-        content: "Hubungi tim Baboo.id untuk konsultasi gratis seputar AI Agent untuk bisnis Anda.",
-      },
+      { name: "description", content: "Hubungi tim Baboo.id untuk konsultasi gratis seputar AI Agent untuk bisnis Anda." },
       { property: "og:title", content: "Kontak — Baboo.id" },
       { property: "og:description", content: "Hubungi tim Baboo.id untuk konsultasi gratis." },
     ],
@@ -38,7 +35,7 @@ function ContactPage() {
 
   return (
     <SiteShell>
-      <section className="bg-hero text-white">
+      <section className="bg-hero text-primary-foreground">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
           <h1 className="font-display text-4xl font-bold sm:text-5xl">Hubungi kami</h1>
           <p className="mt-4 text-lg text-white/70">
@@ -50,10 +47,7 @@ function ContactPage() {
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-5 rounded-2xl border border-border bg-card p-8 shadow-soft"
-            >
+            <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-border bg-card p-8 shadow-soft">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nama lengkap</Label>
@@ -76,12 +70,7 @@ function ContactPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="message">Ceritakan kebutuhan Anda</Label>
-                <Textarea
-                  id="message"
-                  required
-                  rows={5}
-                  placeholder="Misal: ingin otomatisasi balas chat WhatsApp untuk toko fashion."
-                />
+                <Textarea id="message" required rows={5} placeholder="Misal: ingin otomatisasi balas chat WhatsApp untuk toko fashion." />
               </div>
               <Button type="submit" size="lg" disabled={submitting} className="w-full sm:w-auto">
                 <Send className="mr-2 h-4 w-4" />
@@ -96,15 +85,11 @@ function ContactPage() {
               <ul className="mt-4 space-y-3 text-sm">
                 <li className="flex items-start gap-3">
                   <MessageCircle className="mt-0.5 h-4 w-4 text-teal" />
-                  <a href="https://wa.me/6281200000000" className="hover:text-teal">
-                    WhatsApp: +62 812 0000 0000
-                  </a>
+                  <a href="https://wa.me/6281200000000" className="hover:text-teal">WhatsApp: +62 812 0000 0000</a>
                 </li>
                 <li className="flex items-start gap-3">
                   <Mail className="mt-0.5 h-4 w-4 text-teal" />
-                  <a href="mailto:halo@baboo.id" className="hover:text-teal">
-                    halo@baboo.id
-                  </a>
+                  <a href="mailto:halo@baboo.id" className="hover:text-teal">halo@baboo.id</a>
                 </li>
                 <li className="flex items-start gap-3">
                   <Phone className="mt-0.5 h-4 w-4 text-teal" />
@@ -120,18 +105,10 @@ function ContactPage() {
             <div className="rounded-2xl border border-border bg-card p-6">
               <h3 className="font-display text-lg font-semibold">Ikuti kami</h3>
               <div className="mt-4 flex gap-3">
-                <a
-                  href="#"
-                  aria-label="Instagram"
-                  className="grid h-10 w-10 place-items-center rounded-lg bg-muted hover:bg-navy hover:text-teal"
-                >
+                <a href="#" aria-label="Instagram" className="grid h-10 w-10 place-items-center rounded-lg bg-muted hover:bg-navy hover:text-teal">
                   <Instagram className="h-4 w-4" />
                 </a>
-                <a
-                  href="#"
-                  aria-label="LinkedIn"
-                  className="grid h-10 w-10 place-items-center rounded-lg bg-muted hover:bg-navy hover:text-teal"
-                >
+                <a href="#" aria-label="LinkedIn" className="grid h-10 w-10 place-items-center rounded-lg bg-muted hover:bg-navy hover:text-teal">
                   <Linkedin className="h-4 w-4" />
                 </a>
               </div>

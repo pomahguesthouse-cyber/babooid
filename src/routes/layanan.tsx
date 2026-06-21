@@ -7,17 +7,9 @@ export const Route = createFileRoute("/layanan")({
   head: () => ({
     meta: [
       { title: "Layanan AI Agent — Baboo.id" },
-      {
-        name: "description",
-        content:
-          "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda.",
-      },
+      { name: "description", content: "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda." },
       { property: "og:title", content: "Layanan AI Agent — Baboo.id" },
-      {
-        property: "og:description",
-        content:
-          "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda.",
-      },
+      { property: "og:description", content: "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda." },
     ],
   }),
   component: ServicesPage,
@@ -28,53 +20,36 @@ const services = [
     icon: MessageCircle,
     title: "AI Customer Service Agent",
     desc: "Layani pelanggan di WhatsApp, Instagram DM, dan live chat website secara otomatis.",
-    points: [
-      "Balas pertanyaan umum instan",
-      "Eskalasi ke tim manusia kapan perlu",
-      "Konsisten dengan brand voice Anda",
-    ],
+    points: ["Balas pertanyaan umum instan", "Eskalasi ke tim manusia kapan perlu", "Konsisten dengan brand voice Anda"],
   },
   {
     icon: ShoppingBag,
     title: "AI Sales Agent",
     desc: "Pandu calon pembeli memilih produk yang tepat dan tutup penjualan otomatis.",
-    points: [
-      "Rekomendasi produk personal",
-      "Follow-up otomatis",
-      "Integrasi dengan katalog & pembayaran",
-    ],
+    points: ["Rekomendasi produk personal", "Follow-up otomatis", "Integrasi dengan katalog & pembayaran"],
   },
   {
     icon: CalendarCheck,
     title: "AI Appointment & Booking",
     desc: "Atur jadwal, reservasi, dan reminder tanpa pekerjaan administrasi manual.",
-    points: [
-      "Cek ketersediaan real-time",
-      "Reminder otomatis ke pelanggan",
-      "Sinkron dengan Google Calendar",
-    ],
+    points: ["Cek ketersediaan real-time", "Reminder otomatis ke pelanggan", "Sinkron dengan Google Calendar"],
   },
   {
     icon: Bot,
     title: "AI Agent Kustom",
     desc: "Dirancang khusus untuk alur kerja unik di industri Anda.",
-    points: [
-      "Analisis kebutuhan mendalam",
-      "Training dengan data perusahaan",
-      "Integrasi sistem internal",
-    ],
+    points: ["Analisis kebutuhan mendalam", "Training dengan data perusahaan", "Integrasi sistem internal"],
   },
 ];
 
 function ServicesPage() {
   return (
     <SiteShell>
-      <section className="bg-hero text-white">
+      <section className="bg-hero text-primary-foreground">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
           <h1 className="font-display text-4xl font-bold sm:text-5xl">Layanan AI Agent</h1>
           <p className="mt-4 text-lg text-white/70">
-            Solusi otomatisasi end-to-end untuk customer service, penjualan, dan operasional bisnis
-            Anda.
+            Solusi otomatisasi end-to-end untuk customer service, penjualan, dan operasional bisnis Anda.
           </p>
         </div>
       </section>
