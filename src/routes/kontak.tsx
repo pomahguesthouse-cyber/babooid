@@ -36,19 +36,16 @@ function ContactPage() {
 
   return (
     <SiteShell>
-      <section className="bg-hero text-primary-foreground">
-        <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
-          <h1 className="font-display text-4xl font-bold sm:text-5xl">Hubungi kami</h1>
-          <p className="mt-4 text-lg text-white/70">
-            Ceritakan kebutuhan bisnis Anda — kami siap bantu memetakan solusi AI yang tepat.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Kontak"
+        title="Yuk, ngobrol bareng tim Baboo"
+        desc="Ceritakan kebutuhan bisnismu — kami bantu memetakan solusi AI yang tepat."
+      />
 
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-6xl px-7 py-20">
         <div className="grid gap-10 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-border bg-card p-8 shadow-soft">
+            <form onSubmit={handleSubmit} className="card-pop space-y-5 p-8">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nama lengkap</Label>
@@ -73,10 +70,10 @@ function ContactPage() {
                 <Label htmlFor="message">Ceritakan kebutuhan Anda</Label>
                 <Textarea id="message" required rows={5} placeholder="Misal: ingin otomatisasi balas chat WhatsApp untuk toko fashion." />
               </div>
-              <Button type="submit" size="lg" disabled={submitting} className="w-full sm:w-auto">
-                <Send className="mr-2 h-4 w-4" />
+              <CartoonButton type="submit" disabled={submitting}>
+                <Send className="h-4 w-4" />
                 {submitting ? "Mengirim..." : "Kirim pesan"}
-              </Button>
+              </CartoonButton>
             </form>
           </div>
 
