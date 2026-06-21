@@ -21,20 +21,52 @@ export const SiteFooter = () => {
           <div>
             <h5 className="mb-3 font-display text-[15px] text-cream">Produk</h5>
             <ul className="space-y-2 text-sm opacity-75">
-              <li><Link to="/layanan" className="hover:text-mint">AI Customer Service</Link></li>
-              <li><Link to="/layanan" className="hover:text-mint">AI Sales Agent</Link></li>
-              <li><Link to="/layanan" className="hover:text-mint">AI Booking Agent</Link></li>
-              <li><Link to="/layanan" className="hover:text-mint">AI Agent Kustom</Link></li>
+              <li>
+                <Link to="/layanan" className="hover:text-mint">
+                  AI Customer Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/layanan" className="hover:text-mint">
+                  AI Sales Agent
+                </Link>
+              </li>
+              <li>
+                <Link to="/layanan" className="hover:text-mint">
+                  AI Booking Agent
+                </Link>
+              </li>
+              <li>
+                <Link to="/layanan" className="hover:text-mint">
+                  AI Agent Kustom
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
             <h5 className="mb-3 font-display text-[15px] text-cream">Perusahaan</h5>
             <ul className="space-y-2 text-sm opacity-75">
-              <li><Link to="/tentang" className="hover:text-mint">Tentang kami</Link></li>
-              <li><Link to="/studi-kasus" className="hover:text-mint">Cerita pengguna</Link></li>
-              <li><Link to="/harga" className="hover:text-mint">Harga</Link></li>
-              <li><Link to="/kontak" className="hover:text-mint">Kontak</Link></li>
+              <li>
+                <Link to="/tentang" className="hover:text-mint">
+                  Tentang kami
+                </Link>
+              </li>
+              <li>
+                <Link to="/studi-kasus" className="hover:text-mint">
+                  Cerita pengguna
+                </Link>
+              </li>
+              <li>
+                <Link to="/harga" className="hover:text-mint">
+                  Harga
+                </Link>
+              </li>
+              <li>
+                <Link to="/kontak" className="hover:text-mint">
+                  Kontak
+                </Link>
+              </li>
             </ul>
           </div>
 

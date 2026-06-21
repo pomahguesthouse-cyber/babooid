@@ -8,9 +8,17 @@ export const Route = createFileRoute("/layanan")({
   head: () => ({
     meta: [
       { title: "Layanan AI Agent — Baboo.id" },
-      { name: "description", content: "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda." },
+      {
+        name: "description",
+        content:
+          "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda.",
+      },
       { property: "og:title", content: "Layanan AI Agent — Baboo.id" },
-      { property: "og:description", content: "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda." },
+      {
+        property: "og:description",
+        content:
+          "AI Customer Service, AI Sales, AI Booking, dan AI Agent kustom untuk berbagai kebutuhan bisnis Anda.",
+      },
     ],
   }),
   component: ServicesPage,
@@ -21,25 +29,41 @@ const services = [
     icon: MessageCircle,
     title: "AI Customer Service Agent",
     desc: "Layani pelanggan di WhatsApp, Instagram DM, dan live chat website secara otomatis.",
-    points: ["Balas pertanyaan umum instan", "Eskalasi ke tim manusia kapan perlu", "Konsisten dengan brand voice Anda"],
+    points: [
+      "Balas pertanyaan umum instan",
+      "Eskalasi ke tim manusia kapan perlu",
+      "Konsisten dengan brand voice Anda",
+    ],
   },
   {
     icon: ShoppingBag,
     title: "AI Sales Agent",
     desc: "Pandu calon pembeli memilih produk yang tepat dan tutup penjualan otomatis.",
-    points: ["Rekomendasi produk personal", "Follow-up otomatis", "Integrasi dengan katalog & pembayaran"],
+    points: [
+      "Rekomendasi produk personal",
+      "Follow-up otomatis",
+      "Integrasi dengan katalog & pembayaran",
+    ],
   },
   {
     icon: CalendarCheck,
     title: "AI Appointment & Booking",
     desc: "Atur jadwal, reservasi, dan reminder tanpa pekerjaan administrasi manual.",
-    points: ["Cek ketersediaan real-time", "Reminder otomatis ke pelanggan", "Sinkron dengan Google Calendar"],
+    points: [
+      "Cek ketersediaan real-time",
+      "Reminder otomatis ke pelanggan",
+      "Sinkron dengan Google Calendar",
+    ],
   },
   {
     icon: Bot,
     title: "AI Agent Kustom",
     desc: "Dirancang khusus untuk alur kerja unik di industri Anda.",
-    points: ["Analisis kebutuhan mendalam", "Training dengan data perusahaan", "Integrasi sistem internal"],
+    points: [
+      "Analisis kebutuhan mendalam",
+      "Training dengan data perusahaan",
+      "Integrasi sistem internal",
+    ],
   },
 ];
 

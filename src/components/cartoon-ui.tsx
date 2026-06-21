@@ -20,21 +20,36 @@ type CartoonLinkProps = ComponentProps<typeof Link> & {
   children: ReactNode;
 };
 
-export const CartoonLink = ({ variant = "primary", className = "", children, ...rest }: CartoonLinkProps) => (
+export const CartoonLink = ({
+  variant = "primary",
+  className = "",
+  children,
+  ...rest
+}: CartoonLinkProps) => (
   <Link {...rest} className={`${base} ${variants[variant]} ${className}`}>
     {children}
   </Link>
 );
 
 type CartoonAnchorProps = ComponentProps<"a"> & { variant?: Variant };
-export const CartoonAnchor = ({ variant = "primary", className = "", children, ...rest }: CartoonAnchorProps) => (
+export const CartoonAnchor = ({
+  variant = "primary",
+  className = "",
+  children,
+  ...rest
+}: CartoonAnchorProps) => (
   <a {...rest} className={`${base} ${variants[variant]} ${className}`}>
     {children}
   </a>
 );
 
 type CartoonButtonProps = ComponentProps<"button"> & { variant?: Variant };
-export const CartoonButton = ({ variant = "primary", className = "", children, ...rest }: CartoonButtonProps) => (
+export const CartoonButton = ({
+  variant = "primary",
+  className = "",
+  children,
+  ...rest
+}: CartoonButtonProps) => (
   <button {...rest} className={`${base} ${variants[variant]} ${className}`}>
     {children}
   </button>

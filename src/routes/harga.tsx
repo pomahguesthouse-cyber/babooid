@@ -7,7 +7,11 @@ export const Route = createFileRoute("/harga")({
   head: () => ({
     meta: [
       { title: "Harga & paket — Baboo.id" },
-      { name: "description", content: "Paket Starter, Business, dan Enterprise yang fleksibel untuk berbagai skala bisnis." },
+      {
+        name: "description",
+        content:
+          "Paket Starter, Business, dan Enterprise yang fleksibel untuk berbagai skala bisnis.",
+      },
       { property: "og:title", content: "Harga & paket — Baboo.id" },
       { property: "og:description", content: "Pilih paket yang sesuai dengan skala bisnis Anda." },
     ],
@@ -21,7 +25,13 @@ const plans = [
     price: "Rp 1.500.000",
     suffix: "/bulan",
     desc: "Cocok untuk UMKM yang baru memulai otomatisasi.",
-    features: ["1 AI Agent (Customer Service)", "Integrasi WhatsApp atau website", "Hingga 2.000 percakapan/bulan", "Dashboard dasar", "Dukungan email"],
+    features: [
+      "1 AI Agent (Customer Service)",
+      "Integrasi WhatsApp atau website",
+      "Hingga 2.000 percakapan/bulan",
+      "Dashboard dasar",
+      "Dukungan email",
+    ],
     highlighted: false,
   },
   {
@@ -29,7 +39,13 @@ const plans = [
     price: "Rp 4.500.000",
     suffix: "/bulan",
     desc: "Untuk bisnis berkembang yang butuh lebih banyak agent.",
-    features: ["Hingga 3 AI Agent", "Integrasi WhatsApp, website, & CRM", "Hingga 10.000 percakapan/bulan", "Training brand voice kustom", "Dukungan prioritas"],
+    features: [
+      "Hingga 3 AI Agent",
+      "Integrasi WhatsApp, website, & CRM",
+      "Hingga 10.000 percakapan/bulan",
+      "Training brand voice kustom",
+      "Dukungan prioritas",
+    ],
     highlighted: true,
   },
   {
@@ -37,7 +53,13 @@ const plans = [
     price: "Kustom",
     suffix: "",
     desc: "Solusi tailor-made untuk perusahaan menengah & besar.",
-    features: ["AI Agent tanpa batas", "Integrasi sistem internal", "Percakapan tanpa batas", "Account manager khusus", "SLA & onboarding penuh"],
+    features: [
+      "AI Agent tanpa batas",
+      "Integrasi sistem internal",
+      "Percakapan tanpa batas",
+      "Account manager khusus",
+      "SLA & onboarding penuh",
+    ],
     highlighted: false,
   },
 ];
@@ -69,18 +91,32 @@ function PricingPage() {
                     Paling populer
                   </span>
                 )}
-                <h3 className={`font-display text-xl font-extrabold ${featured ? "text-cream" : ""}`}>{p.name}</h3>
-                <p className={`mt-1 text-[13.5px] ${featured ? "text-cream/70" : "opacity-70"}`}>{p.desc}</p>
+                <h3
+                  className={`font-display text-xl font-extrabold ${featured ? "text-cream" : ""}`}
+                >
+                  {p.name}
+                </h3>
+                <p className={`mt-1 text-[13.5px] ${featured ? "text-cream/70" : "opacity-70"}`}>
+                  {p.desc}
+                </p>
                 <div className="mt-5 flex items-baseline gap-1">
-                  <span className={`font-display text-[30px] font-extrabold ${featured ? "text-cream" : "text-navy"}`}>
+                  <span
+                    className={`font-display text-[30px] font-extrabold ${featured ? "text-cream" : "text-navy"}`}
+                  >
                     {p.price}
                   </span>
-                  <span className={`text-sm font-semibold ${featured ? "text-cream/70" : "opacity-70"}`}>{p.suffix}</span>
+                  <span
+                    className={`text-sm font-semibold ${featured ? "text-cream/70" : "opacity-70"}`}
+                  >
+                    {p.suffix}
+                  </span>
                 </div>
                 <ul className="mt-5 space-y-2.5 text-sm">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <Check className={`mt-0.5 h-4 w-4 shrink-0 ${featured ? "text-mint" : "text-mint-deep"}`} />
+                      <Check
+                        className={`mt-0.5 h-4 w-4 shrink-0 ${featured ? "text-mint" : "text-mint-deep"}`}
+                      />
                       <span>{f}</span>
                     </li>
                   ))}

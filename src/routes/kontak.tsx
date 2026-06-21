@@ -13,7 +13,10 @@ export const Route = createFileRoute("/kontak")({
   head: () => ({
     meta: [
       { title: "Kontak — Baboo.id" },
-      { name: "description", content: "Hubungi tim Baboo.id untuk konsultasi gratis seputar AI Agent untuk bisnis Anda." },
+      {
+        name: "description",
+        content: "Hubungi tim Baboo.id untuk konsultasi gratis seputar AI Agent untuk bisnis Anda.",
+      },
       { property: "og:title", content: "Kontak — Baboo.id" },
       { property: "og:description", content: "Hubungi tim Baboo.id untuk konsultasi gratis." },
     ],
@@ -68,7 +71,12 @@ function ContactPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="message">Ceritakan kebutuhan Anda</Label>
-                <Textarea id="message" required rows={5} placeholder="Misal: ingin otomatisasi balas chat WhatsApp untuk toko fashion." />
+                <Textarea
+                  id="message"
+                  required
+                  rows={5}
+                  placeholder="Misal: ingin otomatisasi balas chat WhatsApp untuk toko fashion."
+                />
               </div>
               <CartoonButton type="submit" disabled={submitting}>
                 <Send className="h-4 w-4" />
@@ -83,11 +91,15 @@ function ContactPage() {
               <ul className="mt-4 space-y-3 text-sm">
                 <li className="flex items-start gap-3">
                   <MessageCircle className="mt-0.5 h-4 w-4 text-mint-deep" />
-                  <a href="https://wa.me/6281200000000" className="hover:text-mint-deep">WhatsApp: +62 812 0000 0000</a>
+                  <a href="https://wa.me/6281200000000" className="hover:text-mint-deep">
+                    WhatsApp: +62 812 0000 0000
+                  </a>
                 </li>
                 <li className="flex items-start gap-3">
                   <Mail className="mt-0.5 h-4 w-4 text-mint-deep" />
-                  <a href="mailto:halo@baboo.id" className="hover:text-mint-deep">halo@baboo.id</a>
+                  <a href="mailto:halo@baboo.id" className="hover:text-mint-deep">
+                    halo@baboo.id
+                  </a>
                 </li>
                 <li className="flex items-start gap-3">
                   <Phone className="mt-0.5 h-4 w-4 text-mint-deep" />
@@ -103,10 +115,18 @@ function ContactPage() {
             <div className="card-pop p-6">
               <h3 className="font-display text-lg font-extrabold">Ikuti kami</h3>
               <div className="mt-4 flex gap-3">
-                <a href="#" aria-label="Instagram" className="grid h-10 w-10 place-items-center rounded-xl border-2 border-navy bg-cream-deep hover:bg-navy hover:text-mint">
+                <a
+                  href="#"
+                  aria-label="Instagram"
+                  className="grid h-10 w-10 place-items-center rounded-xl border-2 border-navy bg-cream-deep hover:bg-navy hover:text-mint"
+                >
                   <Instagram className="h-4 w-4" />
                 </a>
-                <a href="#" aria-label="LinkedIn" className="grid h-10 w-10 place-items-center rounded-xl border-2 border-navy bg-cream-deep hover:bg-navy hover:text-mint">
+                <a
+                  href="#"
+                  aria-label="LinkedIn"
+                  className="grid h-10 w-10 place-items-center rounded-xl border-2 border-navy bg-cream-deep hover:bg-navy hover:text-mint"
+                >
                   <Linkedin className="h-4 w-4" />
                 </a>
               </div>

@@ -19,7 +19,10 @@ export const SiteHeader = () => {
   return (
     <header className="sticky top-0 z-50 border-b-[2.5px] border-navy bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-[1180px] items-center justify-between px-7 py-4">
-        <Link to="/" className="flex items-center gap-2.5 font-display text-[22px] font-extrabold text-navy">
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 font-display text-[22px] font-extrabold text-navy"
+        >
           <span className="grid h-9 w-9 place-items-center rounded-full bg-navy">
             <BabooLogo />
           </span>

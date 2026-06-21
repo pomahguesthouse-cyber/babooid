@@ -66,10 +66,22 @@ const services = [
 ];
 
 const steps = [
-  { n: 1, title: "Konsultasi", desc: "Cerita soal bisnismu, kami bantu pilih peran Bibi yang paling pas." },
-  { n: 2, title: "Latih Bibi", desc: "Bibi dilatih pakai data dan gaya bicara brand kamu sendiri." },
+  {
+    n: 1,
+    title: "Konsultasi",
+    desc: "Cerita soal bisnismu, kami bantu pilih peran Bibi yang paling pas.",
+  },
+  {
+    n: 2,
+    title: "Latih Bibi",
+    desc: "Bibi dilatih pakai data dan gaya bicara brand kamu sendiri.",
+  },
   { n: 3, title: "Hubungkan", desc: "Sambungkan ke WhatsApp, website, atau CRM favoritmu." },
-  { n: 4, title: "Pantau hasil", desc: "Lihat performa Bibi lewat dashboard dan terus disempurnakan." },
+  {
+    n: 4,
+    title: "Pantau hasil",
+    desc: "Lihat performa Bibi lewat dashboard dan terus disempurnakan.",
+  },
 ];
 
 const stats = [
@@ -81,7 +93,8 @@ const stats = [
 
 const testimonials = [
   {
-    quote: "Sejak ada Bibi, waktu balas chat turun drastis. Tim kami bisa fokus ke hal yang lebih strategis.",
+    quote:
+      "Sejak ada Bibi, waktu balas chat turun drastis. Tim kami bisa fokus ke hal yang lebih strategis.",
     name: "Rani A.",
     role: "Owner, Kedai Kopi Lima",
     initials: "RA",
@@ -119,8 +132,9 @@ function HomePage() {
               Bisnismu butuh bantuan? <span className="text-mint-deep">Panggil Bibi.</span>
             </h1>
             <p className="mt-5 max-w-[480px] text-[18px]">
-              Bibi adalah AI Agent dari Baboo.id yang membalas chat, menjawab pertanyaan, dan menutup penjualan — sambil
-              kamu fokus mengurus hal lain. Aktif 24 jam, tanpa lelah, tanpa cuti.
+              Bibi adalah AI Agent dari Baboo.id yang membalas chat, menjawab pertanyaan, dan
+              menutup penjualan — sambil kamu fokus mengurus hal lain. Aktif 24 jam, tanpa lelah,
+              tanpa cuti.
             </p>
             <div className="mt-7 flex flex-wrap gap-3.5">
               <CartoonLink to="/kontak">Coba demo Bibi →</CartoonLink>
@@ -150,9 +164,17 @@ function HomePage() {
                 <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
               </div>
               <div className="relative min-h-[300px] overflow-hidden rounded-[14px] bg-cream p-5">
-                <ChatRow side="bot" avatar="B" text="Halo! Aku Bibi 👋 Ada yang bisa dibantu hari ini?" />
+                <ChatRow
+                  side="bot"
+                  avatar="B"
+                  text="Halo! Aku Bibi 👋 Ada yang bisa dibantu hari ini?"
+                />
                 <ChatRow side="user" avatar="A" text="Mau tanya paket Business dong" />
-                <ChatRow side="bot" avatar="B" text="Siap! Paket Business cocok untuk bisnis yang sedang naik daun 🌱" />
+                <ChatRow
+                  side="bot"
+                  avatar="B"
+                  text="Siap! Paket Business cocok untuk bisnis yang sedang naik daun 🌱"
+                />
                 <svg
                   className="animate-twinkle absolute right-3.5 top-2.5 text-sun"
                   width="20"
@@ -160,7 +182,10 @@ function HomePage() {
                   viewBox="0 0 16 16"
                   aria-hidden
                 >
-                  <path d="M8 1l1.6 4.7L14 7l-4.4 1.3L8 13l-1.6-4.7L2 7l4.4-1.3L8 1z" fill="currentColor" />
+                  <path
+                    d="M8 1l1.6 4.7L14 7l-4.4 1.3L8 13l-1.6-4.7L2 7l4.4-1.3L8 1z"
+                    fill="currentColor"
+                  />
                 </svg>
               </div>
             </div>
@@ -185,10 +210,7 @@ function HomePage() {
           />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {services.map((s) => (
-              <div
-                key={s.title}
-                className="card-pop card-pop-hover p-6"
-              >
+              <div key={s.title} className="card-pop card-pop-hover p-6">
                 <div
                   className="mb-4 grid h-[54px] w-[54px] place-items-center rounded-2xl"
                   style={{ background: s.bg }}
@@ -218,8 +240,7 @@ function HomePage() {
             <div
               className="pointer-events-none absolute left-[6%] right-[6%] top-7 hidden h-[3px] lg:block"
               style={{
-                backgroundImage:
-                  "linear-gradient(to right, #13294B 0 10px, transparent 10px 20px)",
+                backgroundImage: "linear-gradient(to right, #13294B 0 10px, transparent 10px 20px)",
                 backgroundSize: "20px 3px",
                 backgroundRepeat: "repeat-x",
               }}
@@ -316,8 +337,10 @@ function HomePage() {
       {/* CTA */}
       <section className="py-24">
         <div className="mx-auto max-w-[1180px] px-7">
-          <div className="relative grid items-center gap-8 overflow-hidden rounded-[32px] p-10 sm:p-14 lg:grid-cols-[1fr_260px]"
-               style={{ background: "linear-gradient(135deg, #FFC857 0%, #FF8C69 100%)" }}>
+          <div
+            className="relative grid items-center gap-8 overflow-hidden rounded-[32px] p-10 sm:p-14 lg:grid-cols-[1fr_260px]"
+            style={{ background: "linear-gradient(135deg, #FFC857 0%, #FF8C69 100%)" }}
+          >
             <div>
               <Eyebrow tone="mint">Yuk mulai</Eyebrow>
               <h2 className="mt-3 font-display text-[clamp(26px,3.4vw,38px)] font-extrabold text-navy-deep">

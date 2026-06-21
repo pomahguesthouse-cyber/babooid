@@ -27,7 +27,13 @@ export const BibiMascot = ({ className, width = 160, height = 150 }: Props) => {
       <circle cx="104" cy="62" r="5" fill="#4FC3C7" />
       <ellipse cx="72" cy="62" rx="2.4" ry="3" fill="#1A2744" />
       <ellipse cx="88" cy="62" rx="2.4" ry="3" fill="#1A2744" />
-      <path d="M70,72 Q80,78 90,72" stroke="#1A2744" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path
+        d="M70,72 Q80,78 90,72"
+        stroke="#1A2744"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+      />
       <circle cx="80" cy="150" r="6" fill="#13294B" />
     </svg>
   );
@@ -49,7 +55,13 @@ export const BibiWave = ({ className }: { className?: string }) => {
       <circle cx="108" cy="84" r="5.5" fill="#4FC3C7" />
       <ellipse cx="71" cy="83" rx="2.6" ry="3.4" fill="#1A2744" />
       <ellipse cx="89" cy="83" rx="2.6" ry="3.4" fill="#1A2744" />
-      <path d="M68,95 Q80,102 92,95" stroke="#1A2744" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <path
+        d="M68,95 Q80,102 92,95"
+        stroke="#1A2744"
+        strokeWidth="2.2"
+        fill="none"
+        strokeLinecap="round"
+      />
       <path d="M50,150 L30,170" stroke="#13294B" strokeWidth="9" strokeLinecap="round" />
       <circle cx="27" cy="173" r="7" fill="#F0C9A0" />
       <path d="M110,150 L132,128" stroke="#13294B" strokeWidth="9" strokeLinecap="round" />

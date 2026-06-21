@@ -8,19 +8,42 @@ export const Route = createFileRoute("/cara-kerja")({
   head: () => ({
     meta: [
       { title: "Cara kerja — Baboo.id" },
-      { name: "description", content: "Empat tahap sederhana: konsultasi, setup AI, integrasi, lalu monitoring dan optimasi berkelanjutan." },
+      {
+        name: "description",
+        content:
+          "Empat tahap sederhana: konsultasi, setup AI, integrasi, lalu monitoring dan optimasi berkelanjutan.",
+      },
       { property: "og:title", content: "Cara kerja — Baboo.id" },
-      { property: "og:description", content: "Dari konsultasi sampai go-live, prosesnya transparan dan cepat." },
+      {
+        property: "og:description",
+        content: "Dari konsultasi sampai go-live, prosesnya transparan dan cepat.",
+      },
     ],
   }),
   component: HowItWorksPage,
 });
 
 const steps = [
-  { icon: MessageSquare, title: "Konsultasi", desc: "Kami pahami bisnis, target pelanggan, dan masalah yang ingin diselesaikan." },
-  { icon: Cog, title: "Setup & training AI", desc: "AI Agent dirancang dan dilatih menggunakan data serta brand voice perusahaan Anda." },
-  { icon: Plug, title: "Integrasi platform", desc: "Hubungkan ke WhatsApp Business, website, CRM, atau sistem internal." },
-  { icon: LineChart, title: "Monitoring & optimasi", desc: "Pantau performa, lakukan iterasi, dan terus tingkatkan hasil." },
+  {
+    icon: MessageSquare,
+    title: "Konsultasi",
+    desc: "Kami pahami bisnis, target pelanggan, dan masalah yang ingin diselesaikan.",
+  },
+  {
+    icon: Cog,
+    title: "Setup & training AI",
+    desc: "AI Agent dirancang dan dilatih menggunakan data serta brand voice perusahaan Anda.",
+  },
+  {
+    icon: Plug,
+    title: "Integrasi platform",
+    desc: "Hubungkan ke WhatsApp Business, website, CRM, atau sistem internal.",
+  },
+  {
+    icon: LineChart,
+    title: "Monitoring & optimasi",
+    desc: "Pantau performa, lakukan iterasi, dan terus tingkatkan hasil.",
+  },
 ];
 
 function HowItWorksPage() {
