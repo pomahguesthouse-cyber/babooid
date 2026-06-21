@@ -7,7 +7,11 @@ export const Route = createFileRoute("/harga")({
   head: () => ({
     meta: [
       { title: "Harga & paket — Baboo.id" },
-      { name: "description", content: "Paket Starter, Business, dan Enterprise yang fleksibel untuk berbagai skala bisnis." },
+      {
+        name: "description",
+        content:
+          "Paket Starter, Business, dan Enterprise yang fleksibel untuk berbagai skala bisnis.",
+      },
       { property: "og:title", content: "Harga & paket — Baboo.id" },
       { property: "og:description", content: "Pilih paket yang sesuai dengan skala bisnis Anda." },
     ],
@@ -21,7 +25,13 @@ const plans = [
     price: "Rp 1.500.000",
     suffix: "/bulan",
     desc: "Cocok untuk UMKM yang baru memulai otomatisasi.",
-    features: ["1 AI Agent (Customer Service)", "Integrasi WhatsApp atau website", "Hingga 2.000 percakapan/bulan", "Dashboard dasar", "Dukungan email"],
+    features: [
+      "1 AI Agent (Customer Service)",
+      "Integrasi WhatsApp atau website",
+      "Hingga 2.000 percakapan/bulan",
+      "Dashboard dasar",
+      "Dukungan email",
+    ],
     highlighted: false,
   },
   {
@@ -29,7 +39,13 @@ const plans = [
     price: "Rp 4.500.000",
     suffix: "/bulan",
     desc: "Untuk bisnis berkembang yang butuh lebih banyak agent.",
-    features: ["Hingga 3 AI Agent", "Integrasi WhatsApp, website, & CRM", "Hingga 10.000 percakapan/bulan", "Training brand voice kustom", "Dukungan prioritas"],
+    features: [
+      "Hingga 3 AI Agent",
+      "Integrasi WhatsApp, website, & CRM",
+      "Hingga 10.000 percakapan/bulan",
+      "Training brand voice kustom",
+      "Dukungan prioritas",
+    ],
     highlighted: true,
   },
   {
@@ -37,7 +53,13 @@ const plans = [
     price: "Kustom",
     suffix: "",
     desc: "Solusi tailor-made untuk perusahaan menengah & besar.",
-    features: ["AI Agent tanpa batas", "Integrasi sistem internal", "Percakapan tanpa batas", "Account manager khusus", "SLA & onboarding penuh"],
+    features: [
+      "AI Agent tanpa batas",
+      "Integrasi sistem internal",
+      "Percakapan tanpa batas",
+      "Account manager khusus",
+      "SLA & onboarding penuh",
+    ],
     highlighted: false,
   },
 ];
@@ -71,25 +93,51 @@ function PricingPage() {
                 </span>
               )}
               <h3 className="font-display text-xl font-semibold">{p.name}</h3>
-              <p className={p.highlighted ? "mt-2 text-sm text-white/70" : "mt-2 text-sm text-muted-foreground"}>{p.desc}</p>
+              <p
+                className={
+                  p.highlighted
+                    ? "mt-2 text-sm text-white/70"
+                    : "mt-2 text-sm text-muted-foreground"
+                }
+              >
+                {p.desc}
+              </p>
               <div className="mt-6 flex items-baseline gap-1">
                 <span className="font-display text-4xl font-bold">{p.price}</span>
-                <span className={p.highlighted ? "text-sm text-white/60" : "text-sm text-muted-foreground"}>{p.suffix}</span>
+                <span
+                  className={
+                    p.highlighted ? "text-sm text-white/60" : "text-sm text-muted-foreground"
+                  }
+                >
+                  {p.suffix}
+                </span>
               </div>
               <ul className="mt-6 space-y-3">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className={p.highlighted ? "mt-0.5 h-4 w-4 shrink-0 text-teal" : "mt-0.5 h-4 w-4 shrink-0 text-teal"} />
+                    <Check
+                      className={
+                        p.highlighted
+                          ? "mt-0.5 h-4 w-4 shrink-0 text-teal"
+                          : "mt-0.5 h-4 w-4 shrink-0 text-teal"
+                      }
+                    />
                     <span>{f}</span>
                   </li>
                 ))}
               </ul>
               <Button
                 asChild
-                className={p.highlighted ? "mt-8 w-full bg-teal text-navy-deep hover:bg-teal-glow" : "mt-8 w-full"}
+                className={
+                  p.highlighted
+                    ? "mt-8 w-full bg-teal text-navy-deep hover:bg-teal-glow"
+                    : "mt-8 w-full"
+                }
                 variant={p.highlighted ? "default" : "outline"}
               >
-                <Link to="/kontak">{p.name === "Enterprise" ? "Hubungi sales" : "Pilih paket"}</Link>
+                <Link to="/kontak">
+                  {p.name === "Enterprise" ? "Hubungi sales" : "Pilih paket"}
+                </Link>
               </Button>
             </div>
           ))}

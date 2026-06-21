@@ -79,15 +79,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Baboo.id — AI Agent untuk Otomatisasi Bisnis" },
-      { name: "description", content: "Baboo.id menyediakan AI Agent untuk otomatisasi customer service, sales, dan operasional bisnis di Indonesia." },
+      {
+        name: "description",
+        content:
+          "Baboo.id menyediakan AI Agent untuk otomatisasi customer service, sales, dan operasional bisnis di Indonesia.",
+      },
       { property: "og:title", content: "Baboo.id — AI Agent untuk Otomatisasi Bisnis" },
-      { property: "og:description", content: "Baboo.id menyediakan AI Agent untuk otomatisasi customer service, sales, dan operasional bisnis di Indonesia." },
+      {
+        property: "og:description",
+        content:
+          "Baboo.id menyediakan AI Agent untuk otomatisasi customer service, sales, dan operasional bisnis di Indonesia.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Baboo.id — AI Agent untuk Otomatisasi Bisnis" },
-      { name: "twitter:description", content: "Baboo.id menyediakan AI Agent untuk otomatisasi customer service, sales, dan operasional bisnis di Indonesia." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/27fe109b-2e98-4ce3-8032-20221ccf22da" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/27fe109b-2e98-4ce3-8032-20221ccf22da" },
+      {
+        name: "twitter:description",
+        content:
+          "Baboo.id menyediakan AI Agent untuk otomatisasi customer service, sales, dan operasional bisnis di Indonesia.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/27fe109b-2e98-4ce3-8032-20221ccf22da",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/27fe109b-2e98-4ce3-8032-20221ccf22da",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

@@ -10,14 +10,11 @@ import {
   MessageSquare,
   Wifi,
   FileText,
-  Users,
   Activity,
-  Database,
   GitBranch,
-  CheckCircle2,
   Radio,
   Brain,
-  Route,
+  Navigation,
   BookOpen,
   Workflow,
   UserCheck,
@@ -101,7 +98,7 @@ const features = [
 
 const dashboardModules = [
   { icon: Radio, label: "Live Requests", status: "12 aktif" },
-  { icon: Route, label: "Agent Routing", status: "Auto" },
+  { icon: Navigation, label: "Agent Routing", status: "Auto" },
   { icon: BookOpen, label: "Knowledge Base", status: "Synced" },
   { icon: Workflow, label: "Workflow Actions", status: "3 running" },
   { icon: UserCheck, label: "Human Handoff", status: "Ready" },
@@ -137,9 +134,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
         onClick={() => setIsOpen((v) => !v)}
         className="flex w-full items-center justify-between py-5 text-left"
       >
-        <span className="pr-4 text-[15px] font-medium text-white sm:text-base">
-          {q}
-        </span>
+        <span className="pr-4 text-[15px] font-medium text-white sm:text-base">{q}</span>
         <ChevronDown
           className={`h-5 w-5 shrink-0 text-[#94A3B8] transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -177,8 +172,7 @@ function HomePage() {
 
             {/* Headline */}
             <h1 className="font-display text-[2.5rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.25rem]">
-              Standar Baru untuk{" "}
-              <span className="text-gradient">Asisten AI</span> Bisnis
+              Standar Baru untuk <span className="text-gradient">Asisten AI</span> Bisnis
             </h1>
 
             {/* Sub-headline */}
@@ -188,9 +182,8 @@ function HomePage() {
 
             {/* Description */}
             <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
-              Baboo membantu bisnis menjalankan agent AI untuk menjawab chat,
-              membaca data, menjalankan workflow, membuat laporan, dan menjaga
-              operasional tetap bergerak.
+              Baboo membantu bisnis menjalankan agent AI untuk menjawab chat, membaca data,
+              menjalankan workflow, membuat laporan, dan menjaga operasional tetap bergerak.
             </p>
 
             {/* CTAs */}
@@ -211,16 +204,11 @@ function HomePage() {
             </div>
 
             {/* Scroll hint */}
-            <p className="mt-12 text-xs text-[#475569]">
-              Scroll untuk melihat proses Baboo ↓
-            </p>
+            <p className="mt-12 text-xs text-[#475569]">Scroll untuk melihat proses Baboo ↓</p>
           </div>
 
           {/* ── Hero Card: Bibi Dashboard ── */}
-          <div
-            id="agent"
-            className="mx-auto mt-16 max-w-3xl scroll-mt-24"
-          >
+          <div id="agent" className="mx-auto mt-16 max-w-3xl scroll-mt-24">
             <div className="glass-card rounded-2xl p-6 sm:p-8">
               {/* Card header */}
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
@@ -232,9 +220,7 @@ function HomePage() {
                     <p className="text-sm font-semibold text-white">
                       Bibi — AI Operations Assistant
                     </p>
-                    <p className="text-xs text-[#64748B]">
-                      Last sync 2 min ago
-                    </p>
+                    <p className="text-xs text-[#64748B]">Last sync 2 min ago</p>
                   </div>
                 </div>
                 <span className="flex items-center gap-1.5 rounded-full bg-emerald/10 px-3 py-1 text-xs font-medium text-emerald">
@@ -248,45 +234,29 @@ function HomePage() {
                 <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
                   <MessageSquare className="h-4 w-4 text-cyan" />
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      12 chat dijawab
-                    </p>
-                    <p className="text-xs text-[#64748B]">
-                      Semua terespon &lt;30 detik
-                    </p>
+                    <p className="text-sm font-medium text-white">12 chat dijawab</p>
+                    <p className="text-xs text-[#64748B]">Semua terespon &lt;30 detik</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
                   <Activity className="h-4 w-4 text-[#F59E0B]" />
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      3 booking perlu konfirmasi
-                    </p>
-                    <p className="text-xs text-[#64748B]">
-                      Menunggu approval owner
-                    </p>
+                    <p className="text-sm font-medium text-white">3 booking perlu konfirmasi</p>
+                    <p className="text-xs text-[#64748B]">Menunggu approval owner</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
                   <FileText className="h-4 w-4 text-emerald" />
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      Laporan harian siap dikirim
-                    </p>
-                    <p className="text-xs text-[#64748B]">
-                      Revenue, occupancy, chat summary
-                    </p>
+                    <p className="text-sm font-medium text-white">Laporan harian siap dikirim</p>
+                    <p className="text-xs text-[#64748B]">Revenue, occupancy, chat summary</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
                   <Wifi className="h-4 w-4 text-cyan" />
                   <div>
-                    <p className="text-sm font-medium text-white">
-                      API connected
-                    </p>
-                    <p className="text-xs text-[#64748B]">
-                      WhatsApp, DB, Dashboard
-                    </p>
+                    <p className="text-sm font-medium text-white">API connected</p>
+                    <p className="text-xs text-[#64748B]">WhatsApp, DB, Dashboard</p>
                   </div>
                 </div>
               </div>
@@ -313,17 +283,13 @@ function HomePage() {
                 className="group glass-card rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan/20 hover:shadow-cyan"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-gradient font-display text-2xl font-bold">
-                    {step.num}
-                  </span>
+                  <span className="text-gradient font-display text-2xl font-bold">{step.num}</span>
                   <step.icon className="h-5 w-5 text-[#94A3B8] transition-colors group-hover:text-cyan" />
                 </div>
                 <h3 className="mt-4 font-display text-base font-semibold text-white">
                   {step.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">
-                  {step.desc}
-                </p>
+                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -350,12 +316,8 @@ function HomePage() {
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan/10 transition-colors group-hover:bg-cyan/15">
                   <f.icon className="h-5 w-5 text-cyan" />
                 </div>
-                <h3 className="mt-5 font-display text-lg font-semibold text-white">
-                  {f.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">
-                  {f.desc}
-                </p>
+                <h3 className="mt-5 font-display text-lg font-semibold text-white">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -363,10 +325,7 @@ function HomePage() {
       </section>
 
       {/* ═══ 4. STATEMENT + DASHBOARD ═══ */}
-      <section
-        id="usecase"
-        className="relative scroll-mt-20 bg-[#06131F]"
-      >
+      <section id="usecase" className="relative scroll-mt-20 bg-[#06131F]">
         <div className="absolute inset-0 grid-pattern opacity-30" />
         {/* Ambient glow */}
         <div className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 translate-x-1/2 rounded-full bg-[#67E8F9]/[0.04] blur-[100px]" />
@@ -378,9 +337,8 @@ function HomePage() {
               Human-grade standards for AI-powered operations.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[#94A3B8]">
-              Baboo dibuat untuk bisnis yang butuh kecepatan AI tanpa kehilangan
-              kontrol manusia. Setiap agent bekerja dengan batasan, SOP, dan
-              audit trail.
+              Baboo dibuat untuk bisnis yang butuh kecepatan AI tanpa kehilangan kontrol manusia.
+              Setiap agent bekerja dengan batasan, SOP, dan audit trail.
             </p>
           </div>
 
@@ -392,9 +350,7 @@ function HomePage() {
                 <div className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
                 <div className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
                 <div className="h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
-                <span className="ml-3 text-xs text-[#64748B]">
-                  Baboo Operations Dashboard
-                </span>
+                <span className="ml-3 text-xs text-[#64748B]">Baboo Operations Dashboard</span>
               </div>
 
               {/* Dashboard grid */}
@@ -405,9 +361,7 @@ function HomePage() {
                     className="flex flex-col items-center gap-2 bg-[#071927] px-4 py-8 transition-colors hover:bg-white/[0.02]"
                   >
                     <mod.icon className="h-5 w-5 text-cyan" />
-                    <p className="text-xs font-medium text-white">
-                      {mod.label}
-                    </p>
+                    <p className="text-xs font-medium text-white">{mod.label}</p>
                     <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[10px] font-medium text-[#94A3B8]">
                       {mod.status}
                     </span>
@@ -419,13 +373,9 @@ function HomePage() {
               <div className="flex items-center justify-between border-t border-white/[0.06] px-6 py-3">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-emerald" />
-                  <span className="text-xs text-[#64748B]">
-                    System operational — 99.9% uptime
-                  </span>
+                  <span className="text-xs text-[#64748B]">System operational — 99.9% uptime</span>
                 </div>
-                <span className="text-xs text-[#475569]">
-                  Updated just now
-                </span>
+                <span className="text-xs text-[#475569]">Updated just now</span>
               </div>
             </div>
           </div>
@@ -463,8 +413,8 @@ function HomePage() {
             Bangun AI Agent yang benar-benar bekerja.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[#94A3B8]">
-            Mulai dari satu agent sederhana, lalu berkembang menjadi sistem
-            operasi AI untuk bisnis Anda.
+            Mulai dari satu agent sederhana, lalu berkembang menjadi sistem operasi AI untuk bisnis
+            Anda.
           </p>
           <Link
             to="/kontak"

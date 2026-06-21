@@ -21,9 +21,7 @@ export const SiteFooter = () => {
                 alt="Baboo AI Agent"
                 className="h-8 w-8 object-contain"
               />
-              <span className="font-display text-base font-bold text-white">
-                Baboo AI Agent
-              </span>
+              <span className="font-display text-base font-bold text-white">Baboo AI Agent</span>
             </div>
             <p className="mt-3 max-w-sm text-sm text-[#94A3B8]">
               Bibi siap bantu beresin kerjaan digital.
@@ -49,7 +47,7 @@ export const SiteFooter = () => {
                 >
                   {link.label}
                 </a>
-              )
+              ),
             )}
           </nav>
         </div>

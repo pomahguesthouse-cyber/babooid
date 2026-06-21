@@ -7,7 +7,11 @@ export const Route = createFileRoute("/studi-kasus")({
   head: () => ({
     meta: [
       { title: "Studi kasus & testimoni — Baboo.id" },
-      { name: "description", content: "Cerita bisnis Indonesia yang meningkatkan layanan dan penjualan dengan AI Agent Baboo.id." },
+      {
+        name: "description",
+        content:
+          "Cerita bisnis Indonesia yang meningkatkan layanan dan penjualan dengan AI Agent Baboo.id.",
+      },
       { property: "og:title", content: "Studi kasus & testimoni — Baboo.id" },
       { property: "og:description", content: "Hasil nyata dari berbagai industri." },
     ],
@@ -16,15 +20,41 @@ export const Route = createFileRoute("/studi-kasus")({
 });
 
 const cases = [
-  { brand: "Toko Aksara", industry: "Retail fashion", result: "+38% konversi chat menjadi order, respons rata-rata 2 detik." },
-  { brand: "Klinik Sehat Bersama", industry: "Kesehatan", result: "Reservasi otomatis menghemat 25 jam admin per minggu." },
-  { brand: "Kopi Nusantara", industry: "F&B", result: "Reorder pelanggan naik 22% berkat follow-up AI Agent." },
+  {
+    brand: "Toko Aksara",
+    industry: "Retail fashion",
+    result: "+38% konversi chat menjadi order, respons rata-rata 2 detik.",
+  },
+  {
+    brand: "Klinik Sehat Bersama",
+    industry: "Kesehatan",
+    result: "Reservasi otomatis menghemat 25 jam admin per minggu.",
+  },
+  {
+    brand: "Kopi Nusantara",
+    industry: "F&B",
+    result: "Reorder pelanggan naik 22% berkat follow-up AI Agent.",
+  },
 ];
 
 const testimonials = [
-  { name: "Rina P.", role: "Owner, Aksara Boutique", quote: "AI Agent Baboo membalas pelanggan saya bahkan saat saya tidur. Penjualan tetap jalan." },
-  { name: "dr. Bagas", role: "Direktur Klinik Sehat", quote: "Pasien terbantu pesan jadwal lewat WhatsApp, staf saya bisa fokus melayani pasien di tempat." },
-  { name: "Anton W.", role: "CEO Kopi Nusantara", quote: "Tim Baboo cepat tanggap. Onboarding hanya beberapa hari dan langsung kelihatan hasilnya." },
+  {
+    name: "Rina P.",
+    role: "Owner, Aksara Boutique",
+    quote: "AI Agent Baboo membalas pelanggan saya bahkan saat saya tidur. Penjualan tetap jalan.",
+  },
+  {
+    name: "dr. Bagas",
+    role: "Direktur Klinik Sehat",
+    quote:
+      "Pasien terbantu pesan jadwal lewat WhatsApp, staf saya bisa fokus melayani pasien di tempat.",
+  },
+  {
+    name: "Anton W.",
+    role: "CEO Kopi Nusantara",
+    quote:
+      "Tim Baboo cepat tanggap. Onboarding hanya beberapa hari dan langsung kelihatan hasilnya.",
+  },
 ];
 
 function CaseStudyPage() {
@@ -43,7 +73,9 @@ function CaseStudyPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           {cases.map((c) => (
             <div key={c.brand} className="rounded-2xl border border-border bg-card p-6">
-              <div className="text-xs font-medium uppercase tracking-wider text-teal">{c.industry}</div>
+              <div className="text-xs font-medium uppercase tracking-wider text-teal">
+                {c.industry}
+              </div>
               <h3 className="mt-2 font-display text-xl font-semibold">{c.brand}</h3>
               <p className="mt-3 text-muted-foreground">{c.result}</p>
             </div>
