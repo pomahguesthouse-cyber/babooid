@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { BabooLogo } from "./bibi-mascot";
 
 const navLinks = [
   { to: "/", label: "Beranda" },
@@ -19,14 +18,14 @@ export const SiteHeader = () => {
   return (
     <header className="sticky top-0 z-50 border-b-[2.5px] border-navy bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-[1180px] items-center justify-between px-7 py-4">
-        <Link
-          to="/"
-          className="flex items-center gap-2.5 font-display text-[22px] font-extrabold text-navy"
-        >
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-navy">
-            <BabooLogo />
+        <Link to="/" className="flex items-center" aria-label="Baboo.id">
+          <span className="flex h-12 items-center rounded-full bg-navy px-4 py-2 shadow-[0_5px_0_rgba(11,27,46,0.18)]">
+            <img
+              src="/img/logo_trans.png"
+              alt="Baboo.id"
+              className="h-8 w-auto max-w-[150px] object-contain sm:max-w-[190px]"
+            />
           </span>
-          Baboo<span className="text-mint-deep">.id</span>
         </Link>
 
         <nav className="hidden items-center gap-7 text-[15px] font-semibold text-navy lg:flex">
