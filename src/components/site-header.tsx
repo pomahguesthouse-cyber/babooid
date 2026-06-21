@@ -1,14 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
+import { BabooLogo } from "./bibi-mascot";
 
 const navLinks = [
   { to: "/", label: "Beranda" },
   { to: "/layanan", label: "Layanan" },
   { to: "/cara-kerja", label: "Cara kerja" },
   { to: "/keunggulan", label: "Keunggulan" },
-  { to: "/studi-kasus", label: "Studi kasus" },
+  { to: "/studi-kasus", label: "Cerita" },
   { to: "/harga", label: "Harga" },
   { to: "/tentang", label: "Tentang" },
 ] as const;
@@ -17,39 +17,56 @@ export const SiteHeader = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-navy">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-navy">
-            <img src="/img/logo_transparan.png" alt="Logo" className="h-8 w-8 object-contain" />
+    <header className="sticky top-0 z-50 border-b-[2.5px] border-navy bg-cream/90 backdrop-blur">
+      <div className="mx-auto flex max-w-[1180px] items-center justify-between px-7 py-4">
+        <Link to="/" className="flex items-center gap-2.5 font-display text-[22px] font-extrabold text-navy">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-navy">
+            <BabooLogo />
           </span>
-          Baboo<span className="text-teal">.id</span>
+          Baboo<span className="text-mint-deep">.id</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center gap-7 text-[15px] font-semibold text-navy lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-muted" }}
+              className="group relative py-1"
               activeOptions={{ exact: link.to === "/" }}
             >
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  {link.label}
+                  <span
+                    className={`absolute -bottom-1 left-0 h-[3px] rounded bg-mint transition-all duration-200 ${
+                      isActive ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </>
+              )}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden lg:block">
-          <Button asChild>
-            <Link to="/kontak">Konsultasi gratis</Link>
-          </Button>
+        <div className="hidden items-center gap-3 lg:flex">
+          <Link
+            to="/kontak"
+            className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
+          >
+            Masuk
+          </Link>
+          <Link
+            to="/kontak"
+            className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
+          >
+            Coba gratis
+          </Link>
         </div>
 
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="grid h-10 w-10 place-items-center rounded-md border border-border lg:hidden"
+          className="grid h-10 w-10 place-items-center rounded-full border-[2.5px] border-navy text-navy lg:hidden"
           aria-label="Toggle menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -57,25 +74,27 @@ export const SiteHeader = () => {
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background lg:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4">
+        <div className="border-t-[2.5px] border-navy bg-cream lg:hidden">
+          <nav className="mx-auto flex max-w-[1180px] flex-col gap-1 px-7 py-4">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                activeProps={{ className: "text-foreground bg-muted" }}
+                className="rounded-xl px-3 py-2 font-display text-base font-bold text-navy hover:bg-cream-deep"
+                activeProps={{ className: "bg-cream-deep" }}
                 activeOptions={{ exact: link.to === "/" }}
               >
                 {link.label}
               </Link>
             ))}
-            <Button asChild className="mt-2">
-              <Link to="/kontak" onClick={() => setOpen(false)}>
-                Konsultasi gratis
-              </Link>
-            </Button>
+            <Link
+              to="/kontak"
+              onClick={() => setOpen(false)}
+              className="mt-2 rounded-full border-[3px] border-navy bg-sun px-5 py-2.5 text-center font-display font-bold text-navy-deep"
+            >
+              Coba gratis
+            </Link>
           </nav>
         </div>
       )}
