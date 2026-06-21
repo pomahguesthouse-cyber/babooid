@@ -67,7 +67,7 @@ const plans = [
 function PricingPage() {
   return (
     <SiteShell>
-      <section className="bg-hero text-primary-foreground">
+      <section className="bg-hero text-white">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
           <h1 className="font-display text-4xl font-bold sm:text-5xl">Harga & paket</h1>
           <p className="mt-4 text-lg text-white/70">
@@ -83,7 +83,7 @@ function PricingPage() {
               key={p.name}
               className={
                 p.highlighted
-                  ? "relative rounded-3xl border-2 border-teal bg-navy p-8 text-primary-foreground shadow-glow"
+                  ? "relative rounded-3xl border-2 border-teal bg-navy p-8 text-white shadow-glow"
                   : "rounded-3xl border border-border bg-card p-8"
               }
             >

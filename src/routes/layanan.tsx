@@ -69,7 +69,7 @@ const services = [
 function ServicesPage() {
   return (
     <SiteShell>
-      <section className="bg-hero text-primary-foreground">
+      <section className="bg-hero text-white">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
           <h1 className="font-display text-4xl font-bold sm:text-5xl">Layanan AI Agent</h1>
           <p className="mt-4 text-lg text-white/70">
