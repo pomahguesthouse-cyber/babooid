@@ -20,9 +20,7 @@ export const SiteHeader = () => {
     <header className="sticky top-0 z-50 bg-transparent backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-navy">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-navy">
-            <img src="/img/logo_transparan.png" alt="Logo" className="h-8 w-8 object-contain" />
-          </span>
+          <img src="/img/logo_transparan.png" alt="Logo" className="h-12 w-12 object-contain" />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
