@@ -23,7 +23,6 @@ export const SiteHeader = () => {
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-navy">
             <img src="/img/logo_transparan.png" alt="Logo" className="h-8 w-8 object-contain" />
           </span>
-          Baboo<span className="text-teal">.id</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
