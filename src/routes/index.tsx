@@ -1,443 +1,372 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  ArrowRight,
-  ChevronDown,
-  Zap,
-  BookCheck,
-  Shield,
-  Layers,
-  MessageSquare,
-  Wifi,
-  FileText,
-  Activity,
-  GitBranch,
-  Radio,
-  Brain,
-  Navigation,
-  BookOpen,
-  Workflow,
-  UserCheck,
-} from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
+import { BibiMascot, BibiWave } from "@/components/bibi-mascot";
+import { CartoonLink, Eyebrow, SectionHead } from "@/components/cartoon-ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Baboo AI Agent — Standar Baru untuk Asisten AI Bisnis" },
+      { title: "Baboo.id — AI Agent yang siap bantu bisnismu" },
       {
         name: "description",
         content:
-          "Baboo membantu bisnis menjalankan agent AI untuk menjawab chat, membaca data, menjalankan workflow, membuat laporan, dan menjaga operasional tetap bergerak.",
-      },
-      {
-        property: "og:title",
-        content: "Baboo AI Agent — Standar Baru untuk Asisten AI Bisnis",
-      },
-      {
-        property: "og:description",
-        content:
-          "Cepat seperti AI. Rapi seperti operator berpengalaman. Deploy AI agent untuk operasional bisnis Anda.",
+          "Bibi, AI Agent dari Baboo.id, membalas chat, menjawab pertanyaan, dan menutup penjualan 24 jam non-stop — supaya kamu bisa fokus mengurus hal lain.",
       },
     ],
   }),
   component: HomePage,
 });
 
-/* ─── Data ─── */
-
-const processSteps = [
+const services = [
   {
-    num: "01",
-    title: "Activation, simplified",
-    desc: "Customer, owner, atau tim cukup mengirim instruksi. Baboo langsung memahami kebutuhan, tujuan, dan konteks bisnis.",
-    icon: Zap,
+    bg: "#E1F5EE",
+    stroke: "#0F6E56",
+    title: "AI Customer Service",
+    desc: "Balas chat WhatsApp dan website secara instan, ramah, dan konsisten — kapan pun pelanggan datang.",
+    icon: <path d="M4 5h16v11H8l-4 4V5z" stroke="#0F6E56" strokeWidth="2" strokeLinejoin="round" />,
   },
   {
-    num: "02",
-    title: "Context before action",
-    desc: "Bibi membaca SOP, FAQ, database, histori chat, dan aturan bisnis sebelum menjawab atau menjalankan perintah.",
-    icon: BookCheck,
+    bg: "#FAEEDA",
+    stroke: "#8A5A00",
+    title: "AI Sales Agent",
+    desc: "Rekomendasikan produk yang pas dan dorong pelanggan sampai checkout, tanpa terasa memaksa.",
+    icon: (
+      <>
+        <path d="M3 12l8-8 9 9-8 8-9-9z" stroke="#8A5A00" strokeWidth="2" strokeLinejoin="round" />
+        <circle cx="15" cy="9" r="1.4" fill="#8A5A00" />
+      </>
+    ),
   },
   {
-    num: "03",
-    title: "Agent matched to task",
-    desc: "Permintaan diarahkan ke agent yang tepat: customer service, booking, finance, marketing, manager, atau smart home.",
-    icon: GitBranch,
+    bg: "#FAECE7",
+    stroke: "#A63D14",
+    title: "AI Booking Agent",
+    desc: "Atur jadwal dan reservasi otomatis lewat chat, tanpa perlu admin yang standby terus-menerus.",
+    icon: (
+      <>
+        <rect x="4" y="5" width="16" height="15" rx="2" stroke="#A63D14" strokeWidth="2" />
+        <path d="M4 9h16M9 3v4M15 3v4" stroke="#A63D14" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
   },
   {
-    num: "04",
-    title: "Execution with control",
-    desc: "Baboo menjalankan workflow, mengirim notifikasi, membuat laporan, atau memanggil API dengan log yang bisa diaudit.",
-    icon: Shield,
-  },
-];
-
-const features = [
-  {
-    icon: Zap,
-    title: "Rapid Response",
-    desc: "Balas chat dan permintaan pelanggan secara cepat dengan konteks yang tepat.",
-  },
-  {
-    icon: BookCheck,
-    title: "Verified Knowledge",
-    desc: "Jawaban bersumber dari SOP, database, FAQ, dan aturan bisnis.",
-  },
-  {
-    icon: Shield,
-    title: "Controlled Automation",
-    desc: "Setiap aksi dapat dibatasi, dilog, dan dialihkan ke manusia saat perlu.",
-  },
-  {
-    icon: Layers,
-    title: "Multi-Agent Workflow",
-    desc: "Pisahkan peran agent agar setiap tugas ditangani oleh spesialis digital.",
+    bg: "#EEEDFE",
+    stroke: "#3C3489",
+    title: "AI Agent Kustom",
+    desc: "Punya alur kerja unik? Kami latih Bibi versi khusus sesuai kebutuhan dan sistem bisnismu.",
+    icon: (
+      <path
+        d="M12 3l2 4 4.5.6-3.3 3.1.9 4.4L12 13l-4.1 2.1.9-4.4L5.5 7.6 10 7l2-4z"
+        stroke="#3C3489"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    ),
   },
 ];
 
-const dashboardModules = [
-  { icon: Radio, label: "Live Requests", status: "12 aktif" },
-  { icon: Navigation, label: "Agent Routing", status: "Auto" },
-  { icon: BookOpen, label: "Knowledge Base", status: "Synced" },
-  { icon: Workflow, label: "Workflow Actions", status: "3 running" },
-  { icon: UserCheck, label: "Human Handoff", status: "Ready" },
+const steps = [
+  { n: 1, title: "Konsultasi", desc: "Cerita soal bisnismu, kami bantu pilih peran Bibi yang paling pas." },
+  { n: 2, title: "Latih Bibi", desc: "Bibi dilatih pakai data dan gaya bicara brand kamu sendiri." },
+  { n: 3, title: "Hubungkan", desc: "Sambungkan ke WhatsApp, website, atau CRM favoritmu." },
+  { n: 4, title: "Pantau hasil", desc: "Lihat performa Bibi lewat dashboard dan terus disempurnakan." },
 ];
 
-const faqItems = [
-  {
-    q: "Apa bedanya Baboo dengan chatbot biasa?",
-    a: "Chatbot biasa hanya menjawab pesan. Baboo adalah AI Agent yang bisa membaca data, memilih tool, menjalankan workflow, membuat laporan, dan mengirim notifikasi.",
-  },
-  {
-    q: "Apakah Baboo bisa terhubung ke WhatsApp?",
-    a: "Bisa. Baboo dapat dihubungkan ke WhatsApp, Telegram, dashboard internal, database, API, dan sistem lain sesuai kebutuhan.",
-  },
-  {
-    q: "Apakah aksi Baboo bisa dikontrol?",
-    a: "Bisa. Setiap agent dapat diberi batasan, approval manusia, log percakapan, dan aturan eskalasi.",
-  },
-  {
-    q: "Bisnis apa yang cocok memakai Baboo?",
-    a: "Guesthouse, UMKM, toko online, kontraktor, smart home, customer service, operasional kantor, dan bisnis yang punya tugas berulang.",
-  },
+const stats = [
+  { num: "<5s", label: "Waktu respon rata-rata", color: "#5DCAA5", rot: "-rotate-2" },
+  { num: "24/7", label: "Selalu siap sedia", color: "#FFC857", rot: "rotate-[1.5deg]" },
+  { num: "70%", label: "Hemat biaya operasional CS", color: "#FF8C69", rot: "-rotate-1" },
+  { num: "1000+", label: "Percakapan bersamaan", color: "#85B7EB", rot: "rotate-2" },
 ];
 
-/* ─── Sub-components ─── */
-
-function FAQItem({ q, a }: { q: string; a: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="border-b border-white/[0.06]">
-      <button
-        type="button"
-        onClick={() => setIsOpen((v) => !v)}
-        className="flex w-full items-center justify-between py-5 text-left"
-      >
-        <span className="pr-4 text-[15px] font-medium text-white sm:text-base">{q}</span>
-        <ChevronDown
-          className={`h-5 w-5 shrink-0 text-[#94A3B8] transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      <div
-        className={`overflow-hidden transition-all duration-300 ${
-          isOpen ? "max-h-40 pb-5" : "max-h-0"
-        }`}
-      >
-        <p className="text-sm leading-relaxed text-[#94A3B8]">{a}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Page ─── */
+const testimonials = [
+  {
+    quote: "Sejak ada Bibi, waktu balas chat turun drastis. Tim kami bisa fokus ke hal yang lebih strategis.",
+    name: "Rani A.",
+    role: "Owner, Kedai Kopi Lima",
+    initials: "RA",
+    color: "#1D9E75",
+  },
+  {
+    quote: "AI Sales Agent-nya bantu naikkan konversi tanpa harus nambah tim sales baru.",
+    name: "Dimas P.",
+    role: "Marketing Lead, Rumahin",
+    initials: "DP",
+    color: "#185FA5",
+  },
+  {
+    quote: "Setup-nya cepat banget, dan Bibi benar-benar ngerti gaya bicara brand kami.",
+    name: "Sinta Y.",
+    role: "CEO, Klinik Sehat Hati",
+    initials: "SY",
+    color: "#993C1D",
+  },
+];
 
 function HomePage() {
   return (
     <SiteShell>
-      <section className="relative min-h-screen overflow-hidden bg-hero flex items-center justify-center">
-        {/* Background Video */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover z-0"
-        >
-          <source src="/hero/hero-01.mp4" type="video/mp4" />
-        </video>
+      {/* HERO */}
+      <section className="relative overflow-hidden pt-16 pb-10">
+        <div className="absolute -left-24 -top-16 h-[260px] w-[260px] rounded-full bg-mint opacity-35 blur-[2px]" />
+        <div className="absolute bottom-8 left-[6%] h-[180px] w-[180px] rounded-full bg-sun opacity-40" />
+        <div className="absolute -right-20 top-[10%] h-[220px] w-[220px] rounded-full bg-teal opacity-30" />
 
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-[#06131F]/80 z-10" />
-
-        {/* Grid texture */}
-        <div className="absolute inset-0 grid-pattern opacity-30 z-20" />
-
-        {/* Ambient glow */}
-        <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-[#67E8F9]/[0.05] blur-[120px] z-20" />
-
-        <div className="relative z-30 mx-auto max-w-7xl px-5 pb-20 pt-32 sm:px-6 sm:pt-36 lg:px-8 lg:pt-44">
-          <div className="mx-auto max-w-4xl text-center">
-            {/* Section label */}
-            <p className="section-label mb-6">Baboo AI Agent</p>
-
-            {/* Headline */}
-            <h1 className="font-display text-[2.5rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.25rem]">
-              Standar Baru untuk <span className="text-gradient">Asisten AI</span> Bisnis
+        <div className="relative z-10 mx-auto grid max-w-[1180px] items-center gap-12 px-7 lg:grid-cols-[1.05fr_1fr]">
+          <div>
+            <Eyebrow>AI Agent untuk bisnismu</Eyebrow>
+            <h1 className="mt-4 font-display text-[clamp(36px,5.2vw,58px)] font-extrabold leading-[1.1] text-navy">
+              Bisnismu butuh bantuan? <span className="text-mint-deep">Panggil Bibi.</span>
             </h1>
-
-            {/* Sub-headline */}
-            <p className="mx-auto mt-5 max-w-xl text-lg font-medium text-[#94A3B8] sm:text-xl">
-              Cepat seperti AI. Rapi seperti operator berpengalaman.
+            <p className="mt-5 max-w-[480px] text-[18px]">
+              Bibi adalah AI Agent dari Baboo.id yang membalas chat, menjawab pertanyaan, dan menutup penjualan — sambil
+              kamu fokus mengurus hal lain. Aktif 24 jam, tanpa lelah, tanpa cuti.
             </p>
-
-            {/* Description */}
-            <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
-              Baboo membantu bisnis menjalankan agent AI untuk menjawab chat, membaca data,
-              menjalankan workflow, membuat laporan, dan menjaga operasional tetap bergerak.
-            </p>
-
-            {/* CTAs */}
-            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                to="/kontak"
-                className="inline-flex items-center gap-2 rounded-xl bg-cyan px-7 py-3.5 text-sm font-semibold text-[#06131F] transition-all hover:bg-teal-glow hover:shadow-cyan"
-              >
-                Bangun Agent Pertama
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#process"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-7 py-3.5 text-sm font-medium text-white backdrop-blur transition-all hover:bg-white/[0.06]"
-              >
-                Lihat Cara Kerja
-              </a>
+            <div className="mt-7 flex flex-wrap gap-3.5">
+              <CartoonLink to="/kontak">Coba demo Bibi →</CartoonLink>
+              <CartoonLink to="/layanan" variant="ghost">
+                Lihat layanan
+              </CartoonLink>
             </div>
-
-            {/* Scroll hint */}
-            <p className="mt-12 text-xs text-[#475569]">Scroll untuk melihat proses Baboo ↓</p>
-          </div>
-
-          {/* ── Hero Card: Bibi Dashboard ── */}
-          <div id="agent" className="mx-auto mt-16 max-w-3xl scroll-mt-24">
-            <div className="glass-card rounded-2xl p-6 sm:p-8">
-              {/* Card header */}
-              <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan/10">
-                    <Brain className="h-5 w-5 text-cyan" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      Bibi — AI Operations Assistant
-                    </p>
-                    <p className="text-xs text-[#64748B]">Last sync 2 min ago</p>
-                  </div>
-                </div>
-                <span className="flex items-center gap-1.5 rounded-full bg-emerald/10 px-3 py-1 text-xs font-medium text-emerald">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
-                  Online
+            <div className="mt-7 flex flex-wrap gap-5">
+              {["RESPON <5 DETIK", "AKTIF 24/7", "HEMAT 70% BIAYA CS"].map((t) => (
+                <span
+                  key={t}
+                  className="flex items-center gap-2 rounded-[14px] border-2 border-navy bg-cream-deep px-3.5 py-2 font-mono text-[12.5px] font-bold"
+                >
+                  <i className="inline-block h-2 w-2 rounded-full bg-mint-deep" />
+                  {t}
                 </span>
-              </div>
+              ))}
+            </div>
+          </div>
 
-              {/* Status chips */}
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
-                  <MessageSquare className="h-4 w-4 text-cyan" />
-                  <div>
-                    <p className="text-sm font-medium text-white">12 chat dijawab</p>
-                    <p className="text-xs text-[#64748B]">Semua terespon &lt;30 detik</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
-                  <Activity className="h-4 w-4 text-[#F59E0B]" />
-                  <div>
-                    <p className="text-sm font-medium text-white">3 booking perlu konfirmasi</p>
-                    <p className="text-xs text-[#64748B]">Menunggu approval owner</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
-                  <FileText className="h-4 w-4 text-emerald" />
-                  <div>
-                    <p className="text-sm font-medium text-white">Laporan harian siap dikirim</p>
-                    <p className="text-xs text-[#64748B]">Revenue, occupancy, chat summary</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
-                  <Wifi className="h-4 w-4 text-cyan" />
-                  <div>
-                    <p className="text-sm font-medium text-white">API connected</p>
-                    <p className="text-xs text-[#64748B]">WhatsApp, DB, Dashboard</p>
-                  </div>
-                </div>
+          {/* Browser + chat */}
+          <div className="relative">
+            <div className="relative z-10 rotate-[2deg] rounded-[24px] bg-navy p-3.5 shadow-soft">
+              <div className="mb-2.5 flex gap-1.5 pl-1">
+                <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
               </div>
+              <div className="relative min-h-[300px] overflow-hidden rounded-[14px] bg-cream p-5">
+                <ChatRow side="bot" avatar="B" text="Halo! Aku Bibi 👋 Ada yang bisa dibantu hari ini?" />
+                <ChatRow side="user" avatar="A" text="Mau tanya paket Business dong" />
+                <ChatRow side="bot" avatar="B" text="Siap! Paket Business cocok untuk bisnis yang sedang naik daun 🌱" />
+                <svg
+                  className="animate-twinkle absolute right-3.5 top-2.5 text-sun"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 16 16"
+                  aria-hidden
+                >
+                  <path d="M8 1l1.6 4.7L14 7l-4.4 1.3L8 13l-1.6-4.7L2 7l4.4-1.3L8 1z" fill="currentColor" />
+                </svg>
+              </div>
+            </div>
+            <div className="animate-bob absolute -bottom-6 -right-4 z-20 w-[150px]">
+              <BibiMascot />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ 2. PROCESS ═══ */}
-      <section id="process" className="relative scroll-mt-20 bg-[#06131F]">
-        <div className="absolute inset-0 grid-pattern opacity-30" />
-        <div className="relative mx-auto max-w-7xl px-5 py-28 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="section-label mb-4">Process</p>
-            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl lg:text-[2.75rem]">
-              Dari permintaan masuk sampai aksi selesai.
-            </h2>
-          </div>
+      {/* WAVE */}
+      <div className="wave-divider-cream h-[60px] w-full" />
 
-          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {processSteps.map((step) => (
+      {/* LAYANAN */}
+      <section className="bg-cream-deep py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Layanan"
+            eyebrowTone="mint"
+            title="Satu Bibi, banyak peran"
+            desc="Pilih peran yang paling dibutuhkan bisnismu sekarang — atau gabungkan semuanya dalam satu AI Agent."
+          />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map((s) => (
               <div
-                key={step.num}
-                className="group glass-card rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan/20 hover:shadow-cyan"
+                key={s.title}
+                className="card-pop card-pop-hover p-6"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-gradient font-display text-2xl font-bold">{step.num}</span>
-                  <step.icon className="h-5 w-5 text-[#94A3B8] transition-colors group-hover:text-cyan" />
+                <div
+                  className="mb-4 grid h-[54px] w-[54px] place-items-center rounded-2xl"
+                  style={{ background: s.bg }}
+                >
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    {s.icon}
+                  </svg>
                 </div>
-                <h3 className="mt-4 font-display text-base font-semibold text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">{step.desc}</p>
+                <h3 className="text-lg font-extrabold">{s.title}</h3>
+                <p className="mt-2 text-[14.5px] opacity-85">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ 3. PLATFORM FEATURES ═══ */}
-      <section id="platform" className="relative scroll-mt-20 bg-[#071927]">
-        <div className="absolute inset-0 grid-pattern opacity-20" />
-        <div className="relative mx-auto max-w-7xl px-5 py-28 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="section-label mb-4">Platform</p>
-            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl lg:text-[2.75rem]">
-              Dirancang untuk operasi modern, bukan chatbot lama.
-            </h2>
-          </div>
-
-          <div className="mt-16 grid gap-6 sm:grid-cols-2">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="group glass-card rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan/20 hover:shadow-cyan"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan/10 transition-colors group-hover:bg-cyan/15">
-                  <f.icon className="h-5 w-5 text-cyan" />
+      {/* CARA KERJA */}
+      <section className="py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Cara kerja"
+            eyebrowTone="sun"
+            title="Empat langkah, Bibi siap kerja"
+            desc="Dari kenalan sampai live di channel bisnismu — biasanya selesai dalam hitungan hari, bukan bulan."
+          />
+          <div className="relative grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div
+              className="pointer-events-none absolute left-[6%] right-[6%] top-7 hidden h-[3px] lg:block"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, #13294B 0 10px, transparent 10px 20px)",
+                backgroundSize: "20px 3px",
+                backgroundRepeat: "repeat-x",
+              }}
+            />
+            {steps.map((s) => (
+              <div key={s.n} className="relative z-10 text-center">
+                <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full border-[3px] border-cream bg-navy font-display text-[22px] font-extrabold text-cream shadow-[0_0_0_3px_#13294B]">
+                  {s.n}
                 </div>
-                <h3 className="mt-5 font-display text-lg font-semibold text-white">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">{f.desc}</p>
+                <h4 className="text-[16.5px] font-extrabold">{s.title}</h4>
+                <p className="mt-1.5 text-sm opacity-80">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ 4. STATEMENT + DASHBOARD ═══ */}
-      <section id="usecase" className="relative scroll-mt-20 bg-[#06131F]">
-        <div className="absolute inset-0 grid-pattern opacity-30" />
-        {/* Ambient glow */}
-        <div className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 translate-x-1/2 rounded-full bg-[#67E8F9]/[0.04] blur-[100px]" />
-
-        <div className="relative mx-auto max-w-7xl px-5 py-28 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="section-label mb-4">Use Case</p>
-            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl lg:text-[2.75rem]">
-              Human-grade standards for AI-powered operations.
+      {/* KEUNGGULAN — DARK */}
+      <section className="bg-navy py-24 text-cream">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <div className="mx-auto mb-12 max-w-[620px] text-center">
+            <Eyebrow tone="cream">Keunggulan</Eyebrow>
+            <h2 className="mt-3 font-display text-[clamp(28px,3.6vw,40px)] font-extrabold text-cream">
+              Kenapa bisnis pilih Bibi
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[#94A3B8]">
-              Baboo dibuat untuk bisnis yang butuh kecepatan AI tanpa kehilangan kontrol manusia.
-              Setiap agent bekerja dengan batasan, SOP, dan audit trail.
+            <p className="mt-3 text-cream/75">
+              Bukan sekadar chatbot — Bibi adalah rekan kerja digital yang benar-benar diandalkan.
             </p>
           </div>
-
-          {/* Operations dashboard card */}
-          <div className="mx-auto mt-14 max-w-4xl">
-            <div className="glass-card overflow-hidden rounded-2xl">
-              {/* Card header */}
-              <div className="flex items-center gap-2 border-b border-white/[0.06] px-6 py-4">
-                <div className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
-                <div className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
-                <div className="h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
-                <span className="ml-3 text-xs text-[#64748B]">Baboo Operations Dashboard</span>
-              </div>
-
-              {/* Dashboard grid */}
-              <div className="grid gap-px bg-white/[0.04] sm:grid-cols-5">
-                {dashboardModules.map((mod) => (
-                  <div
-                    key={mod.label}
-                    className="flex flex-col items-center gap-2 bg-[#071927] px-4 py-8 transition-colors hover:bg-white/[0.02]"
-                  >
-                    <mod.icon className="h-5 w-5 text-cyan" />
-                    <p className="text-xs font-medium text-white">{mod.label}</p>
-                    <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[10px] font-medium text-[#94A3B8]">
-                      {mod.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Activity bar */}
-              <div className="flex items-center justify-between border-t border-white/[0.06] px-6 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald" />
-                  <span className="text-xs text-[#64748B]">System operational — 99.9% uptime</span>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className={`${s.rot} rounded-[18px] border border-white/10 bg-navy-deep px-5 py-6 text-center`}
+              >
+                <div className="font-display text-[32px] font-extrabold" style={{ color: s.color }}>
+                  {s.num}
                 </div>
-                <span className="text-xs text-[#475569]">Updated just now</span>
+                <div className="mt-1.5 text-[13.5px] text-cream/70">{s.label}</div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ 5. FAQ ═══ */}
-      <section id="faq" className="relative scroll-mt-20 bg-[#071927]">
-        <div className="absolute inset-0 grid-pattern opacity-20" />
-        <div className="relative mx-auto max-w-3xl px-5 py-28 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="section-label mb-4">FAQ</p>
-            <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
-              Cara Baboo bekerja di bisnis Anda.
-            </h2>
-          </div>
-
-          <div className="mt-14">
-            {faqItems.map((item) => (
-              <FAQItem key={item.q} q={item.q} a={item.a} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ 6. FINAL CTA ═══ */}
-      <section className="relative bg-[#06131F]">
-        <div className="absolute inset-0 grid-pattern opacity-30" />
-        {/* Ambient glow */}
-        <div className="absolute bottom-0 left-1/2 h-[400px] w-[600px] -translate-x-1/2 translate-y-1/2 rounded-full bg-[#67E8F9]/[0.06] blur-[120px]" />
+      {/* TESTIMONI */}
+      <section className="py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Cerita pengguna"
+            eyebrowTone="coral"
+            title="Sudah dipercaya bisnis yang bertumbuh"
+          />
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-[20px] border-[2.5px] border-dashed border-navy bg-white p-6"
+              >
+                <p className="mb-4 text-[14.5px]">&ldquo;{t.quote}&rdquo;</p>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="grid h-9 w-9 place-items-center rounded-full font-display text-[13px] font-bold text-white"
+                    style={{ background: t.color }}
+                  >
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{t.name}</div>
+                    <div className="text-[12.5px] opacity-65">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <div className="relative mx-auto max-w-3xl px-5 py-28 text-center sm:px-6 lg:px-8">
-          <p className="section-label mb-4">Get Started</p>
-          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
-            Bangun AI Agent yang benar-benar bekerja.
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[#94A3B8]">
-            Mulai dari satu agent sederhana, lalu berkembang menjadi sistem operasi AI untuk bisnis
-            Anda.
-          </p>
-          <Link
-            to="/kontak"
-            className="mt-10 inline-flex items-center gap-2 rounded-xl bg-cyan px-8 py-4 text-sm font-semibold text-[#06131F] transition-all hover:bg-teal-glow hover:shadow-cyan"
-          >
-            Konsultasi Gratis
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+      {/* HARGA RINGKAS */}
+      <section className="bg-cream-deep py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Harga"
+            eyebrowTone="mint"
+            title="Pilih paket yang sesuai langkahmu"
+            desc="Mulai kecil, kembangkan kapan saja. Tanpa kontrak mengikat."
+          />
+          <div className="text-center">
+            <CartoonLink to="/harga">Lihat semua paket →</CartoonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <div className="relative grid items-center gap-8 overflow-hidden rounded-[32px] p-10 sm:p-14 lg:grid-cols-[1fr_260px]"
+               style={{ background: "linear-gradient(135deg, #FFC857 0%, #FF8C69 100%)" }}>
+            <div>
+              <Eyebrow tone="mint">Yuk mulai</Eyebrow>
+              <h2 className="mt-3 font-display text-[clamp(26px,3.4vw,38px)] font-extrabold text-navy-deep">
+                Bibi siap kerja sebelum kamu selesai baca ini.
+              </h2>
+              <p className="mt-3 max-w-[440px] text-navy-deep/85">
+                Konsultasi gratis 30 menit, lihat langsung bagaimana Bibi bisa membantu bisnismu.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3.5">
+                <a
+                  href="https://wa.me/6281234567890"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-[3px] border-navy-deep bg-cream px-7 py-3.5 font-display font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.45)] transition hover:-translate-y-0.5"
+                >
+                  Chat WhatsApp →
+                </a>
+                <Link
+                  to="/kontak"
+                  className="inline-flex items-center justify-center rounded-full border-[3px] border-navy-deep bg-transparent px-7 py-3.5 font-display font-bold text-navy-deep hover:bg-navy-deep hover:text-cream"
+                >
+                  halo@baboo.id
+                </Link>
+              </div>
+            </div>
+            <BibiWave className="mx-auto h-auto w-[200px]" />
+          </div>
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+function ChatRow({ side, avatar, text }: { side: "bot" | "user"; avatar: string; text: string }) {
+  const isUser = side === "user";
+  return (
+    <div className={`mb-3.5 flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : ""}`}>
+      <div
+        className={`grid h-[34px] w-[34px] flex-none place-items-center rounded-full font-display text-[13px] font-bold ${
+          isUser ? "bg-navy text-cream" : "bg-mint text-navy-deep"
+        }`}
+      >
+        {avatar}
+      </div>
+      <div
+        className={`max-w-[230px] border-2 border-navy bg-white px-3.5 py-2.5 text-sm font-semibold ${
+          isUser ? "rounded-[14px] rounded-tr-[4px] bg-sun" : "rounded-[14px] rounded-bl-[4px]"
+        }`}
+      >
+        {text}
+      </div>
+    </div>
   );
 }
