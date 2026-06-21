@@ -157,15 +157,28 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 function HomePage() {
   return (
     <SiteShell>
-      {/* ═══ 1. HERO ═══ */}
-      <section className="relative min-h-screen overflow-hidden bg-hero">
+      <section className="relative min-h-screen overflow-hidden bg-hero flex items-center justify-center">
+        {/* Background Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover z-0"
+        >
+          <source src="/hero/hero-01.mp4" type="video/mp4" />
+        </video>
+
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-[#06131F]/80 z-10" />
+
         {/* Grid texture */}
-        <div className="absolute inset-0 grid-pattern opacity-60" />
+        <div className="absolute inset-0 grid-pattern opacity-30 z-20" />
 
         {/* Ambient glow */}
-        <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-[#67E8F9]/[0.06] blur-[120px]" />
+        <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-[#67E8F9]/[0.05] blur-[120px] z-20" />
 
-        <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-32 sm:px-6 sm:pt-36 lg:px-8 lg:pt-44">
+        <div className="relative z-30 mx-auto max-w-7xl px-5 pb-20 pt-32 sm:px-6 sm:pt-36 lg:px-8 lg:pt-44">
           <div className="mx-auto max-w-4xl text-center">
             {/* Section label */}
             <p className="section-label mb-6">Baboo AI Agent</p>
