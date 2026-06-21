@@ -1,26 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  MessageCircle,
-  ShoppingBag,
-  CalendarCheck,
-  Sparkles,
-  Bot,
-  Clock,
-  TrendingUp,
-  ShieldCheck,
-} from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
-import { Button } from "@/components/ui/button";
+import { BibiMascot, BibiWave } from "@/components/bibi-mascot";
+import { CartoonLink, Eyebrow, SectionHead } from "@/components/cartoon-ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Baboo.id — AI Agent untuk Otomatisasi Bisnis" },
+      { title: "Baboo.id — AI Agent yang siap bantu bisnismu" },
       {
         name: "description",
         content:
-          "Transformasi bisnis Anda dengan AI Agent yang siap melayani pelanggan 24/7 — hemat biaya, mudah diintegrasikan, siap pakai dalam hitungan hari.",
+          "Bibi, AI Agent dari Baboo.id, membalas chat, menjawab pertanyaan, dan menutup penjualan 24 jam non-stop — supaya kamu bisa fokus mengurus hal lain.",
       },
     ],
   }),
@@ -28,130 +18,355 @@ export const Route = createFileRoute("/")({
 });
 
 const services = [
-  { icon: MessageCircle, title: "AI Customer Service", desc: "Layani pelanggan di WhatsApp & website kapan saja, tanpa antre." },
-  { icon: ShoppingBag, title: "AI Sales Agent", desc: "Bantu calon pembeli memilih produk dan tutup penjualan otomatis." },
-  { icon: CalendarCheck, title: "AI Booking Agent", desc: "Atur jadwal, reservasi, dan reminder tanpa repot manual." },
-  { icon: Bot, title: "AI Agent Kustom", desc: "Dirancang sesuai alur kerja unik industri Anda." },
+  {
+    bg: "#E1F5EE",
+    stroke: "#0F6E56",
+    title: "AI Customer Service",
+    desc: "Balas chat WhatsApp dan website secara instan, ramah, dan konsisten — kapan pun pelanggan datang.",
+    icon: <path d="M4 5h16v11H8l-4 4V5z" stroke="#0F6E56" strokeWidth="2" strokeLinejoin="round" />,
+  },
+  {
+    bg: "#FAEEDA",
+    stroke: "#8A5A00",
+    title: "AI Sales Agent",
+    desc: "Rekomendasikan produk yang pas dan dorong pelanggan sampai checkout, tanpa terasa memaksa.",
+    icon: (
+      <>
+        <path d="M3 12l8-8 9 9-8 8-9-9z" stroke="#8A5A00" strokeWidth="2" strokeLinejoin="round" />
+        <circle cx="15" cy="9" r="1.4" fill="#8A5A00" />
+      </>
+    ),
+  },
+  {
+    bg: "#FAECE7",
+    stroke: "#A63D14",
+    title: "AI Booking Agent",
+    desc: "Atur jadwal dan reservasi otomatis lewat chat, tanpa perlu admin yang standby terus-menerus.",
+    icon: (
+      <>
+        <rect x="4" y="5" width="16" height="15" rx="2" stroke="#A63D14" strokeWidth="2" />
+        <path d="M4 9h16M9 3v4M15 3v4" stroke="#A63D14" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
+  },
+  {
+    bg: "#EEEDFE",
+    stroke: "#3C3489",
+    title: "AI Agent Kustom",
+    desc: "Punya alur kerja unik? Kami latih Bibi versi khusus sesuai kebutuhan dan sistem bisnismu.",
+    icon: (
+      <path
+        d="M12 3l2 4 4.5.6-3.3 3.1.9 4.4L12 13l-4.1 2.1.9-4.4L5.5 7.6 10 7l2-4z"
+        stroke="#3C3489"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+];
+
+const steps = [
+  { n: 1, title: "Konsultasi", desc: "Cerita soal bisnismu, kami bantu pilih peran Bibi yang paling pas." },
+  { n: 2, title: "Latih Bibi", desc: "Bibi dilatih pakai data dan gaya bicara brand kamu sendiri." },
+  { n: 3, title: "Hubungkan", desc: "Sambungkan ke WhatsApp, website, atau CRM favoritmu." },
+  { n: 4, title: "Pantau hasil", desc: "Lihat performa Bibi lewat dashboard dan terus disempurnakan." },
 ];
 
 const stats = [
-  { value: "24/7", label: "Selalu siap melayani" },
-  { value: "70%", label: "Hemat biaya operasional" },
-  { value: "<3 dtk", label: "Rata-rata waktu respons" },
-  { value: "10x", label: "Lebih cepat tutup deal" },
+  { num: "<5s", label: "Waktu respon rata-rata", color: "#5DCAA5", rot: "-rotate-2" },
+  { num: "24/7", label: "Selalu siap sedia", color: "#FFC857", rot: "rotate-[1.5deg]" },
+  { num: "70%", label: "Hemat biaya operasional CS", color: "#FF8C69", rot: "-rotate-1" },
+  { num: "1000+", label: "Percakapan bersamaan", color: "#85B7EB", rot: "rotate-2" },
+];
+
+const testimonials = [
+  {
+    quote: "Sejak ada Bibi, waktu balas chat turun drastis. Tim kami bisa fokus ke hal yang lebih strategis.",
+    name: "Rani A.",
+    role: "Owner, Kedai Kopi Lima",
+    initials: "RA",
+    color: "#1D9E75",
+  },
+  {
+    quote: "AI Sales Agent-nya bantu naikkan konversi tanpa harus nambah tim sales baru.",
+    name: "Dimas P.",
+    role: "Marketing Lead, Rumahin",
+    initials: "DP",
+    color: "#185FA5",
+  },
+  {
+    quote: "Setup-nya cepat banget, dan Bibi benar-benar ngerti gaya bicara brand kami.",
+    name: "Sinta Y.",
+    role: "CEO, Klinik Sehat Hati",
+    initials: "SY",
+    color: "#993C1D",
+  },
 ];
 
 function HomePage() {
   return (
     <SiteShell>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-hero text-primary-foreground">
-        <div className="absolute inset-0 grid-pattern opacity-40" />
-        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-medium text-teal backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5" />
-              AI Agent untuk bisnis Indonesia
-            </span>
-            <h1 className="mt-6 font-display text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-              Otomatiskan bisnis Anda dengan <span className="text-gradient">AI Agent</span> yang bekerja 24/7
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-white/70">
-              Baboo.id membantu Anda melayani pelanggan, menutup penjualan, dan menjalankan operasional secara otomatis — tanpa perlu paham teknis.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild size="lg" className="bg-teal text-navy-deep hover:bg-teal-glow">
-                <Link to="/kontak">
-                  Konsultasi gratis <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 bg-white/5 text-white hover:bg-white/10">
-                <Link to="/layanan">Lihat layanan</Link>
-              </Button>
-            </div>
-          </div>
+      {/* HERO */}
+      <section className="relative overflow-hidden pt-16 pb-10">
+        <div className="absolute -left-24 -top-16 h-[260px] w-[260px] rounded-full bg-mint opacity-35 blur-[2px]" />
+        <div className="absolute bottom-8 left-[6%] h-[180px] w-[180px] rounded-full bg-sun opacity-40" />
+        <div className="absolute -right-20 top-[10%] h-[220px] w-[220px] rounded-full bg-teal opacity-30" />
 
-          <div className="mt-20 grid grid-cols-2 gap-6 border-t border-white/10 pt-10 sm:grid-cols-4">
-            {stats.map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="font-display text-3xl font-bold text-teal">{s.value}</div>
-                <div className="mt-1 text-sm text-white/60">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Services preview */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-bold sm:text-4xl">Satu platform, banyak AI Agent</h2>
-          <p className="mt-4 text-muted-foreground">
-            Pilih AI Agent yang paling sesuai dengan kebutuhan bisnis Anda hari ini, dan kembangkan saat bisnis tumbuh.
-          </p>
-        </div>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map((s) => (
-            <div key={s.title} className="group rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:shadow-soft">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-navy text-teal">
-                <s.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-5 font-display text-lg font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Why Baboo */}
-      <section className="bg-muted/50 py-24">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div className="relative z-10 mx-auto grid max-w-[1180px] items-center gap-12 px-7 lg:grid-cols-[1.05fr_1fr]">
           <div>
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">Dibuat untuk pemilik bisnis, bukan engineer</h2>
-            <p className="mt-4 text-muted-foreground">
-              Anda fokus pada bisnis, kami yang urus AI-nya. Tim Baboo.id menyiapkan, melatih, dan memantau AI Agent Anda agar selalu memberi hasil terbaik.
+            <Eyebrow>AI Agent untuk bisnismu</Eyebrow>
+            <h1 className="mt-4 font-display text-[clamp(36px,5.2vw,58px)] font-extrabold leading-[1.1] text-navy">
+              Bisnismu butuh bantuan? <span className="text-mint-deep">Panggil Bibi.</span>
+            </h1>
+            <p className="mt-5 max-w-[480px] text-[18px]">
+              Bibi adalah AI Agent dari Baboo.id yang membalas chat, menjawab pertanyaan, dan menutup penjualan — sambil
+              kamu fokus mengurus hal lain. Aktif 24 jam, tanpa lelah, tanpa cuti.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild>
-                <Link to="/cara-kerja">Lihat cara kerja</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/harga">Lihat harga</Link>
-              </Button>
+            <div className="mt-7 flex flex-wrap gap-3.5">
+              <CartoonLink to="/kontak">Coba demo Bibi →</CartoonLink>
+              <CartoonLink to="/layanan" variant="ghost">
+                Lihat layanan
+              </CartoonLink>
+            </div>
+            <div className="mt-7 flex flex-wrap gap-5">
+              {["RESPON <5 DETIK", "AKTIF 24/7", "HEMAT 70% BIAYA CS"].map((t) => (
+                <span
+                  key={t}
+                  className="flex items-center gap-2 rounded-[14px] border-2 border-navy bg-cream-deep px-3.5 py-2 font-mono text-[12.5px] font-bold"
+                >
+                  <i className="inline-block h-2 w-2 rounded-full bg-mint-deep" />
+                  {t}
+                </span>
+              ))}
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              { icon: Clock, title: "Respons 24/7", desc: "AI Agent siap menjawab pelanggan kapan pun, tanpa lelah." },
-              { icon: TrendingUp, title: "Tingkatkan konversi", desc: "Tidak ada lagi calon pembeli yang terlewat." },
-              { icon: ShieldCheck, title: "Aman & terkontrol", desc: "Anda tetap pegang kendali penuh atas data dan jawaban AI." },
-              { icon: Sparkles, title: "Cepat diaktifkan", desc: "Siap pakai dalam hitungan hari, bukan bulan." },
-            ].map((f) => (
-              <div key={f.title} className="rounded-xl border border-border bg-card p-5">
-                <f.icon className="h-5 w-5 text-teal" />
-                <h3 className="mt-3 font-display font-semibold">{f.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
+
+          {/* Browser + chat */}
+          <div className="relative">
+            <div className="relative z-10 rotate-[2deg] rounded-[24px] bg-navy p-3.5 shadow-soft">
+              <div className="mb-2.5 flex gap-1.5 pl-1">
+                <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/35" />
+              </div>
+              <div className="relative min-h-[300px] overflow-hidden rounded-[14px] bg-cream p-5">
+                <ChatRow side="bot" avatar="B" text="Halo! Aku Bibi 👋 Ada yang bisa dibantu hari ini?" />
+                <ChatRow side="user" avatar="A" text="Mau tanya paket Business dong" />
+                <ChatRow side="bot" avatar="B" text="Siap! Paket Business cocok untuk bisnis yang sedang naik daun 🌱" />
+                <svg
+                  className="animate-twinkle absolute right-3.5 top-2.5 text-sun"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 16 16"
+                  aria-hidden
+                >
+                  <path d="M8 1l1.6 4.7L14 7l-4.4 1.3L8 13l-1.6-4.7L2 7l4.4-1.3L8 1z" fill="currentColor" />
+                </svg>
+              </div>
+            </div>
+            <div className="animate-bob absolute -bottom-6 -right-4 z-20 w-[150px]">
+              <BibiMascot />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WAVE */}
+      <div className="wave-divider-cream h-[60px] w-full" />
+
+      {/* LAYANAN */}
+      <section className="bg-cream-deep py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Layanan"
+            eyebrowTone="mint"
+            title="Satu Bibi, banyak peran"
+            desc="Pilih peran yang paling dibutuhkan bisnismu sekarang — atau gabungkan semuanya dalam satu AI Agent."
+          />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map((s) => (
+              <div
+                key={s.title}
+                className="card-pop card-pop-hover p-6"
+              >
+                <div
+                  className="mb-4 grid h-[54px] w-[54px] place-items-center rounded-2xl"
+                  style={{ background: s.bg }}
+                >
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    {s.icon}
+                  </svg>
+                </div>
+                <h3 className="text-lg font-extrabold">{s.title}</h3>
+                <p className="mt-2 text-[14.5px] opacity-85">{s.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CARA KERJA */}
+      <section className="py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Cara kerja"
+            eyebrowTone="sun"
+            title="Empat langkah, Bibi siap kerja"
+            desc="Dari kenalan sampai live di channel bisnismu — biasanya selesai dalam hitungan hari, bukan bulan."
+          />
+          <div className="relative grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div
+              className="pointer-events-none absolute left-[6%] right-[6%] top-7 hidden h-[3px] lg:block"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, #13294B 0 10px, transparent 10px 20px)",
+                backgroundSize: "20px 3px",
+                backgroundRepeat: "repeat-x",
+              }}
+            />
+            {steps.map((s) => (
+              <div key={s.n} className="relative z-10 text-center">
+                <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full border-[3px] border-cream bg-navy font-display text-[22px] font-extrabold text-cream shadow-[0_0_0_3px_#13294B]">
+                  {s.n}
+                </div>
+                <h4 className="text-[16.5px] font-extrabold">{s.title}</h4>
+                <p className="mt-1.5 text-sm opacity-80">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* KEUNGGULAN — DARK */}
+      <section className="bg-navy py-24 text-cream">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <div className="mx-auto mb-12 max-w-[620px] text-center">
+            <Eyebrow tone="cream">Keunggulan</Eyebrow>
+            <h2 className="mt-3 font-display text-[clamp(28px,3.6vw,40px)] font-extrabold text-cream">
+              Kenapa bisnis pilih Bibi
+            </h2>
+            <p className="mt-3 text-cream/75">
+              Bukan sekadar chatbot — Bibi adalah rekan kerja digital yang benar-benar diandalkan.
+            </p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className={`${s.rot} rounded-[18px] border border-white/10 bg-navy-deep px-5 py-6 text-center`}
+              >
+                <div className="font-display text-[32px] font-extrabold" style={{ color: s.color }}>
+                  {s.num}
+                </div>
+                <div className="mt-1.5 text-[13.5px] text-cream/70">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONI */}
+      <section className="py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Cerita pengguna"
+            eyebrowTone="coral"
+            title="Sudah dipercaya bisnis yang bertumbuh"
+          />
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-[20px] border-[2.5px] border-dashed border-navy bg-white p-6"
+              >
+                <p className="mb-4 text-[14.5px]">&ldquo;{t.quote}&rdquo;</p>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="grid h-9 w-9 place-items-center rounded-full font-display text-[13px] font-bold text-white"
+                    style={{ background: t.color }}
+                  >
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{t.name}</div>
+                    <div className="text-[12.5px] opacity-65">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HARGA RINGKAS */}
+      <section className="bg-cream-deep py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <SectionHead
+            eyebrow="Harga"
+            eyebrowTone="mint"
+            title="Pilih paket yang sesuai langkahmu"
+            desc="Mulai kecil, kembangkan kapan saja. Tanpa kontrak mengikat."
+          />
+          <div className="text-center">
+            <CartoonLink to="/harga">Lihat semua paket →</CartoonLink>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-hero p-10 text-center text-primary-foreground sm:p-16">
-          <div className="absolute inset-0 grid-pattern opacity-40" />
-          <div className="relative">
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">Siap memulai transformasi AI?</h2>
-            <p className="mx-auto mt-3 max-w-xl text-white/70">
-              Konsultasi gratis 30 menit untuk memetakan AI Agent terbaik bagi bisnis Anda.
-            </p>
-            <Button asChild size="lg" className="mt-7 bg-teal text-navy-deep hover:bg-teal-glow">
-              <Link to="/kontak">Jadwalkan sekarang <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
+      <section className="py-24">
+        <div className="mx-auto max-w-[1180px] px-7">
+          <div className="relative grid items-center gap-8 overflow-hidden rounded-[32px] p-10 sm:p-14 lg:grid-cols-[1fr_260px]"
+               style={{ background: "linear-gradient(135deg, #FFC857 0%, #FF8C69 100%)" }}>
+            <div>
+              <Eyebrow tone="mint">Yuk mulai</Eyebrow>
+              <h2 className="mt-3 font-display text-[clamp(26px,3.4vw,38px)] font-extrabold text-navy-deep">
+                Bibi siap kerja sebelum kamu selesai baca ini.
+              </h2>
+              <p className="mt-3 max-w-[440px] text-navy-deep/85">
+                Konsultasi gratis 30 menit, lihat langsung bagaimana Bibi bisa membantu bisnismu.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3.5">
+                <a
+                  href="https://wa.me/6281234567890"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-[3px] border-navy-deep bg-cream px-7 py-3.5 font-display font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.45)] transition hover:-translate-y-0.5"
+                >
+                  Chat WhatsApp →
+                </a>
+                <Link
+                  to="/kontak"
+                  className="inline-flex items-center justify-center rounded-full border-[3px] border-navy-deep bg-transparent px-7 py-3.5 font-display font-bold text-navy-deep hover:bg-navy-deep hover:text-cream"
+                >
+                  halo@baboo.id
+                </Link>
+              </div>
+            </div>
+            <BibiWave className="mx-auto h-auto w-[200px]" />
           </div>
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+function ChatRow({ side, avatar, text }: { side: "bot" | "user"; avatar: string; text: string }) {
+  const isUser = side === "user";
+  return (
+    <div className={`mb-3.5 flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : ""}`}>
+      <div
+        className={`grid h-[34px] w-[34px] flex-none place-items-center rounded-full font-display text-[13px] font-bold ${
+          isUser ? "bg-navy text-cream" : "bg-mint text-navy-deep"
+        }`}
+      >
+        {avatar}
+      </div>
+      <div
+        className={`max-w-[230px] border-2 border-navy bg-white px-3.5 py-2.5 text-sm font-semibold ${
+          isUser ? "rounded-[14px] rounded-tr-[4px] bg-sun" : "rounded-[14px] rounded-bl-[4px]"
+        }`}
+      >
+        {text}
+      </div>
+    </div>
   );
 }
