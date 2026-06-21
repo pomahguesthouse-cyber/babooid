@@ -10,7 +10,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -36,57 +36,64 @@
   --color-teal: var(--teal);
   --color-teal-glow: var(--teal-glow);
   --color-electric: var(--electric);
+  --color-cyan: var(--cyan-accent);
+  --color-emerald: var(--emerald-accent);
   --gradient-hero: var(--gradient-hero);
   --gradient-accent: var(--gradient-accent);
   --shadow-glow: var(--shadow-glow);
   --shadow-soft: var(--shadow-soft);
+  --shadow-cyan: var(--shadow-cyan);
 }
 
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.18 0.04 260);
+  /* Dark theme base */
+  --background: #06131F;
+  --foreground: #FFFFFF;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.04 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.04 260);
+  --card: #071927;
+  --card-foreground: #FFFFFF;
+  --popover: #071927;
+  --popover-foreground: #FFFFFF;
 
-  /* Navy as primary */
-  --primary: oklch(0.22 0.06 260);
-  --primary-foreground: oklch(0.98 0.005 250);
+  /* Cyan as primary */
+  --primary: #67E8F9;
+  --primary-foreground: #06131F;
 
-  --secondary: oklch(0.96 0.01 250);
-  --secondary-foreground: oklch(0.22 0.06 260);
+  --secondary: #0F2233;
+  --secondary-foreground: #FFFFFF;
 
-  --muted: oklch(0.97 0.008 250);
-  --muted-foreground: oklch(0.5 0.03 258);
+  --muted: #0D1F2F;
+  --muted-foreground: #94A3B8;
 
-  --accent: oklch(0.72 0.13 195);
-  --accent-foreground: oklch(0.15 0.04 260);
+  --accent: #67E8F9;
+  --accent-foreground: #06131F;
 
-  --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
 
-  --border: oklch(0.92 0.01 255);
-  --input: oklch(0.92 0.01 255);
-  --ring: oklch(0.72 0.13 195);
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #67E8F9;
 
   /* Brand tokens */
-  --navy: oklch(0.22 0.06 260);
-  --navy-deep: oklch(0.14 0.05 262);
-  --teal: oklch(0.72 0.13 195);
-  --teal-glow: oklch(0.82 0.14 190);
-  --electric: oklch(0.62 0.22 290);
+  --navy: #071927;
+  --navy-deep: #06131F;
+  --teal: #67E8F9;
+  --teal-glow: #7EEDFC;
+  --electric: #6EE7B7;
+  --cyan-accent: #67E8F9;
+  --emerald-accent: #6EE7B7;
 
-  --gradient-hero: radial-gradient(ellipse at top left, oklch(0.32 0.12 270 / 0.55), transparent 60%),
-                   radial-gradient(ellipse at bottom right, oklch(0.6 0.14 195 / 0.35), transparent 55%),
-                   linear-gradient(135deg, oklch(0.14 0.05 262), oklch(0.22 0.06 260));
-  --gradient-accent: linear-gradient(135deg, var(--teal), var(--electric));
+  --gradient-hero: radial-gradient(ellipse at 20% 0%, rgba(103, 232, 249, 0.15), transparent 50%),
+                   radial-gradient(ellipse at 80% 100%, rgba(110, 231, 183, 0.08), transparent 50%),
+                   linear-gradient(180deg, #06131F 0%, #071927 100%);
+  --gradient-accent: linear-gradient(135deg, #67E8F9, #6EE7B7);
 
-  --shadow-glow: 0 20px 60px -20px oklch(0.62 0.22 290 / 0.45);
-  --shadow-soft: 0 10px 40px -15px oklch(0.22 0.06 260 / 0.18);
+  --shadow-glow: 0 0 60px -20px rgba(103, 232, 249, 0.3);
+  --shadow-soft: 0 10px 40px -15px rgba(6, 19, 31, 0.6);
+  --shadow-cyan: 0 0 30px -5px rgba(103, 232, 249, 0.2);
 }
 
 @layer base {
@@ -122,7 +129,26 @@
 
 @utility grid-pattern {
   background-image:
-    linear-gradient(to right, oklch(1 0 0 / 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(1 0 0 / 0.06) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+@utility glass-card {
+  background: rgba(7, 25, 39, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility glow-border {
+  border: 1px solid rgba(103, 232, 249, 0.2);
+  box-shadow: 0 0 20px -5px rgba(103, 232, 249, 0.1);
+}
+
+@utility section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #67E8F9;
 }
