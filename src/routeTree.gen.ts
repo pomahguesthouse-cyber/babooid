@@ -17,10 +17,13 @@ import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as KeunggulanRouteImport } from './routes/keunggulan'
 import { Route as HargaRouteImport } from './routes/harga'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardProjectIdRouteImport } from './routes/dashboard.$projectId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
 const TentangRoute = TentangRouteImport.update({
@@ -63,6 +66,11 @@ const HargaRoute = HargaRouteImport.update({
   path: '/harga',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DaftarBabooRoute = DaftarBabooRouteImport.update({
   id: '/daftar-baboo',
   path: '/daftar-baboo',
@@ -83,6 +91,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProjectIdRoute = DashboardProjectIdRouteImport.update({
+  id: '/$projectId',
+  path: '/$projectId',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -94,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/baboo-civil': typeof BabooCivilRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -103,6 +122,8 @@ export interface FileRoutesByFullPath {
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +139,8 @@ export interface FileRoutesByTo {
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +148,7 @@ export interface FileRoutesById {
   '/baboo-civil': typeof BabooCivilRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -134,6 +158,8 @@ export interface FileRoutesById {
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -142,6 +168,7 @@ export interface FileRouteTypes {
     | '/baboo-civil'
     | '/cara-kerja'
     | '/daftar-baboo'
+    | '/dashboard'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -151,6 +178,8 @@ export interface FileRouteTypes {
     | '/studi-kasus'
     | '/tentang'
     | '/auth/callback'
+    | '/dashboard/$projectId'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,12 +195,15 @@ export interface FileRouteTypes {
     | '/studi-kasus'
     | '/tentang'
     | '/auth/callback'
+    | '/dashboard/$projectId'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/baboo-civil'
     | '/cara-kerja'
     | '/daftar-baboo'
+    | '/dashboard'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -181,6 +213,8 @@ export interface FileRouteTypes {
     | '/studi-kasus'
     | '/tentang'
     | '/auth/callback'
+    | '/dashboard/$projectId'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,6 +222,7 @@ export interface RootRouteChildren {
   BabooCivilRoute: typeof BabooCivilRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
   DaftarBabooRoute: typeof DaftarBabooRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   HargaRoute: typeof HargaRoute
   KeunggulanRoute: typeof KeunggulanRoute
   KontakRoute: typeof KontakRoute
@@ -257,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HargaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/daftar-baboo': {
       id: '/daftar-baboo'
       path: '/daftar-baboo'
@@ -285,6 +327,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/$projectId': {
+      id: '/dashboard/$projectId'
+      path: '/$projectId'
+      fullPath: '/dashboard/$projectId'
+      preLoaderRoute: typeof DashboardProjectIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -295,11 +351,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardProjectIdRoute: typeof DashboardProjectIdRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardProjectIdRoute: DashboardProjectIdRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BabooCivilRoute: BabooCivilRoute,
   CaraKerjaRoute: CaraKerjaRoute,
   DaftarBabooRoute: DaftarBabooRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   HargaRoute: HargaRoute,
   KeunggulanRoute: KeunggulanRoute,
   KontakRoute: KontakRoute,

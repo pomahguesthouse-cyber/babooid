@@ -1,0 +1,78 @@
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { SiteHeader } from "@/components/site-header";
+import { AGENTS, SUB_AGENTS } from "@/lib/agents";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [{ title: "Dashboard — Baboo.id" }],
+  }),
+  component: DashboardLayout,
+});
+
+function AgentCard({ agentKey }: { agentKey: keyof typeof AGENTS }) {
+  const a = AGENTS[agentKey];
+  const Icon = a.icon;
+  return (
+    <div className="flex items-start gap-3 rounded-2xl border-2 border-navy/15 bg-cream p-3">
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${a.accent}`}>
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="font-display text-sm font-bold leading-tight text-navy">{a.name}</p>
+        <p className="text-xs opacity-70">{a.role}</p>
+      </div>
+    </div>
+  );
+}
+
+function DashboardLayout() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/masuk" });
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-cream-deep">
+        <Loader2 className="h-8 w-8 animate-spin text-mint-deep" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <SiteHeader />
+      <div className="mx-auto grid w-full max-w-[1180px] flex-1 gap-8 px-7 py-10 lg:grid-cols-[280px_1fr]">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 space-y-6">
+            <div className="card-pop p-5">
+              <p className="eyebrow text-mint-deep">Tim Baboo</p>
+              <div className="mt-4 space-y-3">
+                <AgentCard agentKey="mandor" />
+                <div className="pl-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide opacity-50">
+                    Sub-agent
+                  </p>
+                  <div className="space-y-2">
+                    {SUB_AGENTS.map((a) => (
+                      <AgentCard key={a.key} agentKey={a.key} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main className="min-w-0">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

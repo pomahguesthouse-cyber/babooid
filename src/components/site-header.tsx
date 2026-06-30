@@ -54,27 +54,37 @@ export const SiteHeader = () => {
 
         <div className="hidden items-center gap-3 lg:flex">
           {user ? (
-            <button
-              type="button"
-              onClick={() => void signOut()}
-              className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
-            >
-              Keluar
-            </button>
+            <>
+              <Link
+                to="/dashboard"
+                className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
+              >
+                Dashboard
+              </Link>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
+              >
+                Keluar
+              </button>
+            </>
           ) : (
-            <Link
-              to="/masuk"
-              className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
-            >
-              Masuk
-            </Link>
+            <>
+              <Link
+                to="/masuk"
+                className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
+              >
+                Masuk
+              </Link>
+              <Link
+                to="/kontak"
+                className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
+              >
+                Coba gratis
+              </Link>
+            </>
           )}
-          <Link
-            to="/kontak"
-            className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
-          >
-            Coba gratis
-          </Link>
         </div>
 
         <button
@@ -103,16 +113,25 @@ export const SiteHeader = () => {
               </Link>
             ))}
             {user ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  void signOut();
-                }}
-                className="mt-2 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
-              >
-                Keluar
-              </button>
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    void signOut();
+                  }}
+                  className="mt-1 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
+                >
+                  Keluar
+                </button>
+              </>
             ) : (
               <Link
                 to="/masuk"
