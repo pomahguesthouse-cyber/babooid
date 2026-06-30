@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const navLinks = [
   { to: "/", label: "Beranda" },
@@ -14,6 +15,7 @@ const navLinks = [
 
 export const SiteHeader = () => {
   const [open, setOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b-[2.5px] border-navy bg-cream/90 backdrop-blur">
@@ -51,12 +53,22 @@ export const SiteHeader = () => {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            to="/kontak"
-            className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
-          >
-            Masuk
-          </Link>
+          {user ? (
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
+            >
+              Keluar
+            </button>
+          ) : (
+            <Link
+              to="/masuk"
+              className="rounded-full border-[3px] border-navy bg-transparent px-5 py-2 font-display text-sm font-bold text-navy transition hover:bg-navy hover:text-cream"
+            >
+              Masuk
+            </Link>
+          )}
           <Link
             to="/kontak"
             className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
@@ -90,10 +102,30 @@ export const SiteHeader = () => {
                 {link.label}
               </Link>
             ))}
+            {user ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  void signOut();
+                }}
+                className="mt-2 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
+              >
+                Keluar
+              </button>
+            ) : (
+              <Link
+                to="/masuk"
+                onClick={() => setOpen(false)}
+                className="mt-2 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
+              >
+                Masuk
+              </Link>
+            )}
             <Link
               to="/kontak"
               onClick={() => setOpen(false)}
-              className="mt-2 rounded-full border-[3px] border-navy bg-sun px-5 py-2.5 text-center font-display font-bold text-navy-deep"
+              className="mt-1 rounded-full border-[3px] border-navy bg-sun px-5 py-2.5 text-center font-display font-bold text-navy-deep"
             >
               Coba gratis
             </Link>

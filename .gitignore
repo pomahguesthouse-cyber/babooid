@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+
+# Local env (secrets)
+.env
+.env.local
+.env.*.local
 .output
 .vinxi
 .tanstack/**

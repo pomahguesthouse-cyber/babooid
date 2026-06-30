@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as StudiKasusRouteImport } from './routes/studi-kasus'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MasukRouteImport } from './routes/masuk'
 import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as KeunggulanRouteImport } from './routes/keunggulan'
@@ -20,6 +21,7 @@ import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
@@ -34,6 +36,11 @@ const StudiKasusRoute = StudiKasusRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasukRoute = MasukRouteImport.update({
+  id: '/masuk',
+  path: '/masuk',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayananRoute = LayananRouteImport.update({
@@ -76,6 +83,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -86,9 +98,11 @@ export interface FileRoutesByFullPath {
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
+  '/masuk': typeof MasukRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,9 +113,11 @@ export interface FileRoutesByTo {
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
+  '/masuk': typeof MasukRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -113,9 +129,11 @@ export interface FileRoutesById {
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
+  '/masuk': typeof MasukRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,9 +146,11 @@ export interface FileRouteTypes {
     | '/keunggulan'
     | '/kontak'
     | '/layanan'
+    | '/masuk'
     | '/sitemap.xml'
     | '/studi-kasus'
     | '/tentang'
+    | '/auth/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -141,9 +161,11 @@ export interface FileRouteTypes {
     | '/keunggulan'
     | '/kontak'
     | '/layanan'
+    | '/masuk'
     | '/sitemap.xml'
     | '/studi-kasus'
     | '/tentang'
+    | '/auth/callback'
   id:
     | '__root__'
     | '/'
@@ -154,9 +176,11 @@ export interface FileRouteTypes {
     | '/keunggulan'
     | '/kontak'
     | '/layanan'
+    | '/masuk'
     | '/sitemap.xml'
     | '/studi-kasus'
     | '/tentang'
+    | '/auth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -168,9 +192,11 @@ export interface RootRouteChildren {
   KeunggulanRoute: typeof KeunggulanRoute
   KontakRoute: typeof KontakRoute
   LayananRoute: typeof LayananRoute
+  MasukRoute: typeof MasukRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StudiKasusRoute: typeof StudiKasusRoute
   TentangRoute: typeof TentangRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -194,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/masuk': {
+      id: '/masuk'
+      path: '/masuk'
+      fullPath: '/masuk'
+      preLoaderRoute: typeof MasukRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/layanan': {
@@ -252,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -264,9 +304,11 @@ const rootRouteChildren: RootRouteChildren = {
   KeunggulanRoute: KeunggulanRoute,
   KontakRoute: KontakRoute,
   LayananRoute: LayananRoute,
+  MasukRoute: MasukRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StudiKasusRoute: StudiKasusRoute,
   TentangRoute: TentangRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
