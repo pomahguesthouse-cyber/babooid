@@ -32,6 +32,7 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { UserOverview } from "@/components/dashboard/user-overview";
 import {
   useProjects,
   useCreateProject,
@@ -105,7 +106,9 @@ function ProjectsPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <UserOverview />
+
+      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow text-mint-deep">Folder Proyek</p>
           <h1 className="mt-2 font-display text-3xl font-extrabold text-navy">Proyek Anda</h1>

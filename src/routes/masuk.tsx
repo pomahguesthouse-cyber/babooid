@@ -54,10 +54,10 @@ function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
 
-  // Jika sudah login, arahkan ke beranda.
+  // Jika sudah login, arahkan ke dashboard.
   useEffect(() => {
     if (!loading && user) {
-      navigate({ to: "/" });
+      navigate({ to: "/dashboard" });
     }
   }, [loading, user, navigate]);
 
@@ -95,7 +95,7 @@ function LoginPage() {
       return;
     }
     toast.success("Berhasil masuk!");
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard" });
   };
 
   return (

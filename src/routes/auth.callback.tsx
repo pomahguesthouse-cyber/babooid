@@ -26,7 +26,7 @@ function AuthCallback() {
       }
       if (data.session) {
         toast.success("Berhasil masuk!");
-        navigate({ to: "/" });
+        navigate({ to: "/dashboard" });
       } else {
         navigate({ to: "/masuk" });
       }
@@ -35,7 +35,7 @@ function AuthCallback() {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         toast.success("Berhasil masuk!");
-        navigate({ to: "/" });
+        navigate({ to: "/dashboard" });
       }
     });
 
