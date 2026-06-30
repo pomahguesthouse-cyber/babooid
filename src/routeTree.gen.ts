@@ -16,6 +16,7 @@ import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as KeunggulanRouteImport } from './routes/keunggulan'
 import { Route as HargaRouteImport } from './routes/harga'
+import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -54,6 +55,11 @@ const HargaRoute = HargaRouteImport.update({
   path: '/harga',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DaftarBabooRoute = DaftarBabooRouteImport.update({
+  id: '/daftar-baboo',
+  path: '/daftar-baboo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaraKerjaRoute = CaraKerjaRouteImport.update({
   id: '/cara-kerja',
   path: '/cara-kerja',
@@ -68,6 +74,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cara-kerja': typeof CaraKerjaRoute
+  '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cara-kerja': typeof CaraKerjaRoute
+  '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cara-kerja': typeof CaraKerjaRoute
+  '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/cara-kerja'
+    | '/daftar-baboo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cara-kerja'
+    | '/daftar-baboo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/cara-kerja'
+    | '/daftar-baboo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
+  DaftarBabooRoute: typeof DaftarBabooRoute
   HargaRoute: typeof HargaRoute
   KeunggulanRoute: typeof KeunggulanRoute
   KontakRoute: typeof KontakRoute
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HargaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/daftar-baboo': {
+      id: '/daftar-baboo'
+      path: '/daftar-baboo'
+      fullPath: '/daftar-baboo'
+      preLoaderRoute: typeof DaftarBabooRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cara-kerja': {
       id: '/cara-kerja'
       path: '/cara-kerja'
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaraKerjaRoute: CaraKerjaRoute,
+  DaftarBabooRoute: DaftarBabooRoute,
   HargaRoute: HargaRoute,
   KeunggulanRoute: KeunggulanRoute,
   KontakRoute: KontakRoute,

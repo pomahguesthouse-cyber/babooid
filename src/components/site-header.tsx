@@ -5,9 +5,9 @@ import { Menu, X } from "lucide-react";
 const navLinks = [
   { to: "/", label: "Beranda" },
   { to: "/layanan", label: "Layanan" },
+  { to: "/daftar-baboo", label: "Daftar Baboo" },
   { to: "/cara-kerja", label: "Cara kerja" },
   { to: "/keunggulan", label: "Keunggulan" },
-  { to: "/studi-kasus", label: "Cerita" },
   { to: "/harga", label: "Harga" },
   { to: "/tentang", label: "Tentang" },
 ] as const;
