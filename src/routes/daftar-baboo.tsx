@@ -119,7 +119,7 @@ function DaftarBabooPage() {
                     Coba {b.name} <ArrowRight className="h-4 w-4" />
                   </CartoonLink>
                   <Link
-                    to="/layanan"
+                    to="/baboo-civil"
                     className="inline-flex items-center justify-center rounded-full border-[3px] border-navy bg-transparent px-6 py-3.5 font-display text-base font-bold text-navy transition hover:bg-navy hover:text-cream"
                   >
                     Pelajari lebih lanjut

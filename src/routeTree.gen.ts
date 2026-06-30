@@ -18,6 +18,7 @@ import { Route as KeunggulanRouteImport } from './routes/keunggulan'
 import { Route as HargaRouteImport } from './routes/harga'
 import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
+import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TentangRoute = TentangRouteImport.update({
@@ -65,6 +66,11 @@ const CaraKerjaRoute = CaraKerjaRouteImport.update({
   path: '/cara-kerja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BabooCivilRoute = BabooCivilRouteImport.update({
+  id: '/baboo-civil',
+  path: '/baboo-civil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/baboo-civil': typeof BabooCivilRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/baboo-civil': typeof BabooCivilRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/baboo-civil': typeof BabooCivilRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/baboo-civil'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/harga'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/baboo-civil'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/harga'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/baboo-civil'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/harga'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BabooCivilRoute: typeof BabooCivilRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
   DaftarBabooRoute: typeof DaftarBabooRoute
   HargaRoute: typeof HargaRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaraKerjaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/baboo-civil': {
+      id: '/baboo-civil'
+      path: '/baboo-civil'
+      fullPath: '/baboo-civil'
+      preLoaderRoute: typeof BabooCivilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BabooCivilRoute: BabooCivilRoute,
   CaraKerjaRoute: CaraKerjaRoute,
   DaftarBabooRoute: DaftarBabooRoute,
   HargaRoute: HargaRoute,
@@ -250,3 +271,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
