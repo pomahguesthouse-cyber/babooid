@@ -14,6 +14,7 @@ import {
   Sparkles,
   UploadCloud,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/lib/auth";
@@ -46,6 +47,12 @@ type AgentResponse = {
   error?: string;
 };
 
+type FeatureCard = {
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+};
+
 const ALLOWED_MEDIA = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
@@ -53,6 +60,24 @@ const quickPrompts = [
   "Buat denah ruangan 3x4 meter dengan pintu 80 cm di sisi depan.",
   "Gambar detail kolom 30x30 cm, 8D16, sengkang D8-150.",
   "Buat pondasi batu kali trapesium lebar atas 30 cm, bawah 60 cm, tinggi 70 cm.",
+];
+
+const featureCards: FeatureCard[] = [
+  {
+    icon: Ruler,
+    title: "Baca ukuran",
+    desc: "Memahami dimensi, notasi, dan bentuk dasar gambar.",
+  },
+  {
+    icon: FileCode2,
+    title: "Generate LISP",
+    desc: "Output script .lsp siap dicoba via APPLOAD.",
+  },
+  {
+    icon: Bot,
+    title: "Revisi via chat",
+    desc: "Ubah ukuran, geser objek, atau tambah detail lewat teks.",
+  },
 ];
 
 function BabooCadPage() {
@@ -202,12 +227,8 @@ function BabooCadPage() {
               </p>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                {[
-                  [Ruler, "Baca ukuran", "Memahami dimensi, notasi, dan bentuk dasar gambar."],
-                  [FileCode2, "Generate LISP", "Output script .lsp siap dicoba via APPLOAD."],
-                  [Bot, "Revisi via chat", "Ubah ukuran, geser objek, atau tambah detail lewat teks."],
-                ].map(([Icon, title, desc]) => (
-                  <div key={String(title)} className="rounded-2xl border-2 border-navy/15 bg-cream p-4">
+                {featureCards.map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="rounded-2xl border-2 border-navy/15 bg-cream p-4">
                     <div className="flex items-start gap-3">
                       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-mint text-navy-deep">
                         <Icon className="h-5 w-5" />
