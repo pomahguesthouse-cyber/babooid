@@ -28,3 +28,22 @@ values
   ('openai', 'OpenAI / ChatGPT', '', '', true),
   ('gemini', 'Gemini', '', '', true)
 on conflict (provider) do nothing;
+
+alter table public.admin_users enable row level security;
+alter table public.model_provider_settings enable row level security;
+
+drop policy if exists "admin_users_admin_read" on public.admin_users;
+create policy "admin_users_admin_read" on public.admin_users
+  for select using (lower(auth.jwt() ->> 'email') = 'ical.smg@gmail.com');
+
+drop policy if exists "provider_settings_admin_read" on public.model_provider_settings;
+create policy "provider_settings_admin_read" on public.model_provider_settings
+  for select using (lower(auth.jwt() ->> 'email') = 'ical.smg@gmail.com');
+
+drop policy if exists "provider_settings_admin_insert" on public.model_provider_settings;
+create policy "provider_settings_admin_insert" on public.model_provider_settings
+  for insert with check (lower(auth.jwt() ->> 'email') = 'ical.smg@gmail.com');
+
+drop policy if exists "provider_settings_admin_update" on public.model_provider_settings;
+create policy "provider_settings_admin_update" on public.model_provider_settings
+  for update using (lower(auth.jwt() ->> 'email') = 'ical.smg@gmail.com') with check (lower(auth.jwt() ->> 'email') = 'ical.smg@gmail.com');
