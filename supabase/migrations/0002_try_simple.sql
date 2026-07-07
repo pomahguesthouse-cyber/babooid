@@ -15,6 +15,7 @@ create table if not exists public.model_provider_settings (
   display_name text not null,
   model_name text not null default '',
   endpoint_url text not null default '',
+  access_token text not null default '',
   enabled boolean not null default true,
   notes text not null default '',
   updated_by uuid references auth.users (id) on delete set null,
