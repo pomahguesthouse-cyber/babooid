@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -12,11 +12,31 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
 });
 
+const AGENT_LINKS: Partial<Record<keyof typeof AGENTS, string>> = {
+  mandor: "/dashboard",
+  civil: "/baboo-civil",
+  cad: "/baboo-cad",
+};
+
+function isAgentActive(pathname: string, href: string) {
+  if (href === "/dashboard") return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 function AgentCard({ agentKey }: { agentKey: keyof typeof AGENTS }) {
   const a = AGENTS[agentKey];
   const Icon = a.icon;
-  return (
-    <div className="flex items-start gap-3 rounded-2xl border-2 border-navy/15 bg-cream p-3">
+  const href = AGENT_LINKS[agentKey];
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const active = Boolean(href && isAgentActive(pathname, href));
+  const className = `group flex items-start gap-3 rounded-2xl border-2 p-3 text-left transition ${
+    active
+      ? "border-mint-deep bg-mint/15 shadow-[0_4px_0_rgba(15,110,86,0.18)]"
+      : "border-navy/15 bg-cream hover:-translate-y-0.5 hover:border-mint-deep hover:bg-mint/10"
+  }`;
+
+  const content = (
+    <>
       <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${a.accent}`}>
         <Icon className="h-4 w-4" />
       </span>
@@ -24,7 +44,15 @@ function AgentCard({ agentKey }: { agentKey: keyof typeof AGENTS }) {
         <p className="font-display text-sm font-bold leading-tight text-navy">{a.name}</p>
         <p className="text-xs opacity-70">{a.role}</p>
       </div>
-    </div>
+    </>
+  );
+
+  if (!href) return <div className={className}>{content}</div>;
+
+  return (
+    <a href={href} className={className} aria-current={active ? "page" : undefined}>
+      {content}
+    </a>
   );
 }
 
