@@ -20,6 +20,7 @@ import { Route as HargaRouteImport } from './routes/harga'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
+import { Route as CadAgentRouteImport } from './routes/cad-agent'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
@@ -81,6 +82,11 @@ const CaraKerjaRoute = CaraKerjaRouteImport.update({
   path: '/cara-kerja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadAgentRoute = CadAgentRouteImport.update({
+  id: '/cad-agent',
+  path: '/cad-agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BabooCivilRoute = BabooCivilRouteImport.update({
   id: '/baboo-civil',
   path: '/baboo-civil',
@@ -110,6 +116,7 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/dashboard': typeof DashboardRouteWithChildren
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/harga': typeof HargaRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/dashboard': typeof DashboardRouteWithChildren
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/baboo-civil'
+    | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/dashboard'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/baboo-civil'
+    | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/harga'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/baboo-civil'
+    | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/dashboard'
@@ -220,6 +232,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BabooCivilRoute: typeof BabooCivilRoute
+  CadAgentRoute: typeof CadAgentRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
   DaftarBabooRoute: typeof DaftarBabooRoute
   DashboardRoute: typeof DashboardRouteWithChildren
@@ -313,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaraKerjaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cad-agent': {
+      id: '/cad-agent'
+      path: '/cad-agent'
+      fullPath: '/cad-agent'
+      preLoaderRoute: typeof CadAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/baboo-civil': {
       id: '/baboo-civil'
       path: '/baboo-civil'
@@ -368,6 +388,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BabooCivilRoute: BabooCivilRoute,
+  CadAgentRoute: CadAgentRoute,
   CaraKerjaRoute: CaraKerjaRoute,
   DaftarBabooRoute: DaftarBabooRoute,
   DashboardRoute: DashboardRouteWithChildren,
