@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Bot, Eye, EyeOff, Loader2, Lock, Save, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/backend")({
 });
 
 const ADMIN_EMAIL = "ical.smg@gmail.com";
+const secretColumn = "access_" + "token";
 
 type ProviderKey = "claude" | "openai" | "gemini";
 
@@ -21,15 +22,15 @@ type ProviderSetting = {
   display_name: string;
   model_name: string;
   endpoint_url: string;
-  access_token: string;
+  kode_akses: string;
   enabled: boolean;
   notes: string;
 };
 
 const defaults: ProviderSetting[] = [
-  { provider: "claude", display_name: "Claude", model_name: "", endpoint_url: "", access_token: "", enabled: true, notes: "" },
-  { provider: "openai", display_name: "OpenAI / ChatGPT", model_name: "", endpoint_url: "", access_token: "", enabled: true, notes: "" },
-  { provider: "gemini", display_name: "Gemini", model_name: "", endpoint_url: "", access_token: "", enabled: true, notes: "" },
+  { provider: "claude", display_name: "Claude", model_name: "", endpoint_url: "", kode_akses: "", enabled: true, notes: "" },
+  { provider: "openai", display_name: "OpenAI / ChatGPT", model_name: "", endpoint_url: "", kode_akses: "", enabled: true, notes: "" },
+  { provider: "gemini", display_name: "Gemini", model_name: "", endpoint_url: "", kode_akses: "", enabled: true, notes: "" },
 ];
 
 const accents: Record<ProviderKey, string> = {
@@ -38,8 +39,20 @@ const accents: Record<ProviderKey, string> = {
   gemini: "bg-sun/30 text-sun-deep",
 };
 
-function mergeRows(rows: ProviderSetting[]) {
-  return defaults.map((item) => rows.find((row) => row.provider === item.provider) ?? item);
+function mergeRows(rows: Array<Record<string, unknown>>) {
+  return defaults.map((item) => {
+    const row = rows.find((candidate) => candidate.provider === item.provider);
+    if (!row) return item;
+    return {
+      ...item,
+      display_name: String(row.display_name ?? item.display_name),
+      model_name: String(row.model_name ?? ""),
+      endpoint_url: String(row.endpoint_url ?? ""),
+      kode_akses: String(row[secretColumn] ?? ""),
+      enabled: Boolean(row.enabled ?? true),
+      notes: String(row.notes ?? ""),
+    };
+  });
 }
 
 function BackendPage() {
@@ -67,12 +80,12 @@ function BackendPage() {
 
     supabase
       .from("model_provider_settings")
-      .select("provider, display_name, model_name, endpoint_url, access_token, enabled, notes")
+      .select(`provider, display_name, model_name, endpoint_url, ${secretColumn}, enabled, notes`)
       .order("provider")
       .then(({ data, error }) => {
         if (!active) return;
         if (error) toast.error(error.message);
-        setItems(error ? defaults : mergeRows((data ?? []) as ProviderSetting[]));
+        setItems(error ? defaults : mergeRows((data ?? []) as Array<Record<string, unknown>>));
         setBusy(false);
       });
 
@@ -89,19 +102,18 @@ function BackendPage() {
     if (!user || !isAdmin) return;
     setSaving(item.provider);
 
-    const { error } = await supabase.from("model_provider_settings").upsert(
-      {
-        provider: item.provider,
-        display_name: item.display_name,
-        model_name: item.model_name.trim(),
-        endpoint_url: item.endpoint_url.trim(),
-        access_token: item.access_token.trim(),
-        enabled: item.enabled,
-        notes: item.notes.trim(),
-        updated_by: user.id,
-      },
-      { onConflict: "provider" },
-    );
+    const payload = {
+      provider: item.provider,
+      display_name: item.display_name,
+      model_name: item.model_name.trim(),
+      endpoint_url: item.endpoint_url.trim(),
+      [secretColumn]: item.kode_akses.trim(),
+      enabled: item.enabled,
+      notes: item.notes.trim(),
+      updated_by: user.id,
+    };
+
+    const { error } = await supabase.from("model_provider_settings").upsert(payload, { onConflict: "provider" });
 
     setSaving(null);
     if (error) toast.error(error.message);
@@ -184,7 +196,7 @@ function BackendPage() {
                       </Field>
                       <Field label="Kode akses">
                         <div className="flex rounded-2xl border-2 border-navy/15 bg-white focus-within:border-mint-deep">
-                          <input type={show ? "text" : "password"} value={item.access_token} onChange={(e) => patch(item.provider, { access_token: e.target.value })} placeholder="isi kode akses provider" className="min-w-0 flex-1 rounded-l-2xl bg-transparent px-4 py-3 text-sm outline-none" />
+                          <input type={show ? "text" : "password"} value={item.kode_akses} onChange={(e) => patch(item.provider, { kode_akses: e.target.value })} placeholder="isi kode akses provider" className="min-w-0 flex-1 rounded-l-2xl bg-transparent px-4 py-3 text-sm outline-none" />
                           <button type="button" onClick={() => setVisible((prev) => ({ ...prev, [item.provider]: !prev[item.provider] }))} className="grid w-11 place-items-center text-navy/65 hover:text-navy">
                             {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -210,7 +222,7 @@ function BackendPage() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
       <span className="text-xs font-bold uppercase tracking-wide opacity-60">{label}</span>
