@@ -122,6 +122,11 @@ Deno.serve(async (req: Request) => {
     if (!agentKey || messages.length === 0) {
       return json({ error: "agent_key dan messages wajib diisi." }, 400);
     }
+    // Override opsional dari pemilih model di halaman preview
+    const providerOverride: string =
+      typeof body.provider_override === "string" ? body.provider_override.trim() : "";
+    const modelOverride: string =
+      typeof body.model_override === "string" ? body.model_override.trim() : "";
 
     // --- Config agent + provider ---
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY || SUPABASE_ANON_KEY);
@@ -132,7 +137,7 @@ Deno.serve(async (req: Request) => {
       .single();
     if (agentErr || !agent) return json({ error: `Agent '${agentKey}' tidak ditemukan.` }, 404);
 
-    const providerKey = (agent.provider as string) || "anthropic";
+    const providerKey = providerOverride || (agent.provider as string) || "anthropic";
     let provider = await getProvider(admin, providerKey);
     if (!provider) {
       // Fallback lama: tabel ai_providers belum ada → anggap Anthropic dari env
@@ -162,7 +167,7 @@ Deno.serve(async (req: Request) => {
 
     const reply = await callLlm({
       provider,
-      model: agent.model || "claude-sonnet-4-6",
+      model: modelOverride || agent.model || "claude-sonnet-4-6",
       temperature: typeof agent.temperature === "number" ? agent.temperature : 0.5,
       system: systemPrompt,
       messages,

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { ArrowLeft, ArrowUp, Bot, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { ArrowLeft, ArrowUp, Bot, ChevronDown, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { useAiAgents } from "@/lib/ai-lab";
+import { useAiAgents, useAiProviders } from "@/lib/ai-lab";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/admin/preview/$key")({
@@ -17,13 +17,38 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 function PreviewPage() {
   const { key } = Route.useParams();
   const { data: agents } = useAiAgents();
+  const { data: providers } = useAiProviders();
   const agent = agents?.find((a) => a.key === key);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  // Pilihan model untuk sesi preview ini (format "provider:model").
+  const [choice, setChoice] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Daftar model dari semua provider yang aktif.
+  const modelChoices = useMemo(() => {
+    const out: { value: string; label: string; provider: string; model: string }[] = [];
+    for (const p of providers ?? []) {
+      if (!p.enabled) continue;
+      for (const m of p.models.split(",").map((x) => x.trim()).filter(Boolean)) {
+        out.push({ value: `${p.key}:${m}`, label: m, provider: p.key, model: m });
+      }
+    }
+    return out;
+  }, [providers]);
+
+  // Default: model bawaan agent.
+  useEffect(() => {
+    if (!choice && agent) setChoice(`${agent.provider ?? "anthropic"}:${agent.model}`);
+  }, [agent, choice]);
+
+  const selected = useMemo(() => {
+    const [prov, ...rest] = choice.split(":");
+    return { provider: prov || (agent?.provider ?? "anthropic"), model: rest.join(":") || agent?.model || "" };
+  }, [choice, agent]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,7 +63,12 @@ function PreviewPage() {
     setBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("agent-preview", {
-        body: { agent_key: key, messages: next },
+        body: {
+          agent_key: key,
+          messages: next,
+          provider_override: selected.provider,
+          model_override: selected.model,
+        },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -88,7 +118,7 @@ function PreviewPage() {
           <div>
             <p className="font-display text-sm font-bold text-navy">Preview — {agentName}</p>
             <p className="text-xs opacity-55">
-              {agent ? `${agent.model} · temp ${agent.temperature}` : "memuat…"}
+              {agent ? `${selected.model} · temp ${agent.temperature}` : "memuat…"}
             </p>
           </div>
         </div>
@@ -174,7 +204,26 @@ function PreviewPage() {
             className="max-h-40 w-full resize-none bg-transparent px-2 py-1 text-[15px] leading-relaxed outline-none placeholder:opacity-40"
           />
           <div className="flex items-center justify-between pt-1">
-            <span className="px-2 text-xs opacity-40">{agent?.model ?? ""}</span>
+            <div className="relative inline-flex items-center">
+              <select
+                value={choice}
+                onChange={(e) => setChoice(e.target.value)}
+                aria-label="Pilih model"
+                className="max-w-[240px] cursor-pointer appearance-none rounded-lg bg-transparent py-1 pl-2 pr-7 text-xs font-semibold text-navy/60 outline-none transition hover:bg-cream-deep hover:text-navy"
+              >
+                {modelChoices.length === 0 && agent ? (
+                  <option value={`${agent.provider ?? "anthropic"}:${agent.model}`}>
+                    {agent.model}
+                  </option>
+                ) : null}
+                {modelChoices.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-navy/40" />
+            </div>
             <button
               type="button"
               onClick={() => void send()}
