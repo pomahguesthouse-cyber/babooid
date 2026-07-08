@@ -151,7 +151,7 @@ function DemoAgentPage() {
             Coba Baboo dengan tampilan <span className="text-mint-deep">preview dashboard</span>
           </>
         }
-        desc="Halaman kontak sudah diganti menjadi halaman demo. User bisa memilih agent, mengirim pesan, dan merasakan pengalaman chat seperti preview di dashboard AI Lab. Lebih serius dari playground kemarin—sekarang agent-nya ikut kerja, bukan cuma cosplay."
+        desc="Pilih agent, kirim pesan, dan rasakan pengalaman chat seperti preview di dashboard AI Lab. Lebih serius dari playground kemarin—sekarang agent-nya ikut kerja, bukan cuma cosplay."
       />
 
       <section className="mx-auto max-w-[1180px] px-7 pb-20">
