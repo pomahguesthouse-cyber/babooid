@@ -330,6 +330,59 @@ export function useCreateAiKnowledge() {
   });
 }
 
+export type KnowledgeFilesInput = {
+  agent_id: string;
+  files: File[];
+  tags?: string[];
+  /** dipanggil tiap file selesai: (index, total, namaFile) */
+  onProgress?: (done: number, total: number, fileName: string) => void;
+};
+
+/**
+ * Upload beberapa file lokal sekaligus sebagai knowledge.
+ * Judul knowledge diambil dari nama file. Mengembalikan baris yang berhasil dibuat.
+ */
+export function useCreateAiKnowledgeFiles() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: KnowledgeFilesInput) => {
+      const created: AiKnowledge[] = [];
+      const total = input.files.length;
+      for (let i = 0; i < total; i++) {
+        const file = input.files[i];
+        // Jika berasal dari pilih-folder, pertahankan struktur foldernya.
+        const relPath =
+          (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+        const safePath = relPath.replace(/[^\w./-]+/g, "_");
+        const storage_path = `${input.agent_id}/${Date.now()}-${i}-${safePath}`;
+        const { error: upErr } = await supabase.storage
+          .from(KNOWLEDGE_BUCKET)
+          .upload(storage_path, file);
+        if (upErr) throw upErr;
+
+        const { data, error } = await supabase
+          .from("ai_knowledge")
+          .insert({
+            agent_id: input.agent_id,
+            title: relPath.replace(/\.[^./\\]+$/, ""),
+            source_type: "file",
+            content: null,
+            url: null,
+            storage_path,
+            tags: input.tags ?? [],
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        created.push(data as AiKnowledge);
+        input.onProgress?.(i + 1, total, file.name);
+      }
+      return created;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-knowledge"] }),
+  });
+}
+
 export function useDeleteAiKnowledge() {
   const qc = useQueryClient();
   return useMutation({

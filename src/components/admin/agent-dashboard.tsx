@@ -1,14 +1,17 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Bot,
   BookOpen,
   ClipboardList,
   Eye,
+  FileText,
+  FolderPlus,
   Loader2,
   Pencil,
   Plus,
   Search,
   Trash2,
+  UploadCloud,
   User,
   Wrench,
   X,
@@ -43,6 +46,7 @@ import {
   useAiSops,
   useAiTools,
   useCreateAiKnowledge,
+  useCreateAiKnowledgeFiles,
   useCreateAiSop,
   useDeleteAiKnowledge,
   useDeleteAiSop,
@@ -292,9 +296,13 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
                   ?.models.split(",")
                   .map((m) => m.trim())
                   .filter(Boolean)[0];
+                const nextModel = first ?? model;
                 if (first) setModel(first);
+                updateAgent
+                  .mutateAsync({ id: agent.id, provider: v, model: nextModel })
+                  .then(() => toast.success(`Provider diganti ke ${v}.`))
+                  .catch((err) => toast.error(errMsg(err, "Gagal mengganti provider.")));
               }}
-              disabled={dis}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -307,7 +315,16 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={model} onValueChange={setModel} disabled={dis}>
+            <Select
+              value={model}
+              onValueChange={(v) => {
+                setModel(v);
+                updateAgent
+                  .mutateAsync({ id: agent.id, model: v })
+                  .then(() => toast.success(`Model diganti ke ${v}.`))
+                  .catch((err) => toast.error(errMsg(err, "Gagal mengganti model.")));
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -320,7 +337,7 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
               </SelectContent>
             </Select>
             <p className="text-xs opacity-50">
-              Provider &amp; daftar model diatur di{" "}
+              Langsung tersimpan saat diganti. Daftar model diatur di{" "}
               <a href="/admin/settings" className="underline">
                 Settings
               </a>
@@ -450,14 +467,75 @@ const kategoriStyle = (k: string) => {
   return "bg-coral/20 text-coral-deep";
 };
 
+// Batas & tipe file yang diterima untuk upload knowledge dari lokal.
+const MAX_FILE_MB = 20;
+const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
+const ACCEPTED_EXT = [
+  "pdf",
+  "doc",
+  "docx",
+  "txt",
+  "md",
+  "csv",
+  "xls",
+  "xlsx",
+  "ppt",
+  "pptx",
+  "png",
+  "jpg",
+  "jpeg",
+];
+const ACCEPT_ATTR = ACCEPTED_EXT.map((e) => `.${e}`).join(",");
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/** Kembalikan pesan error jika file tidak valid, atau null jika lolos. */
+function validateFile(file: File): string | null {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!ACCEPTED_EXT.includes(ext)) return `Tipe .${ext} tidak didukung`;
+  if (file.size > MAX_FILE_BYTES) return `Melebihi ${MAX_FILE_MB}MB`;
+  return null;
+}
+
 function KnowledgePanel({ agent }: { agent: AiAgent }) {
   const { data: items, isLoading } = useAiKnowledge(agent.id);
   const createKnowledge = useCreateAiKnowledge();
+  const createKnowledgeFiles = useCreateAiKnowledgeFiles();
   const deleteKnowledge = useDeleteAiKnowledge();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [sourceType, setSourceType] = useState<AiKnowledgeSource>("teks");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
+
+  const relKey = (f: File) =>
+    (f as File & { webkitRelativePath?: string }).webkitRelativePath || f.name;
+
+  const addFiles = (incoming: FileList | File[]) => {
+    const accepted: File[] = [];
+    let skipped = 0;
+    for (const f of Array.from(incoming)) {
+      if (validateFile(f)) {
+        skipped++;
+        continue;
+      }
+      accepted.push(f);
+    }
+    if (skipped > 0) toast.error(`${skipped} file dilewati (tipe/ukuran tidak sesuai).`);
+    if (accepted.length === 0) return;
+    setFiles((prev) => {
+      const seen = new Set(prev.map((p) => `${relKey(p)}-${p.size}`));
+      return [...prev, ...accepted.filter((f) => !seen.has(`${relKey(f)}-${f.size}`))];
+    });
+  };
+
+  const removeFile = (idx: number) => setFiles((prev) => prev.filter((_, i) => i !== idx));
 
   const filtered = useMemo(
     () => (items ?? []).filter((k) => k.title.toLowerCase().includes(q.toLowerCase())),
@@ -477,6 +555,12 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
     }
   };
 
+  const resetForm = () => {
+    setFiles([]);
+    setProgress(null);
+    setSourceType("teks");
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -485,20 +569,36 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
       "";
     const kategori = val("kategori") || "Referensi";
     try {
-      await createKnowledge.mutateAsync({
-        agent_id: agent.id,
-        title: val("title"),
-        source_type: sourceType,
-        content: sourceType === "teks" ? val("content") : undefined,
-        url: sourceType === "url" ? val("url") : undefined,
-        file: sourceType === "file" ? (file ?? undefined) : undefined,
-        tags: [kategori],
-      });
-      toast.success("Knowledge ditambahkan.");
+      if (sourceType === "file") {
+        if (files.length === 0) {
+          toast.error("Pilih minimal satu file.");
+          return;
+        }
+        setProgress({ done: 0, total: files.length });
+        await createKnowledgeFiles.mutateAsync({
+          agent_id: agent.id,
+          files,
+          tags: [kategori],
+          onProgress: (done, total) => setProgress({ done, total }),
+        });
+        toast.success(`${files.length} file diupload.`);
+      } else {
+        await createKnowledge.mutateAsync({
+          agent_id: agent.id,
+          title: val("title"),
+          source_type: sourceType,
+          content: sourceType === "teks" ? val("content") : undefined,
+          url: sourceType === "url" ? val("url") : undefined,
+          tags: [kategori],
+        });
+        toast.success("Knowledge ditambahkan.");
+      }
       setOpen(false);
-      setFile(null);
+      resetForm();
     } catch (err) {
       toast.error(errMsg(err, "Gagal menambah knowledge."));
+    } finally {
+      setProgress(null);
     }
   };
 
@@ -586,7 +686,13 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) resetForm();
+        }}
+      >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Tambah Knowledge — {agent.name}</DialogTitle>
@@ -594,10 +700,12 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="k-title">Judul</Label>
-                <Input id="k-title" name="title" required />
-              </div>
+              {sourceType !== "file" ? (
+                <div className="space-y-1.5">
+                  <Label htmlFor="k-title">Judul</Label>
+                  <Input id="k-title" name="title" required />
+                </div>
+              ) : null}
               <div className="space-y-1.5">
                 <Label htmlFor="kategori">Kategori</Label>
                 <Input
@@ -636,24 +744,123 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
               </div>
             ) : null}
             {sourceType === "file" ? (
-              <div className="space-y-1.5">
-                <Label htmlFor="k-file">File</Label>
-                <Input
-                  id="k-file"
-                  type="file"
-                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  required
-                />
+              <div className="space-y-2">
+                <Label>File dari komputer</Label>
+                <label
+                  htmlFor="k-file"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragActive(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setDragActive(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragActive(false);
+                    if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
+                  }}
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition ${
+                    dragActive
+                      ? "border-mint-deep bg-mint/10"
+                      : "border-navy/20 hover:border-mint-deep hover:bg-cream-deep/40"
+                  }`}
+                >
+                  <UploadCloud className="h-8 w-8 text-mint-deep" />
+                  <span className="text-sm font-semibold text-navy">
+                    Tarik &amp; letakkan file di sini, atau klik untuk memilih
+                  </span>
+                  <span className="text-xs opacity-60">
+                    {ACCEPTED_EXT.join(", ")} — maks {MAX_FILE_MB}MB per file
+                  </span>
+                  <input
+                    id="k-file"
+                    type="file"
+                    multiple
+                    accept={ACCEPT_ATTR}
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) addFiles(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+
+                <div className="flex items-center justify-center gap-2 text-xs">
+                  <span className="opacity-50">atau</span>
+                  <button
+                    type="button"
+                    onClick={() => folderInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-navy/20 px-3 py-1.5 font-semibold text-navy transition hover:border-mint-deep hover:bg-cream-deep/40"
+                  >
+                    <FolderPlus className="h-3.5 w-3.5" /> Pilih 1 folder (semua isi)
+                  </button>
+                  <input
+                    ref={folderInputRef}
+                    type="file"
+                    multiple
+                    // @ts-expect-error atribut non-standar untuk memilih folder
+                    webkitdirectory=""
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) addFiles(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </div>
+
+                {files.length > 0 ? (
+                  <ul className="space-y-1.5">
+                    {files.map((f, i) => (
+                      <li
+                        key={`${f.name}-${f.size}-${i}`}
+                        className="flex items-center gap-2 rounded-xl bg-cream-deep/50 px-3 py-2 text-sm"
+                      >
+                        <FileText className="h-4 w-4 shrink-0 text-navy/60" />
+                        <span className="min-w-0 flex-1 truncate font-medium text-navy">
+                          {(f as File & { webkitRelativePath?: string }).webkitRelativePath || f.name}
+                        </span>
+                        <span className="shrink-0 text-xs opacity-60">{formatBytes(f.size)}</span>
+                        <button
+                          type="button"
+                          aria-label="Hapus file"
+                          onClick={() => removeFile(i)}
+                          disabled={createKnowledgeFiles.isPending}
+                          className="grid h-6 w-6 shrink-0 place-items-center rounded-lg text-coral-deep/70 hover:bg-coral/15 disabled:opacity-40"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {progress ? (
+                  <div className="space-y-1">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-navy/10">
+                      <div
+                        className="h-full rounded-full bg-mint-deep transition-all"
+                        style={{ width: `${(progress.done / progress.total) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-xs opacity-60">
+                      Mengupload {progress.done}/{progress.total} file...
+                    </p>
+                  </div>
+                ) : null}
               </div>
             ) : null}
             <DialogFooter>
               <button
                 type="submit"
-                disabled={createKnowledge.isPending}
+                disabled={createKnowledge.isPending || createKnowledgeFiles.isPending}
                 className="inline-flex items-center gap-2 rounded-full bg-sun px-5 py-2 text-sm font-bold text-navy-deep shadow-[0_4px_0_rgba(11,27,46,0.2)] disabled:opacity-60"
               >
-                {createKnowledge.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Simpan
+                {createKnowledge.isPending || createKnowledgeFiles.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
+                {sourceType === "file" && files.length > 0 ? `Upload ${files.length} file` : "Simpan"}
               </button>
             </DialogFooter>
           </form>
