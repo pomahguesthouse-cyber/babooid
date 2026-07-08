@@ -21,7 +21,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
 import { Route as CadAgentRouteImport } from './routes/cad-agent'
+import { Route as BackendRouteImport } from './routes/backend'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
+import { Route as BabooCadRouteImport } from './routes/baboo-cad'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
@@ -88,9 +90,19 @@ const CadAgentRoute = CadAgentRouteImport.update({
   path: '/cad-agent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BackendRoute = BackendRouteImport.update({
+  id: '/backend',
+  path: '/backend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BabooCivilRoute = BabooCivilRouteImport.update({
   id: '/baboo-civil',
   path: '/baboo-civil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BabooCadRoute = BabooCadRouteImport.update({
+  id: '/baboo-cad',
+  path: '/baboo-cad',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -122,7 +134,9 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/backend': typeof BackendRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
@@ -142,7 +156,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/backend': typeof BackendRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
@@ -162,7 +178,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/backend': typeof BackendRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
@@ -184,7 +202,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/baboo-cad'
     | '/baboo-civil'
+    | '/backend'
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
@@ -204,7 +224,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/baboo-cad'
     | '/baboo-civil'
+    | '/backend'
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
@@ -223,7 +245,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/baboo-cad'
     | '/baboo-civil'
+    | '/backend'
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
@@ -244,7 +268,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  BabooCadRoute: typeof BabooCadRoute
   BabooCivilRoute: typeof BabooCivilRoute
+  BackendRoute: typeof BackendRoute
   CadAgentRoute: typeof CadAgentRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
   DaftarBabooRoute: typeof DaftarBabooRoute
@@ -346,11 +372,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadAgentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/backend': {
+      id: '/backend'
+      path: '/backend'
+      fullPath: '/backend'
+      preLoaderRoute: typeof BackendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/baboo-civil': {
       id: '/baboo-civil'
       path: '/baboo-civil'
       fullPath: '/baboo-civil'
       preLoaderRoute: typeof BabooCivilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/baboo-cad': {
+      id: '/baboo-cad'
+      path: '/baboo-cad'
+      fullPath: '/baboo-cad'
+      preLoaderRoute: typeof BabooCadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -408,7 +448,9 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  BabooCadRoute: BabooCadRoute,
   BabooCivilRoute: BabooCivilRoute,
+  BackendRoute: BackendRoute,
   CadAgentRoute: CadAgentRoute,
   CaraKerjaRoute: CaraKerjaRoute,
   DaftarBabooRoute: DaftarBabooRoute,
