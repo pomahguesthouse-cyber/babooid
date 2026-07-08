@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "./supabase";
+import { isSupabaseConfigured, supabase } from "./supabase";
 
 type AuthContextValue = {
   session: Session | null;
@@ -25,6 +25,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return () => {
+        active = false;
+      };
+    }
 
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
@@ -51,6 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       loading,
       signInWithGoogle: async () => {
+        if (!isSupabaseConfigured) {
+          throw new Error("Supabase belum dikonfigurasi.");
+        }
+
         const redirectTo =
           typeof window !== "undefined"
             ? `${window.location.origin}/auth/callback`
@@ -62,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
       },
       signOut: async () => {
+        if (!isSupabaseConfigured) return;
+
         await supabase.auth.signOut();
       },
     }),

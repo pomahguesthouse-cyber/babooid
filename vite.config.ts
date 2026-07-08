@@ -12,4 +12,7 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Di dalam build Lovable, preset dipaksa ke Cloudflare (override ini diabaikan).
+  // Di luar Lovable (mis. VPS), build menghasilkan server Node di .output/server/index.mjs.
+  nitro: { preset: "node-server" },
 });
