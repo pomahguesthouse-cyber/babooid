@@ -27,8 +27,10 @@ import { Route as BabooCadRouteImport } from './routes/baboo-cad'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardProjectIdRouteImport } from './routes/dashboard.$projectId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AdminAgentsKeyRouteImport } from './routes/admin.agents.$key'
 
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
@@ -120,6 +122,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const DashboardProjectIdRoute = DashboardProjectIdRouteImport.update({
   id: '/$projectId',
   path: '/$projectId',
@@ -130,10 +137,15 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAgentsKeyRoute = AdminAgentsKeyRouteImport.update({
+  id: '/agents/$key',
+  path: '/agents/$key',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
   '/backend': typeof BackendRoute
@@ -151,11 +163,12 @@ export interface FileRoutesByFullPath {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/admin/agents/$key': typeof AdminAgentsKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
   '/backend': typeof BackendRoute
@@ -172,12 +185,14 @@ export interface FileRoutesByTo {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/admin/agents/$key': typeof AdminAgentsKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
   '/backend': typeof BackendRoute
@@ -195,7 +210,9 @@ export interface FileRoutesById {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/admin/agents/$key': typeof AdminAgentsKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -219,11 +236,12 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
+    | '/admin/'
     | '/dashboard/'
+    | '/admin/agents/$key'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/baboo-cad'
     | '/baboo-civil'
     | '/backend'
@@ -240,7 +258,9 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
+    | '/admin'
     | '/dashboard'
+    | '/admin/agents/$key'
   id:
     | '__root__'
     | '/'
@@ -262,12 +282,14 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
+    | '/admin/'
     | '/dashboard/'
+    | '/admin/agents/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BabooCadRoute: typeof BabooCadRoute
   BabooCivilRoute: typeof BabooCivilRoute
   BackendRoute: typeof BackendRoute
@@ -414,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/dashboard/$projectId': {
       id: '/dashboard/$projectId'
       path: '/$projectId'
@@ -428,8 +457,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/agents/$key': {
+      id: '/admin/agents/$key'
+      path: '/agents/$key'
+      fullPath: '/admin/agents/$key'
+      preLoaderRoute: typeof AdminAgentsKeyRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminAgentsKeyRoute: typeof AdminAgentsKeyRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminAgentsKeyRoute: AdminAgentsKeyRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardProjectIdRoute: typeof DashboardProjectIdRoute
@@ -447,7 +495,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BabooCadRoute: BabooCadRoute,
   BabooCivilRoute: BabooCivilRoute,
   BackendRoute: BackendRoute,

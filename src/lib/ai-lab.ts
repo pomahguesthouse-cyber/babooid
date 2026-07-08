@@ -18,6 +18,7 @@ export type AiAgent = {
   temperature: number;
   status: AiAgentStatus;
   accent: string;
+  tags: string[];
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -117,6 +118,7 @@ export type AgentInput = {
   temperature?: number;
   status?: AiAgentStatus;
   accent?: string;
+  tags?: string[];
 };
 
 export function useCreateAiAgent() {
@@ -426,5 +428,81 @@ export function useCreateTrainingRun() {
       return data as AiTrainingRun;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-training-runs"] }),
+  });
+}
+
+// ---------------- SOP ----------------
+export type AiSop = {
+  id: string;
+  agent_id: string;
+  title: string;
+  purpose: string | null;
+  steps: string[];
+  output: string | null;
+  sort: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export function useAiSops(agentId?: string) {
+  return useQuery({
+    queryKey: ["ai-sops", agentId ?? "all"],
+    queryFn: async (): Promise<AiSop[]> => {
+      let query = supabase.from("ai_sops").select("*").order("sort", { ascending: true });
+      if (agentId) query = query.eq("agent_id", agentId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as AiSop[];
+    },
+  });
+}
+
+export type SopInput = {
+  agent_id: string;
+  title: string;
+  purpose?: string;
+  steps?: string[];
+  output?: string;
+  sort?: number;
+};
+
+export function useCreateAiSop() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: SopInput) => {
+      const { data, error } = await supabase.from("ai_sops").insert(input).select().single();
+      if (error) throw error;
+      return data as AiSop;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-sops"] }),
+  });
+}
+
+export function useUpdateAiSop() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: Partial<SopInput> & { id: string }) => {
+      const { id, ...rest } = input;
+      const { data, error } = await supabase
+        .from("ai_sops")
+        .update(rest)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiSop;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-sops"] }),
+  });
+}
+
+export function useDeleteAiSop() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("ai_sops").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-sops"] }),
   });
 }
