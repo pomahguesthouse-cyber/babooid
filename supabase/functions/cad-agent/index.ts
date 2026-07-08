@@ -19,7 +19,60 @@ declare const Deno: { env: { get(key: string): string | undefined } };
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const MODEL = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-sonnet-4-6";
+
+// Konfigurasi agent dibaca dari AI Lab (tabel ai_agents, key='cad').
+// Di-cache sebentar agar tidak query tiap request.
+type AgentConfig = { system_prompt: string; model: string; temperature: number };
+let cachedConfig: { value: AgentConfig | null; at: number } = { value: null, at: 0 };
+const CONFIG_TTL_MS = 60_000;
+
+async function getAgentConfig(): Promise<AgentConfig | null> {
+  if (!SERVICE_ROLE_KEY) return null;
+  const now = Date.now();
+  if (cachedConfig.value && now - cachedConfig.at < CONFIG_TTL_MS) return cachedConfig.value;
+  try {
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    const { data, error } = await admin
+      .from("ai_agents")
+      .select("system_prompt, model, temperature, status")
+      .eq("key", "cad")
+      .single();
+    if (error || !data || data.status !== "aktif" || !data.system_prompt?.trim()) {
+      cachedConfig = { value: null, at: now };
+      return null;
+    }
+    cachedConfig = {
+      value: {
+        system_prompt: data.system_prompt,
+        model: data.model || MODEL,
+        temperature: typeof data.temperature === "number" ? data.temperature : 0.2,
+      },
+      at: now,
+    };
+    return cachedConfig.value;
+  } catch {
+    return cachedConfig.value;
+  }
+}
+
+// Kontrak output — selalu ditambahkan, apa pun prompt dari AI Lab,
+// agar parsing JSON di bawah tetap bekerja.
+const OUTPUT_CONTRACT = [
+  "",
+  "Selain LISP, keluarkan juga daftar 'entities' — geometri yang SAMA dengan yang",
+  "digambar LISP — untuk preview 2D. Tipe yang didukung:",
+  '- {"type":"line","p1":[x,y],"p2":[x,y]}',
+  '- {"type":"circle","center":[x,y],"r":10}',
+  '- {"type":"arc","center":[x,y],"r":10,"start":0,"end":90}  (derajat, CCW)',
+  '- {"type":"polyline","points":[[x,y],...],"closed":true}',
+  '- {"type":"text","at":[x,y],"h":250,"value":"RUANG TAMU"}',
+  'Opsional per entity: "layer":"NAMA".',
+  "",
+  "WAJIB balas HANYA dengan JSON valid tanpa teks lain, bentuk:",
+  '{"message":"penjelasan & asumsi","lisp":"(defun c:GAMBAR ...)","entities":[...]}',
+].join("\n");
 
 const ALLOWED_MEDIA = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // ~5MB base64
@@ -138,6 +191,12 @@ Deno.serve(async (req: Request) => {
       { role: "user", content: userContent },
     ];
 
+    // Ambil setting dari AI Lab; fallback ke prompt bawaan bila belum ada.
+    const agentConfig = await getAgentConfig();
+    const systemPrompt = agentConfig
+      ? agentConfig.system_prompt + "\n" + OUTPUT_CONTRACT
+      : SYSTEM_PROMPT;
+
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -146,9 +205,10 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: agentConfig?.model ?? MODEL,
         max_tokens: 8000,
-        system: SYSTEM_PROMPT,
+        temperature: agentConfig?.temperature ?? 0.2,
+        system: systemPrompt,
         messages: messagesForLlm,
       }),
     });
