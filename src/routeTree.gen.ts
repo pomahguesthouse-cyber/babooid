@@ -31,6 +31,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardProjectIdRouteImport } from './routes/dashboard.$projectId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AdminAgentsKeyRouteImport } from './routes/admin.agents.$key'
+import { Route as AdminAgentKeyRouteImport } from './routes/admin.agent.$key'
 
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
@@ -142,6 +143,11 @@ const AdminAgentsKeyRoute = AdminAgentsKeyRouteImport.update({
   path: '/agents/$key',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAgentKeyRoute = AdminAgentKeyRouteImport.update({
+  id: '/agent/$key',
+  path: '/agent/$key',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/admin/agent/$key': typeof AdminAgentKeyRoute
   '/admin/agents/$key': typeof AdminAgentsKeyRoute
 }
 export interface FileRoutesByTo {
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/admin/agent/$key': typeof AdminAgentKeyRoute
   '/admin/agents/$key': typeof AdminAgentsKeyRoute
 }
 export interface FileRoutesById {
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/admin/agent/$key': typeof AdminAgentKeyRoute
   '/admin/agents/$key': typeof AdminAgentsKeyRoute
 }
 export interface FileRouteTypes {
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/dashboard/$projectId'
     | '/admin/'
     | '/dashboard/'
+    | '/admin/agent/$key'
     | '/admin/agents/$key'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/dashboard/$projectId'
     | '/admin'
     | '/dashboard'
+    | '/admin/agent/$key'
     | '/admin/agents/$key'
   id:
     | '__root__'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/dashboard/$projectId'
     | '/admin/'
     | '/dashboard/'
+    | '/admin/agent/$key'
     | '/admin/agents/$key'
   fileRoutesById: FileRoutesById
 }
@@ -464,16 +476,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAgentsKeyRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/agent/$key': {
+      id: '/admin/agent/$key'
+      path: '/agent/$key'
+      fullPath: '/admin/agent/$key'
+      preLoaderRoute: typeof AdminAgentKeyRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminAgentKeyRoute: typeof AdminAgentKeyRoute
   AdminAgentsKeyRoute: typeof AdminAgentsKeyRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
+  AdminAgentKeyRoute: AdminAgentKeyRoute,
   AdminAgentsKeyRoute: AdminAgentsKeyRoute,
 }
 
