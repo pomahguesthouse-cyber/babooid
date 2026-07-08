@@ -2,7 +2,7 @@
 // CAD Agent — Edge Function (Supabase / Deno)
 // Menerima gambar (sketsa/denah/foto gambar teknik) + instruksi,
 // lalu menghasilkan script AutoLISP untuk AutoCAD beserta daftar
-// geometri (entities) untuk preview 2D di browser.
+// geometri (entities) untuk preview 2D di browser dan ekspor DXF.
 //
 // Secret yang dibutuhkan:
 //   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
@@ -14,7 +14,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Deno global tersedia di runtime Supabase Edge Functions.
-declare const Deno: { env: { get(key: string): string | undefined } };
+declare const Deno: {
+  env: { get(key: string): string | undefined };
+  serve(handler: (req: Request) => Response | Promise<Response>): void;
+};
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -25,6 +28,7 @@ const MODEL = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-sonnet-4-6";
 // Konfigurasi agent dibaca dari AI Lab (tabel ai_agents, key='cad').
 // Di-cache sebentar agar tidak query tiap request.
 type AgentConfig = {
+  id: string;
   system_prompt: string;
   model: string;
   temperature: number;
@@ -41,7 +45,7 @@ async function getAgentConfig(): Promise<AgentConfig | null> {
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
     const { data, error } = await admin
       .from("ai_agents")
-      .select("system_prompt, model, temperature, status, provider")
+      .select("id, system_prompt, model, temperature, status, provider")
       .eq("key", "cad")
       .single();
     if (error || !data || data.status !== "aktif" || !data.system_prompt?.trim()) {
@@ -50,6 +54,7 @@ async function getAgentConfig(): Promise<AgentConfig | null> {
     }
     cachedConfig = {
       value: {
+        id: data.id,
         system_prompt: data.system_prompt,
         model: data.model || MODEL,
         temperature: typeof data.temperature === "number" ? data.temperature : 0.2,
@@ -108,18 +113,111 @@ async function getApiKey(): Promise<string> {
   return cachedApiKey.value;
 }
 
+// ---------------- RAG CONTEXT ----------------
+
+type RagCache = { value: string; forAgentId: string; at: number };
+let cachedRag: RagCache = { value: "", forAgentId: "", at: 0 };
+const RAG_TTL_MS = 60_000;
+
+function trimBlock(text: string | null | undefined, max = 1400): string {
+  const value = (text ?? "").replace(/\s+/g, " ").trim();
+  return value.length > max ? `${value.slice(0, max)}…` : value;
+}
+
+async function getRagContext(agentId: string): Promise<string> {
+  if (!SERVICE_ROLE_KEY || !agentId) return "";
+  const now = Date.now();
+  if (cachedRag.forAgentId === agentId && now - cachedRag.at < RAG_TTL_MS) {
+    return cachedRag.value;
+  }
+
+  try {
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    const [knowledgeRes, sopRes, toolRes] = await Promise.all([
+      admin
+        .from("ai_knowledge")
+        .select("title, content, tags, source_type, url")
+        .eq("agent_id", agentId)
+        .order("created_at", { ascending: false })
+        .limit(12),
+      admin
+        .from("ai_sops")
+        .select("title, purpose, steps, output, sort")
+        .eq("agent_id", agentId)
+        .order("sort", { ascending: true })
+        .limit(10),
+      admin
+        .from("ai_agent_tools")
+        .select("ai_tools(name, description, type, config, enabled)")
+        .eq("agent_id", agentId),
+    ]);
+
+    const knowledgeLines = ((knowledgeRes.data ?? []) as Array<{
+      title: string;
+      content: string | null;
+      tags?: string[];
+      source_type?: string;
+      url?: string | null;
+    }>)
+      .filter((item) => item.content?.trim())
+      .map((item, i) => {
+        const tags = item.tags?.length ? ` [${item.tags.join(", ")}]` : "";
+        return `${i + 1}. ${item.title}${tags}: ${trimBlock(item.content)}`;
+      });
+
+    const sopLines = ((sopRes.data ?? []) as Array<{
+      title: string;
+      purpose: string | null;
+      steps: string[] | null;
+      output: string | null;
+    }>).map((sop, i) => {
+      const steps = Array.isArray(sop.steps) ? sop.steps.join(" → ") : "";
+      return `${i + 1}. ${sop.title}: ${trimBlock(sop.purpose, 500)} | Langkah: ${trimBlock(steps, 900)} | Output: ${trimBlock(sop.output, 300)}`;
+    });
+
+    const toolLines = ((toolRes.data ?? []) as Array<{
+      ai_tools?: {
+        name: string;
+        description: string | null;
+        type: string;
+        config: Record<string, unknown>;
+        enabled: boolean;
+      } | null;
+    }>)
+      .map((row) => row.ai_tools)
+      .filter((tool): tool is NonNullable<typeof tool> => Boolean(tool?.enabled))
+      .map((tool, i) => `${i + 1}. ${tool.name} (${tool.type}): ${trimBlock(tool.description, 500)} | config=${JSON.stringify(tool.config)}`);
+
+    const parts = [
+      "",
+      "KONTEKS RAG AKTIF DARI AI LAB BABOO:",
+      "Gunakan knowledge, SOP, dan tools berikut sebagai referensi utama. Jika konflik dengan instruksi user, prioritaskan instruksi user tetapi tetap jaga standar gambar teknik.",
+      knowledgeLines.length ? `\nKNOWLEDGE CAD:\n${knowledgeLines.join("\n")}` : "",
+      sopLines.length ? `\nSOP CAD:\n${sopLines.join("\n")}` : "",
+      toolLines.length ? `\nTOOLS CAD TERDAFTAR:\n${toolLines.join("\n")}` : "",
+      "",
+    ];
+
+    cachedRag = { value: parts.filter(Boolean).join("\n"), forAgentId: agentId, at: now };
+  } catch {
+    cachedRag = { value: "", forAgentId: agentId, at: now };
+  }
+  return cachedRag.value;
+}
+
 // Kontrak output — selalu ditambahkan, apa pun prompt dari AI Lab,
 // agar parsing JSON di bawah tetap bekerja.
 const OUTPUT_CONTRACT = [
   "",
   "Selain LISP, keluarkan juga daftar 'entities' — geometri yang SAMA dengan yang",
-  "digambar LISP — untuk preview 2D. Tipe yang didukung:",
-  '- {"type":"line","p1":[x,y],"p2":[x,y]}',
-  '- {"type":"circle","center":[x,y],"r":10}',
-  '- {"type":"arc","center":[x,y],"r":10,"start":0,"end":90}  (derajat, CCW)',
-  '- {"type":"polyline","points":[[x,y],...],"closed":true}',
-  '- {"type":"text","at":[x,y],"h":250,"value":"RUANG TAMU"}',
-  'Opsional per entity: "layer":"NAMA".',
+  "digambar LISP — untuk preview 2D dan ekspor DXF. Tipe yang didukung:",
+  '- {"type":"line","p1":[x,y],"p2":[x,y],"layer":"DINDING"}',
+  '- {"type":"circle","center":[x,y],"r":10,"layer":"DINDING"}',
+  '- {"type":"arc","center":[x,y],"r":10,"start":0,"end":90,"layer":"BUKAAN"}  (derajat, CCW)',
+  '- {"type":"polyline","points":[[x,y],...],"closed":true,"layer":"DINDING"}',
+  '- {"type":"text","at":[x,y],"h":250,"value":"RUANG TAMU","layer":"TEKS"}',
+  "Gunakan layer standar: AS, DINDING, BUKAAN, DIMENSI, TEKS, ARSIR, FURNITUR.",
+  "Jangan menggambar entity di layer 0.",
   "",
   "WAJIB balas HANYA dengan JSON valid tanpa teks lain, bentuk:",
   '{"message":"penjelasan & asumsi","lisp":"(defun c:GAMBAR ...)","entities":[...]}',
@@ -154,13 +252,13 @@ const SYSTEM_PROMPT = [
   "- Akhiri defun dengan (princ), lalu tambahkan (princ \"\\nKetik GAMBAR untuk menjalankan.\") di luar defun.",
   "",
   "Selain LISP, keluarkan juga daftar 'entities' — geometri yang SAMA dengan yang",
-  "digambar LISP — untuk preview 2D. Tipe yang didukung:",
-  '- {"type":"line","p1":[x,y],"p2":[x,y]}',
-  '- {"type":"circle","center":[x,y],"r":10}',
-  '- {"type":"arc","center":[x,y],"r":10,"start":0,"end":90}  (derajat, CCW)',
-  '- {"type":"polyline","points":[[x,y],...],"closed":true}',
-  '- {"type":"text","at":[x,y],"h":250,"value":"RUANG TAMU"}',
-  "Opsional per entity: \"layer\":\"NAMA\".",
+  "digambar LISP — untuk preview 2D dan ekspor DXF. Tipe yang didukung:",
+  '- {"type":"line","p1":[x,y],"p2":[x,y],"layer":"DINDING"}',
+  '- {"type":"circle","center":[x,y],"r":10,"layer":"DINDING"}',
+  '- {"type":"arc","center":[x,y],"r":10,"start":0,"end":90,"layer":"BUKAAN"}  (derajat, CCW)',
+  '- {"type":"polyline","points":[[x,y],...],"closed":true,"layer":"DINDING"}',
+  '- {"type":"text","at":[x,y],"h":250,"value":"RUANG TAMU","layer":"TEKS"}',
+  "Gunakan layer standar: AS, DINDING, BUKAAN, DIMENSI, TEKS, ARSIR, FURNITUR.",
   "",
   "Jika gambar tidak jelas atau bukan gambar teknik, jelaskan di 'message' apa",
   "yang kamu butuhkan, dan kembalikan lisp/entities kosong.",
@@ -178,6 +276,254 @@ function json(body: unknown, status = 200) {
 }
 
 type HistoryItem = { role: "user" | "assistant"; content: string };
+
+type Entity =
+  | { type: "line"; p1: [number, number]; p2: [number, number]; layer?: string }
+  | { type: "circle"; center: [number, number]; r: number; layer?: string }
+  | { type: "arc"; center: [number, number]; r: number; start: number; end: number; layer?: string }
+  | { type: "polyline"; points: [number, number][]; closed?: boolean; layer?: string }
+  | { type: "text"; at: [number, number]; h: number; value: string; layer?: string };
+
+type ValidationResult = { entities: Entity[]; warnings: string[] };
+
+const STANDARD_LAYERS = ["AS", "DINDING", "BUKAAN", "DIMENSI", "TEKS", "ARSIR", "FURNITUR"];
+const LAYER_COLORS: Record<string, number> = {
+  AS: 1,
+  DINDING: 2,
+  BUKAAN: 3,
+  DIMENSI: 4,
+  TEKS: 7,
+  ARSIR: 8,
+  FURNITUR: 6,
+};
+const LAYER_ALIASES: Record<string, string> = {
+  WALL: "DINDING",
+  WALLS: "DINDING",
+  DINDINGAN: "DINDING",
+  OPENING: "BUKAAN",
+  OPENINGS: "BUKAAN",
+  PINTU: "BUKAAN",
+  JENDELA: "BUKAAN",
+  TEXT: "TEKS",
+  TEKS: "TEKS",
+  DIMENSION: "DIMENSI",
+  DIMENSIONS: "DIMENSI",
+  DIM: "DIMENSI",
+  CENTER: "AS",
+  AXIS: "AS",
+  AXES: "AS",
+  HATCH: "ARSIR",
+  FURNITURE: "FURNITUR",
+};
+
+function asNumber(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Number(value.toFixed(4));
+}
+
+function asPoint(value: unknown): [number, number] | null {
+  if (!Array.isArray(value) || value.length < 2) return null;
+  const x = asNumber(value[0]);
+  const y = asNumber(value[1]);
+  return x === null || y === null ? null : [x, y];
+}
+
+function samePoint(a: [number, number], b: [number, number]): boolean {
+  return Math.abs(a[0] - b[0]) < 0.0001 && Math.abs(a[1] - b[1]) < 0.0001;
+}
+
+function sanitizeLayer(value: unknown, fallback: string, warnings: string[], index: number): string {
+  const raw = typeof value === "string" ? value.trim().toUpperCase().replace(/\s+/g, "_") : "";
+  if (!raw || raw === "0") {
+    warnings.push(`Entity #${index + 1}: layer kosong/0 diganti menjadi ${fallback}.`);
+    return fallback;
+  }
+  const mapped = LAYER_ALIASES[raw] ?? raw;
+  if (!STANDARD_LAYERS.includes(mapped)) {
+    warnings.push(`Entity #${index + 1}: layer \"${raw}\" tidak standar, diganti menjadi ${fallback}.`);
+    return fallback;
+  }
+  return mapped;
+}
+
+function validateEntities(input: unknown[]): ValidationResult {
+  const warnings: string[] = [];
+  const entities: Entity[] = [];
+
+  input.forEach((raw, index) => {
+    if (!raw || typeof raw !== "object") {
+      warnings.push(`Entity #${index + 1}: format bukan object, dilewati.`);
+      return;
+    }
+    const item = raw as Record<string, unknown>;
+    const type = item.type;
+
+    if (type === "line") {
+      const p1 = asPoint(item.p1);
+      const p2 = asPoint(item.p2);
+      if (!p1 || !p2 || samePoint(p1, p2)) {
+        warnings.push(`Entity #${index + 1}: line tidak valid, dilewati.`);
+        return;
+      }
+      entities.push({ type, p1, p2, layer: sanitizeLayer(item.layer, "DINDING", warnings, index) });
+      return;
+    }
+
+    if (type === "circle") {
+      const center = asPoint(item.center);
+      const r = asNumber(item.r);
+      if (!center || r === null || r <= 0) {
+        warnings.push(`Entity #${index + 1}: circle tidak valid, dilewati.`);
+        return;
+      }
+      entities.push({ type, center, r, layer: sanitizeLayer(item.layer, "DINDING", warnings, index) });
+      return;
+    }
+
+    if (type === "arc") {
+      const center = asPoint(item.center);
+      const r = asNumber(item.r);
+      const start = asNumber(item.start);
+      const end = asNumber(item.end);
+      if (!center || r === null || r <= 0 || start === null || end === null || start === end) {
+        warnings.push(`Entity #${index + 1}: arc tidak valid, dilewati.`);
+        return;
+      }
+      entities.push({ type, center, r, start, end, layer: sanitizeLayer(item.layer, "BUKAAN", warnings, index) });
+      return;
+    }
+
+    if (type === "polyline") {
+      const points = Array.isArray(item.points)
+        ? item.points.map(asPoint).filter((p): p is [number, number] => Boolean(p))
+        : [];
+      if (points.length < 2) {
+        warnings.push(`Entity #${index + 1}: polyline kurang dari 2 titik, dilewati.`);
+        return;
+      }
+      entities.push({
+        type,
+        points,
+        closed: Boolean(item.closed),
+        layer: sanitizeLayer(item.layer, "DINDING", warnings, index),
+      });
+      return;
+    }
+
+    if (type === "text") {
+      const at = asPoint(item.at);
+      const h = asNumber(item.h) ?? 250;
+      const value = typeof item.value === "string" ? item.value.trim() : "";
+      if (!at || h <= 0 || !value) {
+        warnings.push(`Entity #${index + 1}: text tidak valid, dilewati.`);
+        return;
+      }
+      entities.push({ type, at, h, value, layer: sanitizeLayer(item.layer, "TEKS", warnings, index) });
+      return;
+    }
+
+    warnings.push(`Entity #${index + 1}: tipe \"${String(type)}\" belum didukung, dilewati.`);
+  });
+
+  if (input.length > 0 && entities.length === 0) {
+    warnings.push("Semua entities dari model tidak valid; preview/DXF dikosongkan.");
+  }
+  return { entities, warnings: warnings.slice(0, 40) };
+}
+
+function dxfEscape(value: string): string {
+  return value.replace(/[\r\n]+/g, " ").replace(/[{}]/g, "").slice(0, 255);
+}
+
+function dxfPair(code: number, value: string | number): string {
+  return `${code}\n${value}`;
+}
+
+function generateDxf(entities: Entity[]): string {
+  if (!entities.length) return "";
+  const layers = Array.from(new Set([...STANDARD_LAYERS, ...entities.map((e) => e.layer ?? "DINDING")])).filter(Boolean);
+  const out: string[] = [];
+
+  out.push("0", "SECTION", "2", "HEADER", "9", "$ACADVER", "1", "AC1009", "0", "ENDSEC");
+  out.push("0", "SECTION", "2", "TABLES");
+  out.push("0", "TABLE", "2", "LAYER", "70", String(layers.length));
+  for (const layer of layers) {
+    out.push(
+      "0",
+      "LAYER",
+      "2",
+      layer,
+      "70",
+      "0",
+      "62",
+      String(LAYER_COLORS[layer] ?? 7),
+      "6",
+      layer === "AS" ? "CENTER" : "CONTINUOUS",
+    );
+  }
+  out.push("0", "ENDTAB", "0", "ENDSEC");
+  out.push("0", "SECTION", "2", "ENTITIES");
+
+  for (const entity of entities) {
+    const layer = entity.layer ?? "DINDING";
+    if (entity.type === "line") {
+      out.push(
+        "0",
+        "LINE",
+        dxfPair(8, layer),
+        dxfPair(10, entity.p1[0]),
+        dxfPair(20, entity.p1[1]),
+        dxfPair(30, 0),
+        dxfPair(11, entity.p2[0]),
+        dxfPair(21, entity.p2[1]),
+        dxfPair(31, 0),
+      );
+    } else if (entity.type === "circle") {
+      out.push(
+        "0",
+        "CIRCLE",
+        dxfPair(8, layer),
+        dxfPair(10, entity.center[0]),
+        dxfPair(20, entity.center[1]),
+        dxfPair(30, 0),
+        dxfPair(40, entity.r),
+      );
+    } else if (entity.type === "arc") {
+      out.push(
+        "0",
+        "ARC",
+        dxfPair(8, layer),
+        dxfPair(10, entity.center[0]),
+        dxfPair(20, entity.center[1]),
+        dxfPair(30, 0),
+        dxfPair(40, entity.r),
+        dxfPair(50, entity.start),
+        dxfPair(51, entity.end),
+      );
+    } else if (entity.type === "polyline") {
+      out.push("0", "POLYLINE", dxfPair(8, layer), dxfPair(66, 1), dxfPair(70, entity.closed ? 1 : 0));
+      for (const point of entity.points) {
+        out.push("0", "VERTEX", dxfPair(8, layer), dxfPair(10, point[0]), dxfPair(20, point[1]), dxfPair(30, 0));
+      }
+      out.push("0", "SEQEND");
+    } else if (entity.type === "text") {
+      out.push(
+        "0",
+        "TEXT",
+        dxfPair(8, layer),
+        dxfPair(10, entity.at[0]),
+        dxfPair(20, entity.at[1]),
+        dxfPair(30, 0),
+        dxfPair(40, entity.h),
+        dxfPair(1, dxfEscape(entity.value)),
+        dxfPair(50, 0),
+      );
+    }
+  }
+
+  out.push("0", "ENDSEC", "0", "EOF", "");
+  return out.join("\n");
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -240,9 +586,10 @@ Deno.serve(async (req: Request) => {
 
     // Ambil setting dari AI Lab; fallback ke prompt bawaan bila belum ada.
     const agentConfig = await getAgentConfig();
+    const ragContext = agentConfig?.id ? await getRagContext(agentConfig.id) : "";
     const systemPrompt = agentConfig
-      ? agentConfig.system_prompt + "\n" + OUTPUT_CONTRACT
-      : SYSTEM_PROMPT;
+      ? [agentConfig.system_prompt, ragContext, OUTPUT_CONTRACT].filter(Boolean).join("\n")
+      : [SYSTEM_PROMPT, ragContext].filter(Boolean).join("\n");
 
     // --- Pilih provider (multi-provider) ---
     const providerKey = agentConfig?.provider ?? "anthropic";
@@ -314,13 +661,13 @@ Deno.serve(async (req: Request) => {
     // Parse JSON dari model secara defensif.
     let reply = raw;
     let lisp = "";
-    let entities: unknown[] = [];
+    let rawEntities: unknown[] = [];
     try {
       const match = raw.match(/\{[\s\S]*\}/);
       const parsed = JSON.parse(match ? match[0] : raw);
       if (typeof parsed.message === "string") reply = parsed.message;
       if (typeof parsed.lisp === "string") lisp = parsed.lisp;
-      if (Array.isArray(parsed.entities)) entities = parsed.entities;
+      if (Array.isArray(parsed.entities)) rawEntities = parsed.entities;
     } catch {
       // Fallback: coba ekstrak blok kode LISP dari teks mentah.
       const code = raw.match(/```(?:lisp|autolisp)?\s*([\s\S]*?)```/);
@@ -330,7 +677,16 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    return json({ message: reply, lisp, entities });
+    const validation = validateEntities(rawEntities);
+    const dxf = generateDxf(validation.entities);
+
+    return json({
+      message: reply,
+      lisp,
+      entities: validation.entities,
+      dxf,
+      warnings: validation.warnings,
+    });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "Kesalahan tak terduga." }, 500);
   }
