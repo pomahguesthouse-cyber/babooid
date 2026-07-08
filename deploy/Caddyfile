@@ -1,0 +1,11 @@
+# Caddyfile untuk baboo.id — SSL otomatis via Let's Encrypt.
+# Pasang di /etc/caddy/Caddyfile lalu: sudo systemctl reload caddy
+
+baboo.id {
+	encode gzip zstd
+	reverse_proxy 127.0.0.1:3000
+}
+
+www.baboo.id {
+	redir https://baboo.id{uri} permanent
+}

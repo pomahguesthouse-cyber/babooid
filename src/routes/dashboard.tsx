@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { FlaskConical, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -70,8 +70,8 @@ function DashboardLayout() {
             </div>
 
             {isAdmin ? (
-              <Link
-                to="/dashboard/ai-lab"
+              <a
+                href="https://ai.baboo.id/admin"
                 className="card-pop flex items-center gap-3 p-4 transition hover:-translate-y-0.5"
               >
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-navy text-cream">
@@ -79,9 +79,9 @@ function DashboardLayout() {
                 </span>
                 <div>
                   <p className="font-display text-sm font-bold text-navy">AI Lab</p>
-                  <p className="text-xs opacity-70">Kelola agent, tools & knowledge</p>
+                  <p className="text-xs opacity-70">Backend — ai.baboo.id</p>
                 </div>
-              </Link>
+              </a>
             ) : null}
           </div>
         </aside>

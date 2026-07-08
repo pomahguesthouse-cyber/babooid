@@ -22,9 +22,9 @@ import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
 import { Route as CadAgentRouteImport } from './routes/cad-agent'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
-import { Route as DashboardAiLabRouteImport } from './routes/dashboard.ai-lab'
 import { Route as DashboardProjectIdRouteImport } from './routes/dashboard.$projectId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
@@ -93,6 +93,11 @@ const BabooCivilRoute = BabooCivilRouteImport.update({
   path: '/baboo-civil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -101,11 +106,6 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardAiLabRoute = DashboardAiLabRouteImport.update({
-  id: '/ai-lab',
-  path: '/ai-lab',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardProjectIdRoute = DashboardProjectIdRouteImport.update({
@@ -121,6 +121,7 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/baboo-civil': typeof BabooCivilRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
@@ -136,11 +137,11 @@ export interface FileRoutesByFullPath {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
-  '/dashboard/ai-lab': typeof DashboardAiLabRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/baboo-civil': typeof BabooCivilRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
@@ -155,12 +156,12 @@ export interface FileRoutesByTo {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
-  '/dashboard/ai-lab': typeof DashboardAiLabRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/baboo-civil': typeof BabooCivilRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
@@ -176,13 +177,13 @@ export interface FileRoutesById {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
-  '/dashboard/ai-lab': typeof DashboardAiLabRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/baboo-civil'
     | '/cad-agent'
     | '/cara-kerja'
@@ -198,11 +199,11 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
-    | '/dashboard/ai-lab'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/baboo-civil'
     | '/cad-agent'
     | '/cara-kerja'
@@ -217,11 +218,11 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
-    | '/dashboard/ai-lab'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/baboo-civil'
     | '/cad-agent'
     | '/cara-kerja'
@@ -237,12 +238,12 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
-    | '/dashboard/ai-lab'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   BabooCivilRoute: typeof BabooCivilRoute
   CadAgentRoute: typeof CadAgentRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
@@ -352,6 +353,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BabooCivilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -364,13 +372,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/ai-lab': {
-      id: '/dashboard/ai-lab'
-      path: '/ai-lab'
-      fullPath: '/dashboard/ai-lab'
-      preLoaderRoute: typeof DashboardAiLabRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/$projectId': {
@@ -392,13 +393,11 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardProjectIdRoute: typeof DashboardProjectIdRoute
-  DashboardAiLabRoute: typeof DashboardAiLabRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardProjectIdRoute: DashboardProjectIdRoute,
-  DashboardAiLabRoute: DashboardAiLabRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -408,6 +407,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   BabooCivilRoute: BabooCivilRoute,
   CadAgentRoute: CadAgentRoute,
   CaraKerjaRoute: CaraKerjaRoute,

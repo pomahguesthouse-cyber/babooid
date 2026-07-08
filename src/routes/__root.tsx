@@ -109,11 +109,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/27fe109b-2e98-4ce3-8032-20221ccf22da",
       },
-      { name: "description", content: "Baboo.id offers AI Agents to automate customer service, sales, and operations for businesses." },
-      { property: "og:description", content: "Baboo.id offers AI Agents to automate customer service, sales, and operations for businesses." },
-      { name: "twitter:description", content: "Baboo.id offers AI Agents to automate customer service, sales, and operations for businesses." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/90f2dad7-98cd-4cc9-8f8c-9df78ddeacfb" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/90f2dad7-98cd-4cc9-8f8c-9df78ddeacfb" },
+      {
+        name: "description",
+        content:
+          "Baboo.id offers AI Agents to automate customer service, sales, and operations for businesses.",
+      },
+      {
+        property: "og:description",
+        content:
+          "Baboo.id offers AI Agents to automate customer service, sales, and operations for businesses.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Baboo.id offers AI Agents to automate customer service, sales, and operations for businesses.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/90f2dad7-98cd-4cc9-8f8c-9df78ddeacfb",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/90f2dad7-98cd-4cc9-8f8c-9df78ddeacfb",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -145,12 +165,29 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Pemisahan domain:
+ * - ai.baboo.id  -> hanya area backend (/admin); path lain dialihkan ke /admin.
+ * - baboo.id     -> situs publik; /admin dialihkan ke ai.baboo.id (dicek di route admin).
+ */
+function HostGuard() {
+  useEffect(() => {
+    const host = window.location.hostname;
+    const path = window.location.pathname;
+    if (host.startsWith("ai.") && !path.startsWith("/admin")) {
+      window.location.replace("/admin");
+    }
+  }, []);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <HostGuard />
         <Outlet />
         <Toaster position="top-center" />
       </AuthProvider>

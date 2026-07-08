@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import {
   Bot,
@@ -77,13 +76,6 @@ import {
   type AiToolType,
 } from "@/lib/ai-lab";
 
-export const Route = createFileRoute("/dashboard/ai-lab")({
-  head: () => ({
-    meta: [{ title: "AI Lab — Baboo.id" }],
-  }),
-  component: AiLabPage,
-});
-
 // ---------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------
@@ -139,7 +131,7 @@ function AgentSelect({
 // ---------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------
-function AiLabPage() {
+export function AiLabPanel() {
   const { data: isAdmin, isLoading } = useIsAdmin();
 
   if (isLoading) {
