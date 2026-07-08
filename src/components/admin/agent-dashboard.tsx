@@ -3,8 +3,11 @@ import {
   Bot,
   BookOpen,
   ClipboardList,
+  ChevronRight,
   Eye,
   FileText,
+  Folder,
+  FolderOpen,
   FolderPlus,
   Loader2,
   Pencil,
@@ -45,8 +48,13 @@ import {
   useAiKnowledge,
   useAiSops,
   useAiTools,
+  useAiKnowledgeFolders,
   useCreateAiKnowledge,
   useCreateAiKnowledgeFiles,
+  useCreateKnowledgeFolder,
+  useRenameKnowledgeFolder,
+  useDeleteKnowledgeFolder,
+  useMoveAiKnowledge,
   useCreateAiSop,
   useDeleteAiKnowledge,
   useDeleteAiSop,
@@ -55,6 +63,7 @@ import {
   useUpdateAiSop,
   type AiAgent,
   type AiKnowledge,
+  type AiKnowledgeFolder,
   type AiKnowledgeSource,
   type AiSop,
 } from "@/lib/ai-lab";
@@ -503,16 +512,71 @@ function validateFile(file: File): string | null {
 
 function KnowledgePanel({ agent }: { agent: AiAgent }) {
   const { data: items, isLoading } = useAiKnowledge(agent.id);
+  const { data: folders } = useAiKnowledgeFolders(agent.id);
   const createKnowledge = useCreateAiKnowledge();
   const createKnowledgeFiles = useCreateAiKnowledgeFiles();
   const deleteKnowledge = useDeleteAiKnowledge();
+  const createFolder = useCreateKnowledgeFolder();
+  const renameFolder = useRenameKnowledgeFolder();
+  const deleteFolder = useDeleteKnowledgeFolder();
+  const moveKnowledge = useMoveAiKnowledge();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
-  const [sourceType, setSourceType] = useState<AiKnowledgeSource>("teks");
+  const [sourceType, setSourceType] = useState<AiKnowledgeSource>("file");
   const [files, setFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  // Dialog buat/rename folder
+  const [folderDialog, setFolderDialog] = useState<
+    { mode: "create" } | { mode: "rename"; id: string; name: string } | null
+  >(null);
+
+  const folderList = folders ?? [];
+  const currentFolder = folderList.find((f) => f.id === currentFolderId) ?? null;
+  const countIn = (fid: string | null) =>
+    (items ?? []).filter((k) => (k.folder_id ?? null) === fid).length;
+
+  const openFolderCreate = () => setFolderDialog({ mode: "create" });
+
+  const submitFolder = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!folderDialog) return;
+    const name = (
+      (e.currentTarget.elements.namedItem("folderName") as HTMLInputElement | null)?.value ?? ""
+    ).trim();
+    if (!name) return;
+    try {
+      if (folderDialog.mode === "create") {
+        await createFolder.mutateAsync({ agent_id: agent.id, name });
+        toast.success("Folder dibuat.");
+      } else {
+        await renameFolder.mutateAsync({ id: folderDialog.id, name });
+        toast.success("Folder diganti nama.");
+      }
+      setFolderDialog(null);
+    } catch (err) {
+      toast.error(errMsg(err, "Gagal menyimpan folder (nama mungkin sudah ada)."));
+    }
+  };
+
+  const handleDeleteFolder = (f: AiKnowledgeFolder) => {
+    const n = countIn(f.id);
+    if (
+      !window.confirm(
+        `Hapus folder "${f.name}"?${n > 0 ? ` ${n} file di dalamnya akan dipindah ke root.` : ""}`,
+      )
+    )
+      return;
+    deleteFolder
+      .mutateAsync(f.id)
+      .then(() => {
+        toast.success("Folder dihapus.");
+        if (currentFolderId === f.id) setCurrentFolderId(null);
+      })
+      .catch((err) => toast.error(errMsg(err, "Gagal menghapus folder.")));
+  };
 
   const relKey = (f: File) =>
     (f as File & { webkitRelativePath?: string }).webkitRelativePath || f.name;
@@ -538,8 +602,13 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
   const removeFile = (idx: number) => setFiles((prev) => prev.filter((_, i) => i !== idx));
 
   const filtered = useMemo(
-    () => (items ?? []).filter((k) => k.title.toLowerCase().includes(q.toLowerCase())),
-    [items, q],
+    () =>
+      (items ?? []).filter(
+        (k) =>
+          (k.folder_id ?? null) === currentFolderId &&
+          k.title.toLowerCase().includes(q.toLowerCase()),
+      ),
+    [items, q, currentFolderId],
   );
 
   const view = async (k: AiKnowledge) => {
@@ -558,7 +627,7 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
   const resetForm = () => {
     setFiles([]);
     setProgress(null);
-    setSourceType("teks");
+    setSourceType("file");
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -579,6 +648,7 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
           agent_id: agent.id,
           files,
           tags: [kategori],
+          folder_id: currentFolderId,
           onProgress: (done, total) => setProgress({ done, total }),
         });
         toast.success(`${files.length} file diupload.`);
@@ -590,6 +660,7 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
           content: sourceType === "teks" ? val("content") : undefined,
           url: sourceType === "url" ? val("url") : undefined,
           tags: [kategori],
+          folder_id: currentFolderId,
         });
         toast.success("Knowledge ditambahkan.");
       }
@@ -607,15 +678,66 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
       icon={BookOpen}
       title="2. Knowledge"
       action={
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-sun px-4 py-1.5 text-xs font-bold text-navy-deep shadow-[0_3px_0_rgba(11,27,46,0.2)] transition hover:-translate-y-0.5"
-        >
-          <Plus className="h-3.5 w-3.5" /> Tambah Knowledge
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={openFolderCreate}
+            className="inline-flex items-center gap-1.5 rounded-full border border-navy/20 bg-white px-3 py-1.5 text-xs font-bold text-navy transition hover:border-mint-deep hover:bg-cream-deep/40"
+          >
+            <FolderPlus className="h-3.5 w-3.5" /> Buat Folder
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSourceType("file");
+              setOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full bg-sun px-4 py-1.5 text-xs font-bold text-navy-deep shadow-[0_3px_0_rgba(11,27,46,0.2)] transition hover:-translate-y-0.5"
+          >
+            <Plus className="h-3.5 w-3.5" /> Tambah Knowledge
+          </button>
+        </div>
       }
     >
+      {/* Breadcrumb navigasi folder */}
+      <div className="mb-3 flex flex-wrap items-center gap-1 text-sm">
+        <button
+          type="button"
+          onClick={() => setCurrentFolderId(null)}
+          className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 font-semibold transition hover:bg-cream-deep ${
+            currentFolderId === null ? "text-navy" : "text-navy/60"
+          }`}
+        >
+          <BookOpen className="h-4 w-4" /> Knowledge
+        </button>
+        {currentFolder ? (
+          <>
+            <ChevronRight className="h-4 w-4 opacity-40" />
+            <span className="inline-flex items-center gap-1.5 px-1 py-1 font-semibold text-navy">
+              <FolderOpen className="h-4 w-4 text-sun-deep" /> {currentFolder.name}
+            </span>
+            <button
+              type="button"
+              aria-label="Ganti nama folder"
+              onClick={() =>
+                setFolderDialog({ mode: "rename", id: currentFolder.id, name: currentFolder.name })
+              }
+              className="grid h-7 w-7 place-items-center rounded-lg text-navy/60 hover:bg-cream-deep"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Hapus folder"
+              onClick={() => handleDeleteFolder(currentFolder)}
+              className="grid h-7 w-7 place-items-center rounded-lg text-coral-deep/70 hover:bg-coral/15"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </>
+        ) : null}
+      </div>
+
       <div className="relative mb-3">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" />
         <Input
@@ -626,12 +748,62 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
         />
       </div>
 
+      {/* Grid folder — tampil di root saat tidak sedang mencari */}
+      {currentFolderId === null && !q && folderList.length > 0 ? (
+        <div className="mb-4 grid gap-2 sm:grid-cols-2">
+          {folderList.map((f) => (
+            <div
+              key={f.id}
+              className="group flex items-center gap-3 rounded-2xl border border-navy/10 bg-cream-deep/40 px-3 py-2.5 transition hover:border-mint-deep hover:bg-cream-deep"
+            >
+              <button
+                type="button"
+                onClick={() => setCurrentFolderId(f.id)}
+                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sun/30 text-sun-deep">
+                  <Folder className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold text-navy">{f.name}</span>
+                  <span className="text-xs opacity-60">{countIn(f.id)} file</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-label="Ganti nama folder"
+                onClick={() => setFolderDialog({ mode: "rename", id: f.id, name: f.name })}
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-navy/50 hover:bg-white"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                aria-label="Hapus folder"
+                onClick={() => handleDeleteFolder(f)}
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-coral-deep/60 hover:bg-white"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       {isLoading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-mint-deep" />
         </div>
       ) : filtered.length === 0 ? (
-        <p className="py-8 text-center text-sm opacity-60">Belum ada knowledge.</p>
+        <p className="py-8 text-center text-sm opacity-60">
+          {q
+            ? "Tidak ada hasil."
+            : currentFolder
+              ? "Folder ini masih kosong. Klik Tambah Knowledge untuk mengisi."
+              : folderList.length > 0
+                ? "Belum ada file di luar folder."
+                : "Belum ada knowledge."}
+        </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -639,6 +811,7 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
               <tr className="border-b border-navy/10 text-left text-xs uppercase tracking-wide opacity-50">
                 <th className="py-2 pr-3 font-semibold">Judul Knowledge</th>
                 <th className="py-2 pr-3 font-semibold">Kategori</th>
+                <th className="py-2 pr-3 font-semibold">Folder</th>
                 <th className="py-2 pr-3 font-semibold">Terakhir Diupdate</th>
                 <th className="py-2 font-semibold">Aksi</th>
               </tr>
@@ -649,6 +822,25 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
                   <td className="py-2.5 pr-3 font-medium text-navy">{k.title}</td>
                   <td className="py-2.5 pr-3">
                     <Badge className={kategoriStyle(k.tags[0] ?? "")}>{k.tags[0] ?? "Umum"}</Badge>
+                  </td>
+                  <td className="py-2.5 pr-3">
+                    <select
+                      value={k.folder_id ?? ""}
+                      onChange={(e) =>
+                        moveKnowledge
+                          .mutateAsync({ id: k.id, folder_id: e.target.value || null })
+                          .then(() => toast.success("File dipindahkan."))
+                          .catch((err) => toast.error(errMsg(err, "Gagal memindahkan.")))
+                      }
+                      className="max-w-[9rem] rounded-lg border border-navy/15 bg-white px-2 py-1 text-xs text-navy"
+                    >
+                      <option value="">Root</option>
+                      {folderList.map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.name}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td className="py-2.5 pr-3 text-xs opacity-70">{relTime(k.updated_at)}</td>
                   <td className="py-2.5">
@@ -681,7 +873,7 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
             </tbody>
           </table>
           <p className="mt-3 text-xs opacity-50">
-            Menampilkan 1–{filtered.length} dari {items?.length ?? 0} data
+            Menampilkan {filtered.length} file{currentFolder ? ` di folder "${currentFolder.name}"` : " di root"}
           </p>
         </div>
       )}
@@ -696,7 +888,13 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Tambah Knowledge — {agent.name}</DialogTitle>
-            <DialogDescription>Teks, tautan, atau file referensi.</DialogDescription>
+            <DialogDescription>
+              Upload file, teks, atau tautan referensi. Akan disimpan ke{" "}
+              <span className="font-semibold text-navy">
+                {currentFolder ? `folder "${currentFolder.name}"` : "root"}
+              </span>
+              .
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -861,6 +1059,44 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : null}
                 {sourceType === "file" && files.length > 0 ? `Upload ${files.length} file` : "Simpan"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog buat / ganti nama folder */}
+      <Dialog open={folderDialog !== null} onOpenChange={(o) => !o && setFolderDialog(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {folderDialog?.mode === "rename" ? "Ganti Nama Folder" : "Buat Folder Baru"}
+            </DialogTitle>
+            <DialogDescription>Untuk mengelompokkan file knowledge.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitFolder} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="folderName">Nama folder</Label>
+              <Input
+                id="folderName"
+                name="folderName"
+                defaultValue={folderDialog?.mode === "rename" ? folderDialog.name : ""}
+                placeholder="mis. Standar, Template, Referensi"
+                maxLength={80}
+                required
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <button
+                type="submit"
+                disabled={createFolder.isPending || renameFolder.isPending}
+                className="inline-flex items-center gap-2 rounded-full bg-sun px-5 py-2 text-sm font-bold text-navy-deep shadow-[0_4px_0_rgba(11,27,46,0.2)] disabled:opacity-60"
+              >
+                {createFolder.isPending || renameFolder.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
+                Simpan
               </button>
             </DialogFooter>
           </form>

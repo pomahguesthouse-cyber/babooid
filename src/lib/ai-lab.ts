@@ -53,7 +53,16 @@ export type AiKnowledge = {
   content: string | null;
   url: string | null;
   storage_path: string | null;
+  folder_id: string | null;
   tags: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type AiKnowledgeFolder = {
+  id: string;
+  agent_id: string;
+  name: string;
   created_at: string;
   updated_at: string;
 };
@@ -295,6 +304,7 @@ export type KnowledgeInput = {
   url?: string;
   tags?: string[];
   file?: File;
+  folder_id?: string | null;
 };
 
 export function useCreateAiKnowledge() {
@@ -319,6 +329,7 @@ export function useCreateAiKnowledge() {
           content: input.content ?? null,
           url: input.url ?? null,
           storage_path,
+          folder_id: input.folder_id ?? null,
           tags: input.tags ?? [],
         })
         .select()
@@ -334,6 +345,7 @@ export type KnowledgeFilesInput = {
   agent_id: string;
   files: File[];
   tags?: string[];
+  folder_id?: string | null;
   /** dipanggil tiap file selesai: (index, total, namaFile) */
   onProgress?: (done: number, total: number, fileName: string) => void;
 };
@@ -369,6 +381,7 @@ export function useCreateAiKnowledgeFiles() {
             content: null,
             url: null,
             storage_path,
+            folder_id: input.folder_id ?? null,
             tags: input.tags ?? [],
           })
           .select()
@@ -403,6 +416,84 @@ export async function getKnowledgeFileUrl(storagePath: string): Promise<string> 
     .createSignedUrl(storagePath, 60 * 10);
   if (error) throw error;
   return data.signedUrl;
+}
+
+/** Pindahkan satu knowledge ke folder tertentu (null = root). */
+export function useMoveAiKnowledge() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, folder_id }: { id: string; folder_id: string | null }) => {
+      const { error } = await supabase
+        .from("ai_knowledge")
+        .update({ folder_id })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-knowledge"] }),
+  });
+}
+
+// ---------------- KNOWLEDGE FOLDERS (satu tingkat) ----------------
+export function useAiKnowledgeFolders(agentId?: string) {
+  return useQuery({
+    queryKey: ["ai-knowledge-folders", agentId ?? "all"],
+    queryFn: async (): Promise<AiKnowledgeFolder[]> => {
+      let query = supabase
+        .from("ai_knowledge_folders")
+        .select("*")
+        .order("name", { ascending: true });
+      if (agentId) query = query.eq("agent_id", agentId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as AiKnowledgeFolder[];
+    },
+    enabled: !!agentId,
+  });
+}
+
+export function useCreateKnowledgeFolder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ agent_id, name }: { agent_id: string; name: string }) => {
+      const { data, error } = await supabase
+        .from("ai_knowledge_folders")
+        .insert({ agent_id, name })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiKnowledgeFolder;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-knowledge-folders"] }),
+  });
+}
+
+export function useRenameKnowledgeFolder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase
+        .from("ai_knowledge_folders")
+        .update({ name })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-knowledge-folders"] }),
+  });
+}
+
+/** Hapus folder. File di dalamnya otomatis pindah ke root (ON DELETE SET NULL). */
+export function useDeleteKnowledgeFolder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("ai_knowledge_folders").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ai-knowledge-folders"] });
+      qc.invalidateQueries({ queryKey: ["ai-knowledge"] });
+    },
+  });
 }
 
 // ---------------- TRAINING ----------------
