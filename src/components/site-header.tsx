@@ -81,7 +81,7 @@ export const SiteHeader = () => {
                 to="/kontak"
                 className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
               >
-                Coba gratis
+                Demo Agent
               </Link>
             </>
           )}
@@ -146,7 +146,7 @@ export const SiteHeader = () => {
               onClick={() => setOpen(false)}
               className="mt-1 rounded-full border-[3px] border-navy bg-sun px-5 py-2.5 text-center font-display font-bold text-navy-deep"
             >
-              Coba gratis
+              Demo Agent
             </Link>
           </nav>
         </div>
