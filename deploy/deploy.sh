@@ -3,7 +3,9 @@
 set -euo pipefail
 cd /var/www/babooid
 git pull
-npm ci
+# npm ci butuh package-lock.json yang sinkron. Project ini dikelola dengan bun,
+# jadi lock npm bisa tertinggal — fallback ke npm install agar deploy tidak macet.
+npm ci --no-audit --no-fund || npm install --no-audit --no-fund
 npm run build
 set -a; source .env; set +a
 pm2 restart babooid --update-env
