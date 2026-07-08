@@ -63,7 +63,7 @@ export const SiteFooter = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/kontak" className="hover:text-mint">
+                <Link to="/demo" className="hover:text-mint">
                   Demo Agent
                 </Link>
               </li>
