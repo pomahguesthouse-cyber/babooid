@@ -24,7 +24,12 @@ const MODEL = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-sonnet-4-6";
 
 // Konfigurasi agent dibaca dari AI Lab (tabel ai_agents, key='cad').
 // Di-cache sebentar agar tidak query tiap request.
-type AgentConfig = { system_prompt: string; model: string; temperature: number };
+type AgentConfig = {
+  system_prompt: string;
+  model: string;
+  temperature: number;
+  provider: string;
+};
 let cachedConfig: { value: AgentConfig | null; at: number } = { value: null, at: 0 };
 const CONFIG_TTL_MS = 60_000;
 
@@ -36,7 +41,7 @@ async function getAgentConfig(): Promise<AgentConfig | null> {
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
     const { data, error } = await admin
       .from("ai_agents")
-      .select("system_prompt, model, temperature, status")
+      .select("system_prompt, model, temperature, status, provider")
       .eq("key", "cad")
       .single();
     if (error || !data || data.status !== "aktif" || !data.system_prompt?.trim()) {
@@ -48,6 +53,7 @@ async function getAgentConfig(): Promise<AgentConfig | null> {
         system_prompt: data.system_prompt,
         model: data.model || MODEL,
         temperature: typeof data.temperature === "number" ? data.temperature : 0.2,
+        provider: (data.provider as string) || "anthropic",
       },
       at: now,
     };
@@ -55,6 +61,31 @@ async function getAgentConfig(): Promise<AgentConfig | null> {
   } catch {
     return cachedConfig.value;
   }
+}
+
+type Provider = { key: string; name: string; base_url: string; api_key: string };
+let cachedProvider: { value: Provider | null; forKey: string; at: number } = {
+  value: null,
+  forKey: "",
+  at: 0,
+};
+async function getProvider(key: string): Promise<Provider | null> {
+  const now = Date.now();
+  if (cachedProvider.forKey === key && now - cachedProvider.at < 60_000) {
+    return cachedProvider.value;
+  }
+  try {
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY || SUPABASE_ANON_KEY);
+    const { data } = await admin
+      .from("ai_providers")
+      .select("key, name, base_url, api_key")
+      .eq("key", key)
+      .single();
+    cachedProvider = { value: (data as Provider | null) ?? null, forKey: key, at: now };
+  } catch {
+    cachedProvider = { value: null, forKey: key, at: now };
+  }
+  return cachedProvider.value;
 }
 
 /** API key: prioritas tabel ai_settings, fallback env secret. Cache 60 detik. */
@@ -153,14 +184,6 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const apiKey = await getApiKey();
-    if (!apiKey) {
-      return json(
-        { error: "API key belum diisi. Buka Settings di AI Lab lalu isi Anthropic API Key." },
-        500,
-      );
-    }
-
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader) return json({ error: "Tidak terautentikasi." }, 401);
 
@@ -221,29 +244,72 @@ Deno.serve(async (req: Request) => {
       ? agentConfig.system_prompt + "\n" + OUTPUT_CONTRACT
       : SYSTEM_PROMPT;
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: agentConfig?.model ?? MODEL,
-        max_tokens: 8000,
-        temperature: agentConfig?.temperature ?? 0.2,
-        system: systemPrompt,
-        messages: messagesForLlm,
-      }),
-    });
+    // --- Pilih provider (multi-provider) ---
+    const providerKey = agentConfig?.provider ?? "anthropic";
+    const prov = await getProvider(providerKey);
+    let raw = "";
 
-    if (!resp.ok) {
-      const errText = await resp.text();
-      return json({ error: `LLM error: ${errText}` }, 502);
+    if (!prov || prov.key === "anthropic") {
+      const key = prov?.api_key || (await getApiKey());
+      if (!key) {
+        return json({ error: "API key Anthropic belum diisi. Buka Settings → tab Anthropic." }, 500);
+      }
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: agentConfig?.model ?? MODEL,
+          max_tokens: 8000,
+          temperature: agentConfig?.temperature ?? 0.2,
+          system: systemPrompt,
+          messages: messagesForLlm,
+        }),
+      });
+      if (!resp.ok) return json({ error: `LLM error: ${await resp.text()}` }, 502);
+      const data = await resp.json();
+      raw = data?.content?.[0]?.text ?? "";
+    } else {
+      if (!prov.api_key) {
+        return json({ error: `API key ${prov.name} belum diisi. Buka Settings → tab ${prov.name}.` }, 500);
+      }
+      if (!prov.base_url) {
+        return json({ error: `Base URL ${prov.name} belum diisi di Settings.` }, 500);
+      }
+      // Konversi pesan format Anthropic -> OpenAI-compatible (termasuk gambar)
+      type Block = { type: string; source?: { media_type: string; data: string }; text?: string };
+      const oaMessages = messagesForLlm.map((m) => {
+        if (typeof m.content === "string") return { role: m.role, content: m.content };
+        const parts = (m.content as Block[]).map((b) =>
+          b.type === "image" && b.source
+            ? {
+                type: "image_url",
+                image_url: { url: `data:${b.source.media_type};base64,${b.source.data}` },
+              }
+            : { type: "text", text: b.text ?? "" },
+        );
+        return { role: m.role, content: parts };
+      });
+      const resp = await fetch(`${prov.base_url.replace(/\/$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${prov.api_key}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: agentConfig?.model ?? MODEL,
+          max_tokens: 8000,
+          temperature: agentConfig?.temperature ?? 0.2,
+          messages: [{ role: "system", content: systemPrompt }, ...oaMessages],
+        }),
+      });
+      if (!resp.ok) return json({ error: `LLM error (${prov.name}): ${await resp.text()}` }, 502);
+      const data = await resp.json();
+      raw = data?.choices?.[0]?.message?.content ?? "";
     }
-
-    const data = await resp.json();
-    const raw: string = data?.content?.[0]?.text ?? "";
 
     // Parse JSON dari model secara defensif.
     let reply = raw;

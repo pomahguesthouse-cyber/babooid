@@ -18,6 +18,7 @@ export type AiAgent = {
   temperature: number;
   status: AiAgentStatus;
   accent: string;
+  provider: string;
   tags: string[];
   created_by: string | null;
   created_at: string;
@@ -118,6 +119,7 @@ export type AgentInput = {
   temperature?: number;
   status?: AiAgentStatus;
   accent?: string;
+  provider?: string;
   tags?: string[];
 };
 
@@ -533,5 +535,44 @@ export function useUpsertAiSetting() {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-settings"] }),
+  });
+}
+
+// ---------------- PROVIDERS ----------------
+export type AiProvider = {
+  key: string;
+  name: string;
+  base_url: string;
+  api_key: string;
+  models: string;
+  enabled: boolean;
+  updated_at: string;
+};
+
+export function useAiProviders() {
+  return useQuery({
+    queryKey: ["ai-providers"],
+    queryFn: async (): Promise<AiProvider[]> => {
+      const { data, error } = await supabase.from("ai_providers").select("*");
+      if (error) throw error;
+      const order = ["anthropic", "google", "openrouter", "openai", "custom"];
+      return (data as AiProvider[]).sort(
+        (a, b) => order.indexOf(a.key) - order.indexOf(b.key),
+      );
+    },
+  });
+}
+
+export function useUpdateAiProvider() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      input: Partial<Omit<AiProvider, "updated_at">> & { key: string },
+    ) => {
+      const { key, ...rest } = input;
+      const { error } = await supabase.from("ai_providers").update(rest).eq("key", key);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-providers"] }),
   });
 }

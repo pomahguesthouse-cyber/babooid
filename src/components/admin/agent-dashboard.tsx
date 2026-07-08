@@ -37,7 +37,7 @@ import {
 import {
   getKnowledgeFileUrl,
   useAiAgents,
-  useAiSettings,
+  useAiProviders,
   useAiAgentTools,
   useAiKnowledge,
   useAiSops,
@@ -181,25 +181,33 @@ function AgentHeader({ agent }: { agent: AiAgent }) {
 // ---------------------------------------------------------------
 function DetailPanel({ agent }: { agent: AiAgent }) {
   const updateAgent = useUpdateAiAgent();
-  const { data: settings } = useAiSettings();
+  const { data: providers } = useAiProviders();
   const [editMode, setEditMode] = useState(false);
   const [status, setStatus] = useState<AiAgent["status"]>(agent.status);
+  const [provider, setProvider] = useState(agent.provider ?? "anthropic");
   const [model, setModel] = useState(agent.model);
   const [tags, setTags] = useState<string[]>(agent.tags ?? []);
   const [tagInput, setTagInput] = useState("");
   const [prompt, setPrompt] = useState(agent.system_prompt);
 
+  const providerOptions = useMemo(
+    () => (providers ?? []).filter((p) => p.enabled || p.key === (agent.provider ?? "anthropic")),
+    [providers, agent.provider],
+  );
+
   const modelOptions = useMemo(() => {
-    const list = (settings?.models ?? "")
+    const active = (providers ?? []).find((p) => p.key === provider);
+    const list = (active?.models ?? "")
       .split(",")
       .map((m) => m.trim())
       .filter(Boolean);
-    if (agent.model && !list.includes(agent.model)) list.unshift(agent.model);
+    if (model && !list.includes(model)) list.unshift(model);
     return list.length > 0 ? list : [agent.model];
-  }, [settings, agent.model]);
+  }, [providers, provider, model, agent.model]);
 
   useEffect(() => {
     setStatus(agent.status);
+    setProvider(agent.provider ?? "anthropic");
     setModel(agent.model);
     setTags(agent.tags ?? []);
     setPrompt(agent.system_prompt);
@@ -222,6 +230,7 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
         name: val("name"),
         key: val("key"),
         role: val("role"),
+        provider,
         model,
         temperature: Number(val("temperature") || "0.2"),
         description: val("description"),
@@ -273,7 +282,31 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <Label>Model</Label>
+            <Label>Provider &amp; Model</Label>
+            <Select
+              value={provider}
+              onValueChange={(v) => {
+                setProvider(v);
+                const first = (providers ?? [])
+                  .find((p) => p.key === v)
+                  ?.models.split(",")
+                  .map((m) => m.trim())
+                  .filter(Boolean)[0];
+                if (first) setModel(first);
+              }}
+              disabled={dis}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {providerOptions.map((p) => (
+                  <SelectItem key={p.key} value={p.key}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={model} onValueChange={setModel} disabled={dis}>
               <SelectTrigger>
                 <SelectValue />
@@ -287,7 +320,7 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
               </SelectContent>
             </Select>
             <p className="text-xs opacity-50">
-              Daftar model diatur di{" "}
+              Provider &amp; daftar model diatur di{" "}
               <a href="/admin/settings" className="underline">
                 Settings
               </a>

@@ -1,13 +1,10 @@
 // =============================================================
 // Agent Preview — Edge Function (Supabase / Deno)
 // Chat generik untuk menguji agent apa pun dari AI Lab.
-// Config (system prompt, model, temperature) dibaca dari ai_agents.
-// Hanya untuk admin (cek via public.is_admin()).
-//
-// Secret yang dibutuhkan:
-//   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-// Deploy:
-//   supabase functions deploy agent-preview
+// Multi-provider: Anthropic (format asli) + OpenAI-compatible
+// (Google AI Studio, OpenRouter, OpenAI, custom endpoint).
+// Config dibaca dari ai_agents + ai_providers. Hanya untuk admin.
+// Deploy: supabase functions deploy agent-preview
 // =============================================================
 
 // @ts-expect-error — modul Deno diselesaikan saat runtime di Supabase.
@@ -15,11 +12,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+const ENV_ANTHROPIC_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const FALLBACK_MODEL = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-sonnet-4-6";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,24 +31,63 @@ function json(body: unknown, status = 200) {
 }
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+type Provider = { key: string; name: string; base_url: string; api_key: string; enabled: boolean };
 
-/** API key: prioritas tabel ai_settings, fallback env secret. Cache 60 detik. */
-let cachedKey: { value: string; at: number } = { value: "", at: 0 };
-async function getApiKey(admin: ReturnType<typeof createClient>): Promise<string> {
-  const now = Date.now();
-  if (cachedKey.value && now - cachedKey.at < 60_000) return cachedKey.value;
-  try {
-    const { data } = await admin
-      .from("ai_settings")
-      .select("value")
-      .eq("key", "anthropic_api_key")
-      .single();
-    const fromDb = (data?.value as string | undefined)?.trim();
-    cachedKey = { value: fromDb || ANTHROPIC_API_KEY || "", at: now };
-  } catch {
-    cachedKey = { value: ANTHROPIC_API_KEY || "", at: now };
+async function getProvider(
+  admin: ReturnType<typeof createClient>,
+  key: string,
+): Promise<Provider | null> {
+  const { data } = await admin
+    .from("ai_providers")
+    .select("key, name, base_url, api_key, enabled")
+    .eq("key", key)
+    .single();
+  return (data as Provider | null) ?? null;
+}
+
+/** Panggil LLM sesuai provider; kembalikan teks jawaban. */
+async function callLlm(opts: {
+  provider: Provider;
+  model: string;
+  temperature: number;
+  system: string;
+  messages: ChatMessage[];
+}): Promise<string> {
+  const { provider, model, temperature, system, messages } = opts;
+
+  if (provider.key === "anthropic") {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": provider.api_key,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ model, max_tokens: 4000, temperature, system, messages }),
+    });
+    if (!resp.ok) throw new Error(`${provider.name}: ${await resp.text()}`);
+    const data = await resp.json();
+    return data?.content?.[0]?.text ?? "";
   }
-  return cachedKey.value;
+
+  // OpenAI-compatible (Google AI Studio, OpenRouter, OpenAI, custom)
+  const base = provider.base_url.replace(/\/$/, "");
+  const resp = await fetch(`${base}/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${provider.api_key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 4000,
+      temperature,
+      messages: [{ role: "system", content: system }, ...messages],
+    }),
+  });
+  if (!resp.ok) throw new Error(`${provider.name}: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.choices?.[0]?.message?.content ?? "";
 }
 
 Deno.serve(async (req: Request) => {
@@ -88,21 +123,36 @@ Deno.serve(async (req: Request) => {
       return json({ error: "agent_key dan messages wajib diisi." }, 400);
     }
 
-    // --- Config agent dari AI Lab ---
+    // --- Config agent + provider ---
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY || SUPABASE_ANON_KEY);
     const { data: agent, error: agentErr } = await admin
       .from("ai_agents")
-      .select("name, system_prompt, model, temperature, status")
+      .select("name, system_prompt, model, temperature, provider")
       .eq("key", agentKey)
       .single();
     if (agentErr || !agent) return json({ error: `Agent '${agentKey}' tidak ditemukan.` }, 404);
 
-    const apiKey = await getApiKey(admin);
-    if (!apiKey) {
+    const providerKey = (agent.provider as string) || "anthropic";
+    let provider = await getProvider(admin, providerKey);
+    if (!provider) {
+      // Fallback lama: tabel ai_providers belum ada → anggap Anthropic dari env
+      provider = {
+        key: "anthropic",
+        name: "Anthropic",
+        base_url: "https://api.anthropic.com",
+        api_key: ENV_ANTHROPIC_KEY,
+        enabled: true,
+      };
+    }
+    if (provider.key === "anthropic" && !provider.api_key) provider.api_key = ENV_ANTHROPIC_KEY;
+    if (!provider.api_key) {
       return json(
-        { error: "API key belum diisi. Buka Settings di AI Lab lalu isi Anthropic API Key." },
+        { error: `API key ${provider.name} belum diisi. Buka Settings → tab ${provider.name}.` },
         500,
       );
+    }
+    if (provider.key === "custom" && !provider.base_url) {
+      return json({ error: "Base URL custom endpoint belum diisi di Settings." }, 500);
     }
 
     const systemPrompt =
@@ -110,31 +160,15 @@ Deno.serve(async (req: Request) => {
         `Kamu adalah ${agent.name}, asisten AI di platform Baboo.id.`) +
       "\nJawab dalam Bahasa Indonesia, ringkas dan membantu.";
 
-    // --- Panggil Anthropic ---
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: agent.model || FALLBACK_MODEL,
-        max_tokens: 4000,
-        temperature: typeof agent.temperature === "number" ? agent.temperature : 0.5,
-        system: systemPrompt,
-        messages,
-      }),
+    const reply = await callLlm({
+      provider,
+      model: agent.model || "claude-sonnet-4-6",
+      temperature: typeof agent.temperature === "number" ? agent.temperature : 0.5,
+      system: systemPrompt,
+      messages,
     });
 
-    if (!resp.ok) {
-      const errText = await resp.text();
-      return json({ error: `LLM error: ${errText}` }, 502);
-    }
-
-    const data = await resp.json();
-    const reply: string = data?.content?.[0]?.text ?? "";
-    return json({ message: reply, model: agent.model });
+    return json({ message: reply, model: agent.model, provider: provider.key });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "Kesalahan tak terduga." }, 500);
   }
