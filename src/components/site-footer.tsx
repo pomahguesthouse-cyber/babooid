@@ -64,7 +64,7 @@ export const SiteFooter = () => {
               </li>
               <li>
                 <Link to="/kontak" className="hover:text-mint">
-                  Coba gratis
+                  Demo Agent
                 </Link>
               </li>
             </ul>
