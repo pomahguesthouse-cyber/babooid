@@ -9,3 +9,9 @@ baboo.id {
 www.baboo.id {
 	redir https://baboo.id{uri} permanent
 }
+
+# Backend / AI Lab — dilayani app yang sama, dipisah lewat hostname.
+ai.baboo.id {
+	encode gzip zstd
+	reverse_proxy 127.0.0.1:3000
+}
