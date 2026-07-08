@@ -30,6 +30,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardProjectIdRouteImport } from './routes/dashboard.$projectId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminPreviewKeyRouteImport } from './routes/admin.preview.$key'
 import { Route as AdminAgentsKeyRouteImport } from './routes/admin.agents.$key'
 import { Route as AdminAgentKeyRouteImport } from './routes/admin.agent.$key'
@@ -139,6 +140,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPreviewKeyRoute = AdminPreviewKeyRouteImport.update({
   id: '/preview/$key',
   path: '/preview/$key',
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
   '/admin': typeof AdminIndexRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
   '/tentang': typeof TentangRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/studi-kasus'
     | '/tentang'
+    | '/admin/settings'
     | '/auth/callback'
     | '/dashboard/$projectId'
     | '/admin/'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/studi-kasus'
     | '/tentang'
+    | '/admin/settings'
     | '/auth/callback'
     | '/dashboard/$projectId'
     | '/admin'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/studi-kasus'
     | '/tentang'
+    | '/admin/settings'
     | '/auth/callback'
     | '/dashboard/$projectId'
     | '/admin/'
@@ -481,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/preview/$key': {
       id: '/admin/preview/$key'
       path: '/preview/$key'
@@ -506,6 +525,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminAgentKeyRoute: typeof AdminAgentKeyRoute
   AdminAgentsKeyRoute: typeof AdminAgentsKeyRoute
@@ -513,6 +533,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminAgentKeyRoute: AdminAgentKeyRoute,
   AdminAgentsKeyRoute: AdminAgentsKeyRoute,

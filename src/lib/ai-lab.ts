@@ -506,3 +506,32 @@ export function useDeleteAiSop() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-sops"] }),
   });
 }
+
+// ---------------- SETTINGS ----------------
+export type AiSetting = { key: string; value: string; updated_at: string };
+
+export function useAiSettings() {
+  return useQuery({
+    queryKey: ["ai-settings"],
+    queryFn: async (): Promise<Record<string, string>> => {
+      const { data, error } = await supabase.from("ai_settings").select("key, value");
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      for (const row of data as AiSetting[]) map[row.key] = row.value;
+      return map;
+    },
+  });
+}
+
+export function useUpsertAiSetting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { key: string; value: string }) => {
+      const { error } = await supabase
+        .from("ai_settings")
+        .upsert({ key: input.key, value: input.value }, { onConflict: "key" });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-settings"] }),
+  });
+}

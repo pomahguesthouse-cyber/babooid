@@ -36,15 +36,30 @@ function json(body: unknown, status = 200) {
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
+/** API key: prioritas tabel ai_settings, fallback env secret. Cache 60 detik. */
+let cachedKey: { value: string; at: number } = { value: "", at: 0 };
+async function getApiKey(admin: ReturnType<typeof createClient>): Promise<string> {
+  const now = Date.now();
+  if (cachedKey.value && now - cachedKey.at < 60_000) return cachedKey.value;
+  try {
+    const { data } = await admin
+      .from("ai_settings")
+      .select("value")
+      .eq("key", "anthropic_api_key")
+      .single();
+    const fromDb = (data?.value as string | undefined)?.trim();
+    cachedKey = { value: fromDb || ANTHROPIC_API_KEY || "", at: now };
+  } catch {
+    cachedKey = { value: ANTHROPIC_API_KEY || "", at: now };
+  }
+  return cachedKey.value;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
-    if (!ANTHROPIC_API_KEY) {
-      return json({ error: "ANTHROPIC_API_KEY belum diset di secrets." }, 500);
-    }
-
     // --- Auth: wajib login & admin ---
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader) return json({ error: "Tidak terautentikasi." }, 401);
@@ -82,6 +97,14 @@ Deno.serve(async (req: Request) => {
       .single();
     if (agentErr || !agent) return json({ error: `Agent '${agentKey}' tidak ditemukan.` }, 404);
 
+    const apiKey = await getApiKey(admin);
+    if (!apiKey) {
+      return json(
+        { error: "API key belum diisi. Buka Settings di AI Lab lalu isi Anthropic API Key." },
+        500,
+      );
+    }
+
     const systemPrompt =
       (agent.system_prompt?.trim() ||
         `Kamu adalah ${agent.name}, asisten AI di platform Baboo.id.`) +
@@ -91,7 +114,7 @@ Deno.serve(async (req: Request) => {
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },

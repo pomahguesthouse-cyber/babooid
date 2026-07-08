@@ -57,6 +57,26 @@ async function getAgentConfig(): Promise<AgentConfig | null> {
   }
 }
 
+/** API key: prioritas tabel ai_settings, fallback env secret. Cache 60 detik. */
+let cachedApiKey: { value: string; at: number } = { value: "", at: 0 };
+async function getApiKey(): Promise<string> {
+  const now = Date.now();
+  if (cachedApiKey.value && now - cachedApiKey.at < 60_000) return cachedApiKey.value;
+  try {
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY || SUPABASE_ANON_KEY);
+    const { data } = await admin
+      .from("ai_settings")
+      .select("value")
+      .eq("key", "anthropic_api_key")
+      .single();
+    const fromDb = (data?.value as string | undefined)?.trim();
+    cachedApiKey = { value: fromDb || ANTHROPIC_API_KEY || "", at: now };
+  } catch {
+    cachedApiKey = { value: ANTHROPIC_API_KEY || "", at: now };
+  }
+  return cachedApiKey.value;
+}
+
 // Kontrak output — selalu ditambahkan, apa pun prompt dari AI Lab,
 // agar parsing JSON di bawah tetap bekerja.
 const OUTPUT_CONTRACT = [
@@ -133,8 +153,12 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
-    if (!ANTHROPIC_API_KEY) {
-      return json({ error: "ANTHROPIC_API_KEY belum diset di secrets Edge Function." }, 500);
+    const apiKey = await getApiKey();
+    if (!apiKey) {
+      return json(
+        { error: "API key belum diisi. Buka Settings di AI Lab lalu isi Anthropic API Key." },
+        500,
+      );
     }
 
     const authHeader = req.headers.get("Authorization") ?? "";
@@ -200,7 +224,7 @@ Deno.serve(async (req: Request) => {
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },

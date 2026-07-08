@@ -255,7 +255,12 @@ function AdminShell({ email, onSignOut }: { email: string; onSignOut: () => Prom
           <NavItem to="/admin" icon={BookOpen} label="Knowledge Base" active={false} />
           <NavItem to="/admin" icon={Wrench} label="Tools" active={false} />
           <NavItem to="/admin" icon={ClipboardList} label="SOP" active={false} />
-          <NavItem to="/admin" icon={Settings} label="Settings" active={false} />
+          <NavItem
+            to="/admin/settings"
+            icon={Settings}
+            label="Settings"
+            active={pathname === "/admin/settings"}
+          />
         </nav>
 
         <div className="border-t-2 border-navy/10 p-4">

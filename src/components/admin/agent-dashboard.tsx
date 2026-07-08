@@ -37,6 +37,7 @@ import {
 import {
   getKnowledgeFileUrl,
   useAiAgents,
+  useAiSettings,
   useAiAgentTools,
   useAiKnowledge,
   useAiSops,
@@ -180,14 +181,26 @@ function AgentHeader({ agent }: { agent: AiAgent }) {
 // ---------------------------------------------------------------
 function DetailPanel({ agent }: { agent: AiAgent }) {
   const updateAgent = useUpdateAiAgent();
+  const { data: settings } = useAiSettings();
   const [editMode, setEditMode] = useState(false);
   const [status, setStatus] = useState<AiAgent["status"]>(agent.status);
+  const [model, setModel] = useState(agent.model);
   const [tags, setTags] = useState<string[]>(agent.tags ?? []);
   const [tagInput, setTagInput] = useState("");
   const [prompt, setPrompt] = useState(agent.system_prompt);
 
+  const modelOptions = useMemo(() => {
+    const list = (settings?.models ?? "")
+      .split(",")
+      .map((m) => m.trim())
+      .filter(Boolean);
+    if (agent.model && !list.includes(agent.model)) list.unshift(agent.model);
+    return list.length > 0 ? list : [agent.model];
+  }, [settings, agent.model]);
+
   useEffect(() => {
     setStatus(agent.status);
+    setModel(agent.model);
     setTags(agent.tags ?? []);
     setPrompt(agent.system_prompt);
   }, [agent]);
@@ -209,7 +222,7 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
         name: val("name"),
         key: val("key"),
         role: val("role"),
-        model: val("model"),
+        model,
         temperature: Number(val("temperature") || "0.2"),
         description: val("description"),
         system_prompt: prompt,
@@ -260,8 +273,26 @@ function DetailPanel({ agent }: { agent: AiAgent }) {
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <Label htmlFor="model">Model</Label>
-            <Input id="model" name="model" defaultValue={agent.model} disabled={dis} />
+            <Label>Model</Label>
+            <Select value={model} onValueChange={setModel} disabled={dis}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {modelOptions.map((m) => (
+                  <SelectItem key={m} value={m}>
+                    {m}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs opacity-50">
+              Daftar model diatur di{" "}
+              <a href="/admin/settings" className="underline">
+                Settings
+              </a>
+              .
+            </p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="temperature">Temperature</Label>
