@@ -6,14 +6,8 @@ export const Route = createFileRoute("/admin/agents/$key")({
   component: AgentPage,
 });
 
-const previewPath: Record<string, string> = {
-  cad: "/baboo-cad",
-  civil: "/baboo-civil",
-};
-
 function AgentPage() {
   const { key } = Route.useParams();
-  const preview = previewPath[key];
 
   return (
     <div className="space-y-6">
@@ -29,16 +23,13 @@ function AgentPage() {
             Dashboard Agent {key.toUpperCase()}
           </h1>
         </div>
-        {preview ? (
-          <a
-            href={preview}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border-2 border-navy/20 bg-white px-4 py-2 text-sm font-bold text-navy transition hover:-translate-y-0.5"
-          >
-            <Eye className="h-4 w-4" /> Preview Agent
-          </a>
-        ) : null}
+        <Link
+          to="/admin/preview/$key"
+          params={{ key }}
+          className="inline-flex items-center gap-2 rounded-full border-2 border-navy/20 bg-white px-4 py-2 text-sm font-bold text-navy transition hover:-translate-y-0.5"
+        >
+          <Eye className="h-4 w-4" /> Preview Agent
+        </Link>
       </div>
 
       <AgentDashboard agentKey={key} />
