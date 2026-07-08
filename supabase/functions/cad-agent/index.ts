@@ -3,6 +3,7 @@
 // Menerima gambar (sketsa/denah/foto gambar teknik) + instruksi,
 // lalu menghasilkan script AutoLISP untuk AutoCAD beserta daftar
 // geometri (entities) untuk preview 2D di browser dan ekspor DXF.
+// Hasil job disimpan ke cad_jobs untuk riwayat, audit, dan dataset.
 //
 // Secret yang dibutuhkan:
 //   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
@@ -24,6 +25,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const MODEL = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-sonnet-4-6";
+const CAD_IMAGE_BUCKET = "cad-job-images";
 
 // Konfigurasi agent dibaca dari AI Lab (tabel ai_agents, key='cad').
 // Di-cache sebentar agar tidak query tiap request.
@@ -285,6 +287,7 @@ type Entity =
   | { type: "text"; at: [number, number]; h: number; value: string; layer?: string };
 
 type ValidationResult = { entities: Entity[]; warnings: string[] };
+type SupabaseClientLike = ReturnType<typeof createClient>;
 
 const STANDARD_LAYERS = ["AS", "DINDING", "BUKAAN", "DIMENSI", "TEKS", "ARSIR", "FURNITUR"];
 const LAYER_COLORS: Record<string, number> = {
@@ -525,6 +528,90 @@ function generateDxf(entities: Entity[]): string {
   return out.join("\n");
 }
 
+function extensionFromMediaType(mediaType?: string): string {
+  if (mediaType === "image/png") return "png";
+  if (mediaType === "image/jpeg") return "jpg";
+  if (mediaType === "image/webp") return "webp";
+  if (mediaType === "image/gif") return "gif";
+  return "bin";
+}
+
+function decodeBase64(data: string): Uint8Array {
+  const binary = atob(data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+async function uploadCadJobImage(
+  admin: SupabaseClientLike,
+  userId: string,
+  jobId: string,
+  image?: { data?: string; mediaType?: string },
+): Promise<string | null> {
+  if (!image?.data || !image.mediaType) return null;
+  const ext = extensionFromMediaType(image.mediaType);
+  const path = `${userId}/${jobId}.${ext}`;
+  const bytes = decodeBase64(image.data);
+  const { error } = await admin.storage.from(CAD_IMAGE_BUCKET).upload(path, bytes, {
+    contentType: image.mediaType,
+    upsert: false,
+  });
+  if (error) throw error;
+  return path;
+}
+
+async function saveCadJob(params: {
+  userId: string;
+  prompt: string;
+  image?: { data?: string; mediaType?: string };
+  message: string;
+  lisp: string;
+  entities: Entity[];
+  warnings: string[];
+}): Promise<{ jobId: string | null; imagePath: string | null; warning?: string }> {
+  if (!SERVICE_ROLE_KEY) {
+    return {
+      jobId: null,
+      imagePath: null,
+      warning: "Riwayat CAD tidak disimpan: SUPABASE_SERVICE_ROLE_KEY belum tersedia.",
+    };
+  }
+
+  try {
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    const jobId = crypto.randomUUID();
+    let imagePath: string | null = null;
+
+    try {
+      imagePath = await uploadCadJobImage(admin, params.userId, jobId, params.image);
+    } catch (imageErr) {
+      const reason = imageErr instanceof Error ? imageErr.message : "gagal upload gambar";
+      params.warnings.push(`Gambar input tidak tersimpan di riwayat: ${reason}`);
+    }
+
+    const { error } = await admin.from("cad_jobs").insert({
+      id: jobId,
+      user_id: params.userId,
+      prompt: params.prompt,
+      image_path: imagePath,
+      message: params.message,
+      lisp: params.lisp,
+      entities: params.entities,
+      warnings: params.warnings,
+    });
+
+    if (error) throw error;
+    return { jobId, imagePath };
+  } catch (err) {
+    return {
+      jobId: null,
+      imagePath: null,
+      warning: `Riwayat CAD gagal disimpan: ${err instanceof Error ? err.message : "kesalahan tak dikenal"}`,
+    };
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -679,6 +766,16 @@ Deno.serve(async (req: Request) => {
 
     const validation = validateEntities(rawEntities);
     const dxf = generateDxf(validation.entities);
+    const job = await saveCadJob({
+      userId: userData.user.id,
+      prompt: message,
+      image,
+      message: reply,
+      lisp,
+      entities: validation.entities,
+      warnings: validation.warnings,
+    });
+    if (job.warning) validation.warnings.push(job.warning);
 
     return json({
       message: reply,
@@ -686,6 +783,8 @@ Deno.serve(async (req: Request) => {
       entities: validation.entities,
       dxf,
       warnings: validation.warnings,
+      job_id: job.jobId,
+      image_path: job.imagePath,
     });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "Kesalahan tak terduga." }, 500);
