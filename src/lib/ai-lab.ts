@@ -1,0 +1,430 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "./supabase";
+import { useAuth } from "./auth";
+
+const KNOWLEDGE_BUCKET = "ai-knowledge";
+
+// ---------------- TYPES ----------------
+export type AiAgentStatus = "draft" | "aktif" | "nonaktif";
+
+export type AiAgent = {
+  id: string;
+  key: string;
+  name: string;
+  role: string;
+  description: string | null;
+  system_prompt: string;
+  model: string;
+  temperature: number;
+  status: AiAgentStatus;
+  accent: string;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AiToolType = "fungsi" | "api" | "mcp";
+
+export type AiTool = {
+  id: string;
+  name: string;
+  description: string | null;
+  type: AiToolType;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AiAgentTool = {
+  agent_id: string;
+  tool_id: string;
+};
+
+export type AiKnowledgeSource = "teks" | "file" | "url";
+
+export type AiKnowledge = {
+  id: string;
+  agent_id: string;
+  title: string;
+  source_type: AiKnowledgeSource;
+  content: string | null;
+  url: string | null;
+  storage_path: string | null;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type AiTrainingExample = {
+  id: string;
+  agent_id: string;
+  user_input: string;
+  ideal_output: string;
+  notes: string | null;
+  created_at: string;
+};
+
+export type AiTrainingRunStatus = "antre" | "berjalan" | "selesai" | "gagal";
+
+export type AiTrainingRun = {
+  id: string;
+  agent_id: string;
+  name: string;
+  status: AiTrainingRunStatus;
+  metrics: Record<string, unknown>;
+  notes: string | null;
+  created_at: string;
+  finished_at: string | null;
+};
+
+// ---------------- ADMIN ----------------
+export function useIsAdmin() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: async (): Promise<boolean> => {
+      const { data, error } = await supabase.rpc("is_admin");
+      if (error) throw error;
+      return Boolean(data);
+    },
+    enabled: Boolean(user),
+  });
+}
+
+// ---------------- AGENTS ----------------
+export function useAiAgents() {
+  return useQuery({
+    queryKey: ["ai-agents"],
+    queryFn: async (): Promise<AiAgent[]> => {
+      const { data, error } = await supabase
+        .from("ai_agents")
+        .select("*")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data as AiAgent[];
+    },
+  });
+}
+
+export type AgentInput = {
+  key: string;
+  name: string;
+  role: string;
+  description?: string;
+  system_prompt?: string;
+  model?: string;
+  temperature?: number;
+  status?: AiAgentStatus;
+  accent?: string;
+};
+
+export function useCreateAiAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: AgentInput) => {
+      const { data: auth } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("ai_agents")
+        .insert({ ...input, created_by: auth.user?.id ?? null })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiAgent;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-agents"] }),
+  });
+}
+
+export function useUpdateAiAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: Partial<AgentInput> & { id: string }) => {
+      const { id, ...rest } = input;
+      const { data, error } = await supabase
+        .from("ai_agents")
+        .update(rest)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiAgent;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-agents"] }),
+  });
+}
+
+export function useDeleteAiAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("ai_agents").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-agents"] }),
+  });
+}
+
+// ---------------- TOOLS ----------------
+export function useAiTools() {
+  return useQuery({
+    queryKey: ["ai-tools"],
+    queryFn: async (): Promise<AiTool[]> => {
+      const { data, error } = await supabase
+        .from("ai_tools")
+        .select("*")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data as AiTool[];
+    },
+  });
+}
+
+export type ToolInput = {
+  name: string;
+  description?: string;
+  type?: AiToolType;
+  config?: Record<string, unknown>;
+  enabled?: boolean;
+};
+
+export function useCreateAiTool() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ToolInput) => {
+      const { data, error } = await supabase.from("ai_tools").insert(input).select().single();
+      if (error) throw error;
+      return data as AiTool;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-tools"] }),
+  });
+}
+
+export function useUpdateAiTool() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: Partial<ToolInput> & { id: string }) => {
+      const { id, ...rest } = input;
+      const { data, error } = await supabase
+        .from("ai_tools")
+        .update(rest)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiTool;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-tools"] }),
+  });
+}
+
+export function useDeleteAiTool() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("ai_tools").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ai-tools"] });
+      qc.invalidateQueries({ queryKey: ["ai-agent-tools"] });
+    },
+  });
+}
+
+// ---------------- AGENT <-> TOOLS ----------------
+export function useAiAgentTools() {
+  return useQuery({
+    queryKey: ["ai-agent-tools"],
+    queryFn: async (): Promise<AiAgentTool[]> => {
+      const { data, error } = await supabase.from("ai_agent_tools").select("agent_id, tool_id");
+      if (error) throw error;
+      return data as AiAgentTool[];
+    },
+  });
+}
+
+export function useToggleAgentTool() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { agent_id: string; tool_id: string; attach: boolean }) => {
+      if (input.attach) {
+        const { error } = await supabase
+          .from("ai_agent_tools")
+          .insert({ agent_id: input.agent_id, tool_id: input.tool_id });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("ai_agent_tools")
+          .delete()
+          .eq("agent_id", input.agent_id)
+          .eq("tool_id", input.tool_id);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-agent-tools"] }),
+  });
+}
+
+// ---------------- KNOWLEDGE ----------------
+export function useAiKnowledge(agentId?: string) {
+  return useQuery({
+    queryKey: ["ai-knowledge", agentId ?? "all"],
+    queryFn: async (): Promise<AiKnowledge[]> => {
+      let query = supabase
+        .from("ai_knowledge")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (agentId) query = query.eq("agent_id", agentId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as AiKnowledge[];
+    },
+  });
+}
+
+export type KnowledgeInput = {
+  agent_id: string;
+  title: string;
+  source_type: AiKnowledgeSource;
+  content?: string;
+  url?: string;
+  tags?: string[];
+  file?: File;
+};
+
+export function useCreateAiKnowledge() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: KnowledgeInput) => {
+      let storage_path: string | null = null;
+      if (input.source_type === "file") {
+        if (!input.file) throw new Error("File belum dipilih.");
+        storage_path = `${input.agent_id}/${Date.now()}-${input.file.name}`;
+        const { error: upErr } = await supabase.storage
+          .from(KNOWLEDGE_BUCKET)
+          .upload(storage_path, input.file);
+        if (upErr) throw upErr;
+      }
+      const { data, error } = await supabase
+        .from("ai_knowledge")
+        .insert({
+          agent_id: input.agent_id,
+          title: input.title,
+          source_type: input.source_type,
+          content: input.content ?? null,
+          url: input.url ?? null,
+          storage_path,
+          tags: input.tags ?? [],
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiKnowledge;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-knowledge"] }),
+  });
+}
+
+export function useDeleteAiKnowledge() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (item: AiKnowledge) => {
+      if (item.storage_path) {
+        await supabase.storage.from(KNOWLEDGE_BUCKET).remove([item.storage_path]);
+      }
+      const { error } = await supabase.from("ai_knowledge").delete().eq("id", item.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-knowledge"] }),
+  });
+}
+
+export async function getKnowledgeFileUrl(storagePath: string): Promise<string> {
+  const { data, error } = await supabase.storage
+    .from(KNOWLEDGE_BUCKET)
+    .createSignedUrl(storagePath, 60 * 10);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
+// ---------------- TRAINING ----------------
+export function useTrainingExamples(agentId?: string) {
+  return useQuery({
+    queryKey: ["ai-training-examples", agentId ?? "all"],
+    queryFn: async (): Promise<AiTrainingExample[]> => {
+      let query = supabase
+        .from("ai_training_examples")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (agentId) query = query.eq("agent_id", agentId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as AiTrainingExample[];
+    },
+  });
+}
+
+export function useCreateTrainingExample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      agent_id: string;
+      user_input: string;
+      ideal_output: string;
+      notes?: string;
+    }) => {
+      const { data, error } = await supabase
+        .from("ai_training_examples")
+        .insert(input)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiTrainingExample;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-training-examples"] }),
+  });
+}
+
+export function useDeleteTrainingExample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("ai_training_examples").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-training-examples"] }),
+  });
+}
+
+export function useTrainingRuns(agentId?: string) {
+  return useQuery({
+    queryKey: ["ai-training-runs", agentId ?? "all"],
+    queryFn: async (): Promise<AiTrainingRun[]> => {
+      let query = supabase
+        .from("ai_training_runs")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (agentId) query = query.eq("agent_id", agentId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as AiTrainingRun[];
+    },
+  });
+}
+
+export function useCreateTrainingRun() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { agent_id: string; name: string; notes?: string }) => {
+      const { data, error } = await supabase
+        .from("ai_training_runs")
+        .insert(input)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as AiTrainingRun;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-training-runs"] }),
+  });
+}

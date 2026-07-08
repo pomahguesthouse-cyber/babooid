@@ -1,8 +1,9 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { FlaskConical, Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { AGENTS, SUB_AGENTS } from "@/lib/agents";
+import { useIsAdmin } from "@/lib/ai-lab";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/dashboard")({
@@ -30,6 +31,7 @@ function AgentCard({ agentKey }: { agentKey: keyof typeof AGENTS }) {
 
 function DashboardLayout() {
   const { user, loading } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,6 +68,21 @@ function DashboardLayout() {
                 </div>
               </div>
             </div>
+
+            {isAdmin ? (
+              <Link
+                to="/dashboard/ai-lab"
+                className="card-pop flex items-center gap-3 p-4 transition hover:-translate-y-0.5"
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-navy text-cream">
+                  <FlaskConical className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="font-display text-sm font-bold text-navy">AI Lab</p>
+                  <p className="text-xs opacity-70">Kelola agent, tools & knowledge</p>
+                </div>
+              </Link>
+            ) : null}
           </div>
         </aside>
 

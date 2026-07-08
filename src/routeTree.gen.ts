@@ -24,6 +24,7 @@ import { Route as CadAgentRouteImport } from './routes/cad-agent'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardAiLabRouteImport } from './routes/dashboard.ai-lab'
 import { Route as DashboardProjectIdRouteImport } from './routes/dashboard.$projectId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
@@ -102,6 +103,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAiLabRoute = DashboardAiLabRouteImport.update({
+  id: '/ai-lab',
+  path: '/ai-lab',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardProjectIdRoute = DashboardProjectIdRouteImport.update({
   id: '/$projectId',
   path: '/$projectId',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/dashboard/ai-lab': typeof DashboardAiLabRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/dashboard/ai-lab': typeof DashboardAiLabRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/tentang': typeof TentangRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/$projectId': typeof DashboardProjectIdRoute
+  '/dashboard/ai-lab': typeof DashboardAiLabRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
+    | '/dashboard/ai-lab'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
+    | '/dashboard/ai-lab'
     | '/dashboard'
   id:
     | '__root__'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/auth/callback'
     | '/dashboard/$projectId'
+    | '/dashboard/ai-lab'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -354,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/ai-lab': {
+      id: '/dashboard/ai-lab'
+      path: '/ai-lab'
+      fullPath: '/dashboard/ai-lab'
+      preLoaderRoute: typeof DashboardAiLabRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/$projectId': {
       id: '/dashboard/$projectId'
       path: '/$projectId'
@@ -373,11 +392,13 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardProjectIdRoute: typeof DashboardProjectIdRoute
+  DashboardAiLabRoute: typeof DashboardAiLabRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardProjectIdRoute: DashboardProjectIdRoute,
+  DashboardAiLabRoute: DashboardAiLabRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -405,13 +426,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
