@@ -3,7 +3,7 @@
 # Ganti $VpsHost sekali di bawah, atau override:
 #   .\deploy\push-deploy.ps1 -VpsHost root@1.2.3.4
 param(
-  [string]$VpsHost = "root@IP-VPS-ANDA"
+  [string]$VpsHost = "root@187.77.129.74"
 )
 
 $ErrorActionPreference = "Stop"
