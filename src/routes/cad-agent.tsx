@@ -52,10 +52,21 @@ type ChatMsg = {
   content: string;
   imagePreview?: string;
   lisp?: string;
+  dxf?: string;
   entities?: Entity[];
+  warnings?: string[];
 };
 
-type AgentResponse = { message?: string; lisp?: string; entities?: Entity[]; error?: string };
+type AgentResponse = {
+  message?: string;
+  lisp?: string;
+  dxf?: string;
+  entities?: Entity[];
+  warnings?: string[];
+  error?: string;
+};
+
+type ResultTab = "preview" | "lisp" | "dxf";
 
 const ALLOWED_MEDIA = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -208,6 +219,16 @@ function EntityPreview({ entities }: { entities: Entity[] }) {
   );
 }
 
+function downloadTextFile(filename: string, content: string, type = "text/plain") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ---------- Halaman ----------
 
 function CadAgentPage() {
@@ -221,7 +242,7 @@ function CadAgentPage() {
   );
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"preview" | "lisp">("preview");
+  const [tab, setTab] = useState<ResultTab>("preview");
   const [copied, setCopied] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -235,7 +256,14 @@ function CadAgentPage() {
   }, [messages, sending]);
 
   const lastResult = useMemo(
-    () => [...messages].reverse().find((m) => m.role === "assistant" && (m.lisp || m.entities?.length)),
+    () =>
+      [...messages]
+        .reverse()
+        .find(
+          (m) =>
+            m.role === "assistant" &&
+            (m.lisp || m.dxf || m.entities?.length || m.warnings?.length),
+        ),
     [messages],
   );
 
@@ -297,11 +325,14 @@ function CadAgentPage() {
           role: "assistant",
           content: res?.message ?? "Selesai.",
           lisp: res?.lisp || undefined,
+          dxf: res?.dxf || undefined,
           entities: Array.isArray(res?.entities) ? res.entities : undefined,
+          warnings: Array.isArray(res?.warnings) ? res.warnings : undefined,
         },
       ]);
       if (res?.entities?.length) setTab("preview");
       else if (res?.lisp) setTab("lisp");
+      else if (res?.dxf) setTab("dxf");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Terjadi kesalahan. Coba lagi.");
       setMessages((prev) => prev.slice(0, -1));
@@ -322,13 +353,12 @@ function CadAgentPage() {
 
   function downloadLisp() {
     if (!lastResult?.lisp) return;
-    const blob = new Blob([lastResult.lisp], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "baboo-cad.lsp";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadTextFile("baboo-cad.lsp", lastResult.lisp, "text/plain");
+  }
+
+  function downloadDxf() {
+    if (!lastResult?.dxf) return;
+    downloadTextFile("baboo-cad.dxf", lastResult.dxf, "application/dxf");
   }
 
   if (authLoading || !user) {
@@ -352,7 +382,7 @@ function CadAgentPage() {
             <div>
               <h1 className="font-display text-lg font-bold text-navy">CAD Agent</h1>
               <p className="text-xs opacity-60">
-                Upload sketsa / denah → script AutoLISP untuk AutoCAD
+                Upload sketsa / denah → script AutoLISP + DXF untuk AutoCAD
               </p>
             </div>
           </header>
@@ -363,7 +393,7 @@ function CadAgentPage() {
                 <Sparkles className="mx-auto h-8 w-8 text-mint-deep" />
                 <p className="text-sm opacity-70">
                   Upload foto sketsa tangan, denah, atau gambar teknik — atau jelaskan lewat teks.
-                  Saya akan buatkan script AutoLISP-nya.
+                  Saya akan buatkan script AutoLISP, preview, dan DXF-nya.
                 </p>
                 <div className="mx-auto flex max-w-md flex-col gap-2 pt-2">
                   {EXAMPLE_PROMPTS.map((p) => (
@@ -396,9 +426,19 @@ function CadAgentPage() {
                     />
                   )}
                   <p className="whitespace-pre-wrap">{m.content}</p>
-                  {m.role === "assistant" && m.lisp && (
+                  {m.warnings?.length ? (
+                    <div className="mt-3 rounded-xl border border-sun/40 bg-sun/10 px-3 py-2 text-xs text-navy">
+                      <p className="font-bold">Catatan validator:</p>
+                      <ul className="mt-1 list-disc space-y-1 pl-4">
+                        {m.warnings.slice(0, 5).map((warning) => (
+                          <li key={warning}>{warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {m.role === "assistant" && (m.lisp || m.dxf) && (
                     <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-mint-deep">
-                      <Code2 className="h-3.5 w-3.5" /> Script LISP siap — lihat panel kanan
+                      <Code2 className="h-3.5 w-3.5" /> Output CAD siap — lihat panel kanan
                     </p>
                   )}
                 </div>
@@ -494,29 +534,60 @@ function CadAgentPage() {
                   tab === "lisp" ? "bg-mint text-navy-deep" : "opacity-60 hover:opacity-100"
                 }`}
               >
-                <Code2 className="h-4 w-4" /> Script LISP
+                <Code2 className="h-4 w-4" /> LISP
+              </button>
+              <button
+                onClick={() => setTab("dxf")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+                  tab === "dxf" ? "bg-mint text-navy-deep" : "opacity-60 hover:opacity-100"
+                }`}
+              >
+                <Download className="h-4 w-4" /> DXF
               </button>
             </div>
-            {lastResult?.lisp && (
+            {(lastResult?.lisp || lastResult?.dxf) && (
               <div className="flex gap-1.5">
-                <button
-                  onClick={copyLisp}
-                  className="flex items-center gap-1 rounded-lg border-2 border-navy/15 px-2.5 py-1 text-xs font-semibold transition hover:border-mint-deep"
-                >
-                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? "Tersalin" : "Salin"}
-                </button>
-                <button
-                  onClick={downloadLisp}
-                  className="flex items-center gap-1 rounded-lg bg-navy px-2.5 py-1 text-xs font-semibold text-cream transition hover:opacity-90"
-                >
-                  <Download className="h-3.5 w-3.5" /> .lsp
-                </button>
+                {lastResult?.lisp ? (
+                  <button
+                    onClick={copyLisp}
+                    className="flex items-center gap-1 rounded-lg border-2 border-navy/15 px-2.5 py-1 text-xs font-semibold transition hover:border-mint-deep"
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? "Tersalin" : "Salin"}
+                  </button>
+                ) : null}
+                {lastResult?.lisp ? (
+                  <button
+                    onClick={downloadLisp}
+                    className="flex items-center gap-1 rounded-lg bg-navy px-2.5 py-1 text-xs font-semibold text-cream transition hover:opacity-90"
+                  >
+                    <Download className="h-3.5 w-3.5" /> .lsp
+                  </button>
+                ) : null}
+                {lastResult?.dxf ? (
+                  <button
+                    onClick={downloadDxf}
+                    className="flex items-center gap-1 rounded-lg bg-mint-deep px-2.5 py-1 text-xs font-semibold text-cream transition hover:opacity-90"
+                  >
+                    <Download className="h-3.5 w-3.5" /> .dxf
+                  </button>
+                ) : null}
               </div>
             )}
           </header>
 
           <div className="flex-1 overflow-auto p-4">
+            {lastResult?.warnings?.length ? (
+              <div className="mb-3 rounded-xl border border-sun/40 bg-sun/10 px-3 py-2 text-xs text-navy">
+                <p className="font-bold">Validator entities menemukan catatan:</p>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  {lastResult.warnings.map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             {tab === "preview" ? (
               lastResult?.entities?.length ? (
                 <div className="h-full rounded-xl border-2 border-dashed border-navy/15 bg-white p-3">
@@ -528,21 +599,32 @@ function CadAgentPage() {
                   <p>Preview 2D akan muncul di sini setelah agent menggambar.</p>
                 </div>
               )
-            ) : lastResult?.lisp ? (
+            ) : tab === "lisp" ? (
+              lastResult?.lisp ? (
+                <pre className="h-full overflow-auto rounded-xl bg-navy p-4 text-xs leading-relaxed text-cream">
+                  <code>{lastResult.lisp}</code>
+                </pre>
+              ) : (
+                <div className="flex h-full min-h-[280px] flex-col items-center justify-center gap-2 text-center text-sm opacity-50">
+                  <Code2 className="h-8 w-8" />
+                  <p>Script AutoLISP akan muncul di sini.</p>
+                </div>
+              )
+            ) : lastResult?.dxf ? (
               <pre className="h-full overflow-auto rounded-xl bg-navy p-4 text-xs leading-relaxed text-cream">
-                <code>{lastResult.lisp}</code>
+                <code>{lastResult.dxf}</code>
               </pre>
             ) : (
               <div className="flex h-full min-h-[280px] flex-col items-center justify-center gap-2 text-center text-sm opacity-50">
-                <Code2 className="h-8 w-8" />
-                <p>Script AutoLISP akan muncul di sini.</p>
+                <Download className="h-8 w-8" />
+                <p>File DXF akan muncul setelah entities valid tersedia.</p>
               </div>
             )}
           </div>
 
           <footer className="border-t-2 border-navy/10 px-5 py-3 text-xs opacity-60">
-            Cara pakai: unduh file .lsp → di AutoCAD ketik <b>APPLOAD</b> → pilih file → ketik{" "}
-            <b>GAMBAR</b> di command line.
+            Cara pakai: unduh <b>.lsp</b> lalu APPLOAD di AutoCAD, atau unduh <b>.dxf</b> untuk
+            dibuka langsung di software CAD.
           </footer>
         </section>
       </main>
