@@ -44,7 +44,18 @@ function PreviewPage() {
       if (data?.error) throw new Error(data.error);
       setMessages([...next, { role: "assistant", content: data?.message ?? "(kosong)" }]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal menghubungi agent.");
+      // Ambil pesan error asli dari body respons edge function (FunctionsHttpError)
+      let msg = err instanceof Error ? err.message : "Gagal menghubungi agent.";
+      const ctx = (err as { context?: Response }).context;
+      if (ctx && typeof ctx.json === "function") {
+        try {
+          const body = await ctx.clone().json();
+          if (body?.error) msg = String(body.error);
+        } catch {
+          /* biarkan pesan default */
+        }
+      }
+      toast.error(msg, { duration: 8000 });
       setMessages(next);
     } finally {
       setBusy(false);
