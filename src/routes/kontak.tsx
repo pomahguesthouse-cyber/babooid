@@ -9,7 +9,6 @@ import {
   PenLine,
   Send,
   Sparkles,
-  Wand2,
 } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHero } from "@/components/page-hero";
@@ -371,7 +370,7 @@ function TryAgentPage() {
         </main>
       </section>
 
-      <section className="bg-navy py-18 text-cream">
+      <section className="bg-navy py-20 text-cream">
         <div className="mx-auto grid max-w-[1180px] items-center gap-6 px-7 py-14 md:grid-cols-[1fr_auto]">
           <div>
             <Eyebrow tone="cream">Langkah berikutnya</Eyebrow>
