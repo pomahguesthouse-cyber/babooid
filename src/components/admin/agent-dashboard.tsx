@@ -7,6 +7,7 @@ import {
   Eye,
   FileText,
   Folder,
+  FolderInput,
   FolderOpen,
   FolderPlus,
   Loader2,
@@ -40,6 +41,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   getKnowledgeFileUrl,
   useAiAgents,
@@ -493,6 +502,13 @@ const ACCEPTED_EXT = [
   "png",
   "jpg",
   "jpeg",
+  // File CAD / AutoLISP
+  "lsp",
+  "dvb",
+  "dcl",
+  "dwg",
+  "dxf",
+  "scr",
 ];
 const ACCEPT_ATTR = ACCEPTED_EXT.map((e) => `.${e}`).join(",");
 
@@ -623,6 +639,12 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
       toast.info(k.content.slice(0, 300));
     }
   };
+
+  const moveTo = (k: AiKnowledge, folder_id: string | null) =>
+    moveKnowledge
+      .mutateAsync({ id: k.id, folder_id })
+      .then(() => toast.success("File dipindahkan."))
+      .catch((err) => toast.error(errMsg(err, "Gagal memindahkan.")));
 
   const resetForm = () => {
     setFiles([]);
@@ -824,23 +846,16 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
                     <Badge className={kategoriStyle(k.tags[0] ?? "")}>{k.tags[0] ?? "Umum"}</Badge>
                   </td>
                   <td className="py-2.5 pr-3">
-                    <select
-                      value={k.folder_id ?? ""}
-                      onChange={(e) =>
-                        moveKnowledge
-                          .mutateAsync({ id: k.id, folder_id: e.target.value || null })
-                          .then(() => toast.success("File dipindahkan."))
-                          .catch((err) => toast.error(errMsg(err, "Gagal memindahkan.")))
-                      }
-                      className="max-w-[9rem] rounded-lg border border-navy/15 bg-white px-2 py-1 text-xs text-navy"
-                    >
-                      <option value="">Root</option>
-                      {folderList.map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.name}
-                        </option>
-                      ))}
-                    </select>
+                    <span className="inline-flex items-center gap-1 text-xs text-navy/70">
+                      {k.folder_id ? (
+                        <>
+                          <Folder className="h-3.5 w-3.5 text-sun-deep" />
+                          {folderList.find((f) => f.id === k.folder_id)?.name ?? "—"}
+                        </>
+                      ) : (
+                        <span className="opacity-50">Root</span>
+                      )}
+                    </span>
                   </td>
                   <td className="py-2.5 pr-3 text-xs opacity-70">{relTime(k.updated_at)}</td>
                   <td className="py-2.5">
@@ -853,6 +868,39 @@ function KnowledgePanel({ agent }: { agent: AiAgent }) {
                       >
                         <Eye className="h-4 w-4" />
                       </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            aria-label="Pindahkan ke folder"
+                            className="grid h-7 w-7 place-items-center rounded-lg text-navy/60 hover:bg-cream-deep"
+                          >
+                            <FolderInput className="h-4 w-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="max-h-64 overflow-y-auto">
+                          <DropdownMenuLabel>Pindahkan ke</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            disabled={(k.folder_id ?? null) === null}
+                            onClick={() => moveTo(k, null)}
+                          >
+                            <FolderOpen className="mr-2 h-4 w-4" /> Root
+                          </DropdownMenuItem>
+                          {folderList.map((f) => (
+                            <DropdownMenuItem
+                              key={f.id}
+                              disabled={k.folder_id === f.id}
+                              onClick={() => moveTo(k, f.id)}
+                            >
+                              <Folder className="mr-2 h-4 w-4 text-sun-deep" /> {f.name}
+                            </DropdownMenuItem>
+                          ))}
+                          {folderList.length === 0 ? (
+                            <DropdownMenuItem disabled>Belum ada folder</DropdownMenuItem>
+                          ) : null}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <button
                         type="button"
                         aria-label="Hapus"
