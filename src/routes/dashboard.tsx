@@ -16,7 +16,7 @@ export const Route = createFileRoute("/dashboard")({
 const AGENT_LINKS: Partial<Record<keyof typeof AGENTS, string>> = {
   mandor: "/dashboard",
   civil: "/baboo-civil",
-  cad: "/baboo-cad",
+  cad: "/cad-agent",
 };
 
 function isAgentActive(pathname: string, href: string) {
