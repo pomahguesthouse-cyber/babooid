@@ -9,6 +9,7 @@ import {
   ArrowRight,
   FolderPlus,
   CalendarDays,
+  Clock3,
 } from "lucide-react";
 import { CartoonButton } from "@/components/cartoon-ui";
 import { Input } from "@/components/ui/input";
@@ -59,6 +60,21 @@ function formatProjectCreatedAt(value: string) {
   return `${new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
+  }).format(date)} WIB`;
+}
+
+function formatProjectCardDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Tidak tersedia";
+
+  return `${new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -193,6 +209,23 @@ function ProjectsPage() {
                 <p className="mt-1 line-clamp-2 flex-1 text-sm opacity-70">
                   {p.description || "Tanpa deskripsi."}
                 </p>
+
+                <div className="mt-4 space-y-1.5 border-t border-navy/10 pt-3 text-xs text-navy/55">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-3.5 w-3.5 shrink-0 text-mint-deep" />
+                    <span>
+                      <span className="font-semibold text-navy/70">Dibuat</span>{" "}
+                      {formatProjectCardDate(p.created_at)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock3 className="h-3.5 w-3.5 shrink-0 text-mint-deep" />
+                    <span>
+                      <span className="font-semibold text-navy/70">Diperbarui</span>{" "}
+                      {formatProjectCardDate(p.updated_at)}
+                    </span>
+                  </div>
+                </div>
 
                 <div className="mt-4 flex items-center justify-between">
                   <span
