@@ -38,13 +38,24 @@ export function useProject(id: string) {
 export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { name: string; description?: string }) => {
+    mutationFn: async (input: {
+      name: string;
+      description?: string;
+      location?: string;
+      owner_name?: string;
+    }) => {
       const { data: auth } = await supabase.auth.getUser();
       const userId = auth.user?.id;
       if (!userId) throw new Error("Belum masuk.");
       const { data, error } = await supabase
         .from("projects")
-        .insert({ name: input.name, description: input.description ?? null, user_id: userId })
+        .insert({
+          name: input.name,
+          description: input.description ?? null,
+          location: input.location ?? null,
+          owner_name: input.owner_name ?? null,
+          user_id: userId,
+        })
         .select()
         .single();
       if (error) throw error;
@@ -61,6 +72,8 @@ export function useUpdateProject() {
       id: string;
       name?: string;
       description?: string | null;
+      location?: string | null;
+      owner_name?: string | null;
       status?: Project["status"];
     }) => {
       const { id, ...patch } = input;

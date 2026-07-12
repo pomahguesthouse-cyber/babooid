@@ -7,6 +7,8 @@ export type Project = {
   user_id: string;
   name: string;
   description: string | null;
+  location: string | null;
+  owner_name: string | null;
   status: ProjectStatus;
   created_at: string;
   updated_at: string;

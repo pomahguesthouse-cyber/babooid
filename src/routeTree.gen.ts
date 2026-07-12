@@ -17,6 +17,7 @@ import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as KeunggulanRouteImport } from './routes/keunggulan'
 import { Route as HargaRouteImport } from './routes/harga'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
@@ -73,6 +74,11 @@ const KeunggulanRoute = KeunggulanRouteImport.update({
 const HargaRoute = HargaRouteImport.update({
   id: '/harga',
   path: '/harga',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/demo': typeof DemoRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
+  '/demo': typeof DemoRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/demo': typeof DemoRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/dashboard'
+    | '/demo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
+    | '/demo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/dashboard'
+    | '/demo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   CaraKerjaRoute: typeof CaraKerjaRoute
   DaftarBabooRoute: typeof DaftarBabooRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  DemoRoute: typeof DemoRoute
   HargaRoute: typeof HargaRoute
   KeunggulanRoute: typeof KeunggulanRoute
   KontakRoute: typeof KontakRoute
@@ -400,6 +413,13 @@ declare module '@tanstack/react-router' {
       path: '/harga'
       fullPath: '/harga'
       preLoaderRoute: typeof HargaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -566,6 +586,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaraKerjaRoute: CaraKerjaRoute,
   DaftarBabooRoute: DaftarBabooRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  DemoRoute: DemoRoute,
   HargaRoute: HargaRoute,
   KeunggulanRoute: KeunggulanRoute,
   KontakRoute: KontakRoute,
