@@ -14,8 +14,7 @@ function AuthCallback() {
   useEffect(() => {
     let active = true;
 
-    // detectSessionInUrl di client Supabase otomatis menukar kode OAuth
-    // menjadi sesi. Kita cukup menunggu sesi tersedia lalu redirect.
+    // Supabase memproses kode aktivasi dari URL dan membentuk sesi pengguna.
     const finish = async () => {
       const { data, error } = await supabase.auth.getSession();
       if (!active) return;
@@ -25,26 +24,26 @@ function AuthCallback() {
         return;
       }
       if (data.session) {
-        toast.success("Berhasil masuk!");
+        toast.success("Akun aktif. Selamat datang di Baboo.id!");
         navigate({ to: "/dashboard" });
       } else {
+        toast.info("Aktivasi selesai. Silakan masuk menggunakan akun Anda.");
         navigate({ to: "/masuk" });
       }
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        toast.success("Berhasil masuk!");
+        toast.success("Akun aktif. Selamat datang di Baboo.id!");
         navigate({ to: "/dashboard" });
       }
     });
 
-    // Beri sedikit waktu untuk pemrosesan URL, lalu cek sesi.
-    const t = setTimeout(finish, 600);
+    const timer = setTimeout(finish, 600);
 
     return () => {
       active = false;
-      clearTimeout(t);
+      clearTimeout(timer);
       sub.subscription.unsubscribe();
     };
   }, [navigate]);
@@ -53,7 +52,7 @@ function AuthCallback() {
     <div className="flex min-h-screen items-center justify-center bg-cream-deep px-4">
       <div className="flex flex-col items-center gap-4 text-center">
         <Loader2 className="h-8 w-8 animate-spin text-mint-deep" />
-        <p className="font-display text-lg font-bold text-navy">Menyelesaikan proses masuk...</p>
+        <p className="font-display text-lg font-bold text-navy">Mengaktifkan akun member...</p>
       </div>
     </div>
   );
