@@ -686,7 +686,13 @@ function DemoAgentPage() {
         <div className="border-b-2 border-navy/10 bg-cream px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <Link to="/" className="flex shrink-0 items-center" aria-label="Baboo.id">
-              <img src="/img/logo_trans.png" alt="Baboo.id" className="h-7 w-auto object-contain" />
+              <span className="flex h-9 items-center rounded-full bg-navy px-3 py-1.5 shadow-[0_3px_0_rgba(11,27,46,0.18)]">
+                <img
+                  src="/img/logo_trans.png"
+                  alt="Baboo.id"
+                  className="h-5 w-auto max-w-[100px] object-contain"
+                />
+              </span>
             </Link>
 
             <div className="flex min-w-0 flex-1 items-center justify-center gap-3">
