@@ -13,7 +13,6 @@ type AuthContextValue = {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -57,21 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user: session?.user ?? null,
       loading,
-      signInWithGoogle: async () => {
-        if (!isSupabaseConfigured) {
-          throw new Error("Supabase belum dikonfigurasi.");
-        }
-
-        const redirectTo =
-          typeof window !== "undefined"
-            ? `${window.location.origin}/auth/callback`
-            : undefined;
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo },
-        });
-        if (error) throw error;
-      },
       signOut: async () => {
         if (!isSupabaseConfigured) return;
 
