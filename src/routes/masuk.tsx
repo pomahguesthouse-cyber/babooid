@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
+import { Loader2, Lock, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { CartoonButton } from "@/components/cartoon-ui";
 import { BibiMascot } from "@/components/bibi-mascot";
@@ -13,48 +13,29 @@ import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 export const Route = createFileRoute("/masuk")({
   head: () => ({
     meta: [
-      { title: "Masuk — Baboo.id" },
+      { title: "Masuk atau Daftar Member — Baboo.id" },
       {
         name: "description",
-        content: "Masuk ke akun Baboo.id menggunakan akun Google atau email Anda.",
+        content: "Masuk ke dashboard atau daftar sebagai Member Baboo.id menggunakan email.",
       },
-      { property: "og:title", content: "Masuk — Baboo.id" },
-      { property: "og:description", content: "Masuk ke dashboard Baboo.id." },
+      { property: "og:title", content: "Masuk atau Daftar Member — Baboo.id" },
+      {
+        property: "og:description",
+        content: "Masuk ke dashboard atau bergabung sebagai Member Baboo.id.",
+      },
     ],
   }),
   component: LoginPage,
 });
 
-function GoogleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-      <path
-        fill="#4285F4"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"
-      />
-    </svg>
-  );
-}
+type AuthMode = "login" | "register";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { user, loading, signInWithGoogle } = useAuth();
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [emailLoading, setEmailLoading] = useState(false);
+  const { user, loading } = useAuth();
+  const [mode, setMode] = useState<AuthMode>("login");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Jika sudah login, arahkan ke dashboard.
   useEffect(() => {
     if (!loading && user) {
       navigate({ to: "/dashboard" });
@@ -69,96 +50,173 @@ function LoginPage() {
     return true;
   };
 
-  const handleGoogle = async () => {
-    if (!requireConfig()) return;
-    setGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-      // Browser akan diarahkan ke Google; tidak perlu reset state.
-    } catch (err) {
-      setGoogleLoading(false);
-      toast.error(err instanceof Error ? err.message : "Gagal masuk dengan Google.");
-    }
-  };
-
-  const handleEmail = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!requireConfig()) return;
-    const form = e.currentTarget;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+  const handleLogin = async (form: HTMLFormElement) => {
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-    setEmailLoading(true);
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setEmailLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    if (error) throw error;
+
     toast.success("Berhasil masuk!");
     navigate({ to: "/dashboard" });
+  };
+
+  const handleRegister = async (form: HTMLFormElement) => {
+    const fullName = (form.elements.namedItem("fullName") as HTMLInputElement).value.trim();
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+    const passwordConfirmation = (
+      form.elements.namedItem("passwordConfirmation") as HTMLInputElement
+    ).value;
+
+    if (fullName.length < 2) {
+      throw new Error("Nama lengkap minimal 2 karakter.");
+    }
+
+    if (password.length < 8) {
+      throw new Error("Kata sandi minimal 8 karakter.");
+    }
+
+    if (password !== passwordConfirmation) {
+      throw new Error("Konfirmasi kata sandi tidak sama.");
+    }
+
+    const emailRedirectTo =
+      typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo,
+        data: {
+          full_name: fullName,
+          account_type: "member",
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      toast.success("Pendaftaran berhasil. Selamat datang di Baboo.id!");
+      navigate({ to: "/dashboard" });
+      return;
+    }
+
+    toast.success("Pendaftaran berhasil. Silakan cek email untuk mengaktifkan akun.", {
+      duration: 7000,
+    });
+    form.reset();
+    setMode("login");
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!requireConfig()) return;
+
+    setSubmitting(true);
+    try {
+      if (mode === "register") {
+        await handleRegister(event.currentTarget);
+      } else {
+        await handleLogin(event.currentTarget);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Proses autentikasi gagal.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <SiteShell>
       <section className="relative overflow-hidden bg-cream-deep">
         <div className="absolute -left-20 -top-16 h-[220px] w-[220px] rounded-full bg-mint opacity-30" />
-        <div className="absolute -right-16 -bottom-16 h-[200px] w-[200px] rounded-full bg-sun opacity-35" />
+        <div className="absolute -bottom-16 -right-16 h-[200px] w-[200px] rounded-full bg-sun opacity-35" />
 
         <div className="relative mx-auto grid min-h-[calc(100vh-160px)] max-w-[1180px] items-center gap-12 px-7 py-16 lg:grid-cols-2">
-          {/* Sisi kiri — sambutan */}
           <div className="hidden lg:block">
             <span className="eyebrow text-mint-deep">
               <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
                 <path d="M8 1l1.6 4.7L14 7l-4.4 1.3L8 13l-1.6-4.7L2 7l4.4-1.3L8 1z" fill="currentColor" />
               </svg>
-              Selamat datang kembali
+              {mode === "register" ? "Bergabung dengan Baboo.id" : "Selamat datang kembali"}
             </span>
             <h1 className="mt-3 font-display text-[clamp(30px,4vw,46px)] font-extrabold text-navy">
-              Masuk ke dashboard Baboo
+              {mode === "register" ? "Jadi Member Baboo.id" : "Masuk ke dashboard Baboo"}
             </h1>
             <p className="mt-4 max-w-md text-[17px] opacity-85">
-              Kelola AI Agent, pantau percakapan, dan atur otomatisasi bisnismu dalam satu tempat.
+              {mode === "register"
+                ? "Buat akun member untuk mengelola proyek, memakai AI Agent, dan menyimpan pekerjaanmu dalam satu dashboard."
+                : "Kelola AI Agent, pantau percakapan, dan atur otomatisasi bisnismu dalam satu tempat."}
             </p>
             <div className="mt-8 flex items-end gap-4">
               <BibiMascot width={150} height={140} />
-              <div className="card-pop mb-3 max-w-[230px] p-4 text-sm">
-                Halo! Aku Bibi. Yuk masuk, biar aku bantu kerja-kerja repetitifmu. 🐵
+              <div className="card-pop mb-3 max-w-[240px] p-4 text-sm">
+                {mode === "register"
+                  ? "Daftar dulu, Kak. Biar semua proyek dan percakapanmu tersimpan rapi. 🐵"
+                  : "Halo! Aku Bibi. Yuk masuk, biar aku bantu kerja-kerja repetitifmu. 🐵"}
               </div>
             </div>
           </div>
 
-          {/* Sisi kanan — form */}
           <div className="mx-auto w-full max-w-md">
             <div className="card-pop space-y-6 p-8">
+              <div className="grid grid-cols-2 rounded-2xl border-[2.5px] border-navy bg-cream-deep p-1">
+                <button
+                  type="button"
+                  onClick={() => setMode("login")}
+                  className={`rounded-xl px-4 py-2.5 font-display text-sm font-bold transition ${
+                    mode === "login" ? "bg-navy text-cream" : "text-navy hover:bg-white/70"
+                  }`}
+                  aria-pressed={mode === "login"}
+                >
+                  Masuk
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("register")}
+                  className={`rounded-xl px-4 py-2.5 font-display text-sm font-bold transition ${
+                    mode === "register" ? "bg-navy text-cream" : "text-navy hover:bg-white/70"
+                  }`}
+                  aria-pressed={mode === "register"}
+                >
+                  Daftar Member
+                </button>
+              </div>
+
               <div className="text-center lg:text-left">
-                <h2 className="font-display text-2xl font-extrabold text-navy">Masuk</h2>
+                <h2 className="font-display text-2xl font-extrabold text-navy">
+                  {mode === "register" ? "Daftar Member" : "Masuk"}
+                </h2>
                 <p className="mt-1 text-sm opacity-80">
-                  Gunakan akun Google atau email yang terdaftar.
+                  {mode === "register"
+                    ? "Isi data berikut untuk membuat akun Baboo.id."
+                    : "Gunakan email dan kata sandi yang terdaftar."}
                 </p>
               </div>
 
-              <CartoonButton
-                type="button"
-                variant="light"
-                className="w-full"
-                onClick={handleGoogle}
-                disabled={googleLoading}
-              >
-                {googleLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <GoogleIcon className="shrink-0" />
-                )}
-                {googleLoading ? "Mengarahkan ke Google..." : "Lanjut dengan Google"}
-              </CartoonButton>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === "register" ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Nama lengkap</Label>
+                    <div className="relative">
+                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+                      <Input
+                        id="fullName"
+                        name="fullName"
+                        type="text"
+                        required
+                        minLength={2}
+                        autoComplete="name"
+                        placeholder="Nama lengkap"
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                ) : null}
 
-              <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-wide opacity-60">
-                <span className="h-px flex-1 bg-navy/20" />
-                atau
-                <span className="h-px flex-1 bg-navy/20" />
-              </div>
-
-              <form onSubmit={handleEmail} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -168,18 +226,15 @@ function LoginPage() {
                       name="email"
                       type="email"
                       required
+                      autoComplete="email"
                       placeholder="nama@email.com"
                       className="pl-9"
                     />
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Kata sandi</Label>
-                    <a href="#" className="text-xs font-semibold text-mint-deep hover:underline">
-                      Lupa sandi?
-                    </a>
-                  </div>
+                  <Label htmlFor="password">Kata sandi</Label>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
                     <Input
@@ -187,22 +242,55 @@ function LoginPage() {
                       name="password"
                       type="password"
                       required
+                      minLength={mode === "register" ? 8 : undefined}
+                      autoComplete={mode === "register" ? "new-password" : "current-password"}
                       placeholder="••••••••"
                       className="pl-9"
                     />
                   </div>
+                  {mode === "register" ? (
+                    <p className="text-xs opacity-60">Minimal 8 karakter.</p>
+                  ) : null}
                 </div>
-                <CartoonButton type="submit" className="w-full" disabled={emailLoading}>
-                  {emailLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {emailLoading ? "Memproses..." : "Masuk"}
+
+                {mode === "register" ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="passwordConfirmation">Ulangi kata sandi</Label>
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
+                      <Input
+                        id="passwordConfirmation"
+                        name="passwordConfirmation"
+                        type="password"
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        placeholder="••••••••"
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                <CartoonButton type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {submitting
+                    ? "Memproses..."
+                    : mode === "register"
+                      ? "Daftar sebagai Member"
+                      : "Masuk"}
                 </CartoonButton>
               </form>
 
               <p className="text-center text-sm opacity-80">
-                Belum punya akun?{" "}
-                <a href="/kontak" className="font-semibold text-mint-deep hover:underline">
-                  Hubungi kami
-                </a>
+                {mode === "register" ? "Sudah punya akun?" : "Belum punya akun?"}{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === "register" ? "login" : "register")}
+                  className="font-semibold text-mint-deep hover:underline"
+                >
+                  {mode === "register" ? "Masuk di sini" : "Daftar sebagai Member"}
+                </button>
               </p>
             </div>
 
