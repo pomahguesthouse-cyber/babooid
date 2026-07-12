@@ -78,10 +78,10 @@ export const SiteHeader = () => {
                 Masuk
               </Link>
               <Link
-                to="/demo"
+                to="/daftar-baboo"
                 className="rounded-full border-[3px] border-navy bg-sun px-5 py-2 font-display text-sm font-bold text-navy-deep shadow-[0_6px_0_rgba(11,27,46,0.25)] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_2px_0_rgba(11,27,46,0.25)]"
               >
-                Demo Agent
+                Mulai Sekarang
               </Link>
             </>
           )}
@@ -133,21 +133,23 @@ export const SiteHeader = () => {
                 </button>
               </>
             ) : (
-              <Link
-                to="/masuk"
-                onClick={() => setOpen(false)}
-                className="mt-2 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
-              >
-                Masuk
-              </Link>
+              <>
+                <Link
+                  to="/masuk"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 rounded-full border-[3px] border-navy bg-transparent px-5 py-2.5 text-center font-display font-bold text-navy"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  to="/daftar-baboo"
+                  onClick={() => setOpen(false)}
+                  className="mt-1 rounded-full border-[3px] border-navy bg-sun px-5 py-2.5 text-center font-display font-bold text-navy-deep"
+                >
+                  Mulai Sekarang
+                </Link>
+              </>
             )}
-            <Link
-              to="/demo"
-              onClick={() => setOpen(false)}
-              className="mt-1 rounded-full border-[3px] border-navy bg-sun px-5 py-2.5 text-center font-display font-bold text-navy-deep"
-            >
-              Demo Agent
-            </Link>
           </nav>
         </div>
       )}
