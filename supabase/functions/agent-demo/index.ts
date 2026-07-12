@@ -15,6 +15,13 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
 const DEMO_AGENT_KEYS = new Set(["mandor", "civil", "cad", "architect"]);
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const ALLOWED_ATTACHMENT_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/pdf",
+]);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,6 +37,12 @@ function json(body: unknown, status = 200) {
 }
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+type DemoAttachment = {
+  name: string;
+  mimeType: string;
+  size: number;
+  data: string;
+};
 type Provider = { key: string; name: string; base_url: string; api_key: string; enabled: boolean };
 
 type AgentConfig = {
@@ -40,6 +53,38 @@ type AgentConfig = {
   provider: string;
   status: string;
 };
+
+function decodedBase64Size(data: string) {
+  const padding = data.endsWith("==") ? 2 : data.endsWith("=") ? 1 : 0;
+  return Math.floor((data.length * 3) / 4) - padding;
+}
+
+function parseAttachment(value: unknown): DemoAttachment | null {
+  if (value == null) return null;
+  if (typeof value !== "object") throw new Error("Format lampiran tidak valid.");
+
+  const input = value as Record<string, unknown>;
+  const name = typeof input.name === "string" ? input.name.trim() : "";
+  const mimeType = typeof input.mime_type === "string" ? input.mime_type.trim().toLowerCase() : "";
+  const declaredSize = typeof input.size === "number" ? input.size : 0;
+  const data = typeof input.data === "string" ? input.data.replace(/\s/g, "") : "";
+
+  if (!name || name.length > 160) throw new Error("Nama file tidak valid.");
+  if (!ALLOWED_ATTACHMENT_TYPES.has(mimeType)) {
+    throw new Error("Format file belum didukung. Gunakan JPG, PNG, WEBP, atau PDF.");
+  }
+  if (!data || !/^[A-Za-z0-9+/]*={0,2}$/.test(data)) {
+    throw new Error("Isi lampiran tidak valid.");
+  }
+
+  const actualSize = decodedBase64Size(data);
+  if (actualSize <= 0 || declaredSize <= 0) throw new Error("Lampiran kosong.");
+  if (actualSize > MAX_ATTACHMENT_SIZE || declaredSize > MAX_ATTACHMENT_SIZE) {
+    throw new Error("Ukuran file maksimal 5 MB.");
+  }
+
+  return { name, mimeType, size: actualSize, data };
+}
 
 async function getProvider(
   admin: ReturnType<typeof createClient>,
@@ -53,14 +98,86 @@ async function getProvider(
   return (data as Provider | null) ?? null;
 }
 
+function attachToAnthropicMessages(messages: ChatMessage[], attachment: DemoAttachment | null) {
+  if (!attachment) return messages;
+
+  let lastUserIndex = -1;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index].role === "user") {
+      lastUserIndex = index;
+      break;
+    }
+  }
+
+  return messages.map((message, index) => {
+    if (index !== lastUserIndex) return message;
+
+    const fileBlock =
+      attachment.mimeType === "application/pdf"
+        ? {
+            type: "document",
+            source: {
+              type: "base64",
+              media_type: "application/pdf",
+              data: attachment.data,
+            },
+          }
+        : {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: attachment.mimeType,
+              data: attachment.data,
+            },
+          };
+
+    return {
+      role: message.role,
+      content: [fileBlock, { type: "text", text: message.content }],
+    };
+  });
+}
+
+function attachToOpenAiMessages(messages: ChatMessage[], attachment: DemoAttachment | null) {
+  if (!attachment) return messages;
+  if (attachment.mimeType === "application/pdf") {
+    throw new Error(
+      "Model aktif memakai endpoint chat yang belum mendukung PDF. Gunakan provider Anthropic atau unggah halaman PDF sebagai gambar.",
+    );
+  }
+
+  let lastUserIndex = -1;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index].role === "user") {
+      lastUserIndex = index;
+      break;
+    }
+  }
+
+  return messages.map((message, index) => {
+    if (index !== lastUserIndex) return message;
+    return {
+      role: message.role,
+      content: [
+        { type: "text", text: message.content },
+        {
+          type: "image_url",
+          image_url: { url: `data:${attachment.mimeType};base64,${attachment.data}` },
+        },
+      ],
+    };
+  });
+}
+
 async function callLlm(opts: {
   provider: Provider;
   model: string;
   temperature: number;
   system: string;
   messages: ChatMessage[];
+  attachment: DemoAttachment | null;
 }): Promise<string> {
-  const { provider, model, temperature, system, messages } = opts;
+  const { provider, model, temperature, system, messages, attachment } = opts;
 
   if (provider.key === "anthropic") {
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
@@ -70,7 +187,13 @@ async function callLlm(opts: {
         "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ model, max_tokens: 1200, temperature, system, messages }),
+      body: JSON.stringify({
+        model,
+        max_tokens: 1200,
+        temperature,
+        system,
+        messages: attachToAnthropicMessages(messages, attachment),
+      }),
     });
     if (!resp.ok) throw new Error(`${provider.name}: ${await resp.text()}`);
     const data = await resp.json();
@@ -88,7 +211,10 @@ async function callLlm(opts: {
       model,
       max_tokens: 1200,
       temperature,
-      messages: [{ role: "system", content: system }, ...messages],
+      messages: [
+        { role: "system", content: system },
+        ...attachToOpenAiMessages(messages, attachment),
+      ],
     }),
   });
   if (!resp.ok) throw new Error(`${provider.name}: ${await resp.text()}`);
@@ -128,6 +254,7 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Pesan demo wajib diisi." }, 400);
     }
 
+    const attachment = parseAttachment(body.attachment);
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
     const { data: agent, error: agentErr } = await admin
       .from("ai_agents")
@@ -162,7 +289,7 @@ Deno.serve(async (req: Request) => {
     const systemPrompt =
       (config.system_prompt?.trim() ||
         `Kamu adalah ${config.name}, asisten AI di platform Baboo.id.`) +
-      "\nKonteks: ini adalah demo publik Baboo.id. Jawab dalam Bahasa Indonesia, ringkas, membantu, dan profesional. Jangan meminta data sensitif. Bila user butuh eksekusi tool nyata, arahkan ke dashboard atau konsultasi lanjutan.";
+      "\nKonteks: ini adalah demo publik Baboo.id. Jawab dalam Bahasa Indonesia, ringkas, membantu, dan profesional. Jangan meminta data sensitif. Bila ada gambar atau dokumen terlampir, analisis hanya informasi yang benar-benar terlihat atau terbaca dan jelaskan bila ada bagian yang tidak jelas. Bila user butuh eksekusi tool nyata, arahkan ke dashboard atau konsultasi lanjutan.";
 
     const reply = await callLlm({
       provider,
@@ -170,6 +297,7 @@ Deno.serve(async (req: Request) => {
       temperature: typeof config.temperature === "number" ? config.temperature : 0.5,
       system: systemPrompt,
       messages,
+      attachment,
     });
 
     return json({
@@ -177,6 +305,7 @@ Deno.serve(async (req: Request) => {
       model: config.model,
       provider: provider.key,
       agent_name: config.name,
+      attachment: attachment ? { name: attachment.name, mime_type: attachment.mimeType } : null,
     });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "Kesalahan tak terduga." }, 500);
