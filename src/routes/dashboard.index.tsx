@@ -8,6 +8,7 @@ import {
   Loader2,
   ArrowRight,
   FolderPlus,
+  CalendarDays,
 } from "lucide-react";
 import { CartoonButton } from "@/components/cartoon-ui";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,21 @@ const statusStyle: Record<Project["status"], string> = {
   selesai: "bg-sun/30 text-sun-deep",
   arsip: "bg-navy/10 text-navy",
 };
+
+function formatProjectCreatedAt(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Tanggal tidak tersedia";
+
+  return `${new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
+  }).format(date)} WIB`;
+}
 
 function ProjectsPage() {
   const { data: projects, isLoading } = useProjects();
@@ -233,6 +249,17 @@ function ProjectsPage() {
                   placeholder="Tujuan, ruang lingkup, atau catatan penting proyek."
                 />
               </div>
+              {editing ? (
+                <div className="flex items-center gap-3 rounded-2xl border border-navy/10 bg-cream-deep/60 px-4 py-3 text-sm text-navy/70">
+                  <CalendarDays className="h-4 w-4 shrink-0 text-mint-deep" />
+                  <span>
+                    Dibuat pada{" "}
+                    <strong className="font-semibold text-navy">
+                      {formatProjectCreatedAt(editing.created_at)}
+                    </strong>
+                  </span>
+                </div>
+              ) : null}
             </div>
             <DialogFooter>
               <CartoonButton type="submit" disabled={saving}>
