@@ -49,6 +49,33 @@ export const AGENTS: Record<AgentKey, AgentInfo> = {
 
 export const SUB_AGENTS: AgentInfo[] = [AGENTS.civil, AGENTS.cad, AGENTS.architect];
 
+/**
+ * Seluruh anggota tim di dalam satu layanan Baboo Proyek — Mandor sebagai
+ * koordinator, diikuti para spesialis. Masing-masing tetap punya keahliannya.
+ */
+export const PROJECT_TEAM: AgentInfo[] = [
+  AGENTS.mandor,
+  AGENTS.civil,
+  AGENTS.cad,
+  AGENTS.architect,
+];
+
+/**
+ * Metadata brand untuk satu layanan payung "Baboo Proyek" yang membungkus
+ * keempat agent di atas. Bukan agent tersendiri — ia adalah nama layanannya.
+ */
+export const PROYEK = {
+  name: "Baboo Proyek",
+  role: "Tim proyek konstruksi dalam satu layanan",
+  tagline: "Satu layanan, satu tim — mandor, sipil, CAD, dan arsitek bekerja bareng.",
+  desc:
+    "Baboo Proyek menyatukan Baboo Mandor, Baboo Civil, Baboo CAD, dan Baboo Architect " +
+    "dalam satu ruang kerja. Mandor mengoordinasi, lalu meneruskan tiap kebutuhan ke " +
+    "spesialis yang tepat — sipil, gambar kerja, atau arsitektur — tanpa Anda perlu " +
+    "berpindah-pindah agent.",
+  team: PROJECT_TEAM,
+} as const;
+
 export function getAgent(key: string): AgentInfo {
   return AGENTS[(key as AgentKey) in AGENTS ? (key as AgentKey) : "mandor"];
 }

@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Building2, Check, Sparkles, ArrowRight } from "lucide-react";
+import { Building2, Check, Sparkles, ArrowRight, Workflow } from "lucide-react";
 import { SiteShell } from "@/components/site-shell";
 import { PageHero } from "@/components/page-hero";
 import { CartoonLink, SectionHead } from "@/components/cartoon-ui";
+import { PROYEK } from "@/lib/agents";
 
 export const Route = createFileRoute("/daftar-baboo")({
   head: () => ({
@@ -67,7 +68,65 @@ function DaftarBabooPage() {
         desc="Baboo adalah smart agent — rekan kerja digital yang fokus pada satu bidang. Pilih Baboo sesuai pekerjaanmu, dan biarkan ia mengerjakan bagian yang paling makan waktu."
       />
 
+      {/* Layanan unggulan: Baboo Proyek (satu tim, empat spesialis) */}
+      <section className="mx-auto max-w-[1180px] px-7 pt-20">
+        <article className="card-pop relative overflow-hidden bg-navy p-8 text-cream md:p-10">
+          <div className="absolute -right-16 -top-16 h-[200px] w-[200px] rounded-full bg-mint opacity-20" />
+          <div className="relative grid items-center gap-8 lg:grid-cols-[1.15fr_1fr]">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border-2 border-cream/40 px-3 py-1 font-mono text-[11.5px] font-bold text-mint">
+                <Sparkles className="h-3.5 w-3.5" />
+                Layanan lengkap
+              </span>
+              <h2 className="mt-4 font-display text-[clamp(26px,3.4vw,38px)] font-extrabold">
+                {PROYEK.name}
+              </h2>
+              <p className="mt-3 max-w-xl text-[16px] opacity-90">{PROYEK.desc}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  to="/baboo-proyek"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-[3px] border-cream bg-sun px-7 py-3.5 font-display text-base font-bold text-navy-deep shadow-[0_8px_0_rgba(251,247,238,0.15)] transition hover:-translate-y-0.5 active:translate-y-0.5"
+                >
+                  Pelajari Baboo Proyek <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center justify-center rounded-full border-[3px] border-cream/40 bg-transparent px-7 py-3.5 font-display text-base font-bold text-cream transition hover:bg-cream hover:text-navy"
+                >
+                  Mulai proyek
+                </Link>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {PROYEK.team.map((a) => {
+                const Icon = a.icon;
+                return (
+                  <div
+                    key={a.key}
+                    className="flex items-center gap-3 rounded-2xl border-2 border-cream/20 bg-cream/5 px-4 py-3"
+                  >
+                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${a.accent}`}>
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-cream">{a.name}</p>
+                      <p className="truncate text-xs opacity-70">
+                        {a.key === "mandor" ? "Koordinator" : a.role}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </article>
+      </section>
+
       <section className="mx-auto max-w-[1180px] px-7 py-20">
+        <div className="mb-10 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-mint-deep">
+          <Workflow className="h-4 w-4" />
+          Atau pilih spesialis satuan
+        </div>
         <div className="grid gap-7 lg:grid-cols-2">
           {babooList.map((b) => {
             const accent = accentMap[b.accent as keyof typeof accentMap] ?? accentMap.mint;
@@ -115,8 +174,8 @@ function DaftarBabooPage() {
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <CartoonLink to="/kontak">
-                    Coba {b.name} <ArrowRight className="h-4 w-4" />
+                  <CartoonLink to="/baboo-proyek">
+                    Coba Baboo Proyek <ArrowRight className="h-4 w-4" />
                   </CartoonLink>
                   <Link
                     to="/baboo-civil"

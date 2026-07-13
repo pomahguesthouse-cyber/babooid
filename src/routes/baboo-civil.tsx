@@ -127,8 +127,8 @@ function BabooCivilPage() {
         }
         desc="Baboo Civil adalah smart agent teknik sipil yang menghasilkan gambar kerja .dwg / .dxf secara otomatis dari sketsa, foto, atau deskripsi teks. Dari denah rumah hingga detail struktur gedung."
       >
-        <CartoonLink to="/kontak">
-          Coba Baboo Civil <ArrowRight className="h-4 w-4" />
+        <CartoonLink to="/baboo-proyek">
+          Coba Baboo Proyek <ArrowRight className="h-4 w-4" />
         </CartoonLink>
         <Link
           to="/daftar-baboo"
@@ -519,15 +519,15 @@ function BabooCivilPage() {
               Siap percepat produksi gambar kerjamu?
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-[17px] opacity-90">
-              Coba Baboo Civil gratis untuk 1 gambar kerja pertama. Tanpa kartu kredit, tanpa
+              Coba Baboo Proyek gratis untuk proyek pertamamu. Tanpa kartu kredit, tanpa
               komitmen.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
-                to="/kontak"
+                to="/baboo-proyek"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-[3px] border-cream bg-sun px-8 py-3.5 font-display text-base font-bold text-navy-deep shadow-[0_8px_0_rgba(251,247,238,0.15)] transition hover:-translate-y-0.5 active:translate-y-0.5"
               >
-                Coba Baboo Civil gratis <ArrowRight className="h-4 w-4" />
+                Coba Baboo Proyek gratis <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/harga"

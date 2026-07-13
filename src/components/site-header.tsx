@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 const navLinks = [
   { to: "/", label: "Beranda" },
   { to: "/layanan", label: "Layanan" },
+  { to: "/baboo-proyek", label: "Baboo Proyek" },
   { to: "/daftar-baboo", label: "Daftar Baboo" },
   { to: "/cara-kerja", label: "Cara kerja" },
   { to: "/keunggulan", label: "Keunggulan" },

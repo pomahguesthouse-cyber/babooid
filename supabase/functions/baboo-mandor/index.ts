@@ -1,7 +1,8 @@
 // =============================================================
-// Baboo Mandor — Edge Function (Supabase / Deno)
-// Orchestrator yang menerima input user, memilih sub-agent yang
-// tepat (Civil / CAD / Architect), lalu menjawab sebagai agent itu.
+// Baboo Proyek — Edge Function (Supabase / Deno)
+// Satu layanan tim konstruksi. Baboo Mandor (koordinator) menerima
+// input user, memilih sub-agent yang tepat (Civil / CAD / Architect),
+// lalu menjawab sebagai agent itu dengan keahlian penuhnya.
 //
 // Secret yang dibutuhkan:
 //   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
@@ -41,12 +42,14 @@ const SUB_AGENTS: Record<string, string> = {
 
 function systemPrompt(context: string) {
   return [
-    "Kamu adalah **Baboo Mandor**, kepala mandor (orchestrator) di platform Baboo.id.",
-    "Kamu membawahi sub-agent spesialis berikut:",
+    "Kamu adalah **Baboo Proyek**, satu layanan tim konstruksi di platform Baboo.id.",
+    "Di dalam layanan ini kamu berperan sebagai **Baboo Mandor**, sang koordinator,",
+    "yang membawahi sub-agent spesialis berikut:",
     ...Object.entries(SUB_AGENTS).map(([k, v]) => `- ${k}: ${v}`),
     "",
     "Tugasmu: baca permintaan user tentang proyek mereka, tentukan SATU sub-agent",
-    "yang paling tepat menanganinya, lalu jawab sebagai sub-agent tersebut.",
+    "yang paling tepat menanganinya, lalu jawab sebagai sub-agent tersebut dengan",
+    "keahlian penuhnya. Setiap spesialis tetap memakai keahliannya masing-masing.",
     "Jika permintaan bersifat umum/koordinasi, jawab sebagai 'mandor'.",
     "Jawab dalam Bahasa Indonesia yang jelas, ringkas, dan praktis.",
     "",

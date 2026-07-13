@@ -9,11 +9,12 @@ import {
   Loader2,
   SendHorizontal,
   Sparkles,
+  Workflow,
 } from "lucide-react";
 import { CartoonButton } from "@/components/cartoon-ui";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { AGENTS, getAgent, SUB_AGENTS } from "@/lib/agents";
+import { getAgent, PROYEK, SUB_AGENTS } from "@/lib/agents";
 import {
   useProject,
   useProjectFiles,
@@ -199,25 +200,23 @@ function ChatPanel({ projectId }: { projectId: string }) {
     try {
       await send.mutateAsync(value);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Baboo Mandor gagal merespons.");
+      toast.error(err instanceof Error ? err.message : "Baboo Proyek gagal merespons.");
       setText(value);
     }
   };
 
-  const Mandor = AGENTS.mandor;
-
   return (
     <section className="card-pop flex h-[560px] flex-col p-0">
       <header className="flex items-center gap-3 border-b-2 border-navy/10 p-4">
-        <span className={`grid h-10 w-10 place-items-center rounded-xl ${Mandor.accent}`}>
-          <Mandor.icon className="h-5 w-5" />
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-navy text-mint">
+          <Workflow className="h-5 w-5" />
         </span>
         <div>
           <p className="font-display text-base font-extrabold leading-tight text-navy">
-            {Mandor.name}
+            {PROYEK.name}
           </p>
           <p className="text-xs opacity-65">
-            Mengoordinasi {SUB_AGENTS.map((a) => a.name.replace("Baboo ", "")).join(", ")}
+            Mandor mengoordinasi {SUB_AGENTS.map((a) => a.name.replace("Baboo ", "")).join(", ")}
           </p>
         </div>
       </header>
@@ -233,7 +232,7 @@ function ChatPanel({ projectId }: { projectId: string }) {
               <Sparkles className="h-6 w-6 text-mint-deep" />
             </span>
             <p className="max-w-xs text-sm opacity-70">
-              Ceritakan kebutuhan proyek Anda. Baboo Mandor akan mengarahkannya ke spesialis yang
+              Ceritakan kebutuhan proyek Anda. Baboo Proyek akan mengarahkannya ke spesialis yang
               tepat — Civil, CAD, atau Architect.
             </p>
           </div>
@@ -243,7 +242,7 @@ function ChatPanel({ projectId }: { projectId: string }) {
         {send.isPending ? (
           <div className="flex items-center gap-2 text-sm opacity-60">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Baboo Mandor sedang berpikir…
+            Baboo Proyek sedang berpikir…
           </div>
         ) : null}
       </div>
@@ -260,7 +259,7 @@ function ChatPanel({ projectId }: { projectId: string }) {
               }
             }}
             rows={1}
-            placeholder="Tulis instruksi untuk Baboo Mandor…"
+            placeholder="Tulis instruksi untuk Baboo Proyek…"
             className="max-h-32 min-h-[44px] resize-none"
           />
           <CartoonButton type="submit" disabled={send.isPending || !text.trim()} className="px-4 py-3">

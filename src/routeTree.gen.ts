@@ -17,12 +17,12 @@ import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as KeunggulanRouteImport } from './routes/keunggulan'
 import { Route as HargaRouteImport } from './routes/harga'
-import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DaftarBabooRouteImport } from './routes/daftar-baboo'
 import { Route as CaraKerjaRouteImport } from './routes/cara-kerja'
 import { Route as CadAgentRouteImport } from './routes/cad-agent'
 import { Route as BackendRouteImport } from './routes/backend'
+import { Route as BabooProyekRouteImport } from './routes/baboo-proyek'
 import { Route as BabooCivilRouteImport } from './routes/baboo-civil'
 import { Route as BabooCadRouteImport } from './routes/baboo-cad'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -76,11 +76,6 @@ const HargaRoute = HargaRouteImport.update({
   path: '/harga',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -104,6 +99,11 @@ const CadAgentRoute = CadAgentRouteImport.update({
 const BackendRoute = BackendRouteImport.update({
   id: '/backend',
   path: '/backend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BabooProyekRoute = BabooProyekRouteImport.update({
+  id: '/baboo-proyek',
+  path: '/baboo-proyek',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BabooCivilRoute = BabooCivilRouteImport.update({
@@ -172,12 +172,12 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/baboo-proyek': typeof BabooProyekRoute
   '/backend': typeof BackendRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/demo': typeof DemoRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -199,11 +199,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/baboo-proyek': typeof BabooProyekRoute
   '/backend': typeof BackendRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
-  '/demo': typeof DemoRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -227,12 +227,12 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/baboo-cad': typeof BabooCadRoute
   '/baboo-civil': typeof BabooCivilRoute
+  '/baboo-proyek': typeof BabooProyekRoute
   '/backend': typeof BackendRoute
   '/cad-agent': typeof CadAgentRoute
   '/cara-kerja': typeof CaraKerjaRoute
   '/daftar-baboo': typeof DaftarBabooRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/demo': typeof DemoRoute
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
@@ -257,12 +257,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/baboo-cad'
     | '/baboo-civil'
+    | '/baboo-proyek'
     | '/backend'
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/dashboard'
-    | '/demo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -284,11 +284,11 @@ export interface FileRouteTypes {
     | '/'
     | '/baboo-cad'
     | '/baboo-civil'
+    | '/baboo-proyek'
     | '/backend'
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
-    | '/demo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -311,12 +311,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/baboo-cad'
     | '/baboo-civil'
+    | '/baboo-proyek'
     | '/backend'
     | '/cad-agent'
     | '/cara-kerja'
     | '/daftar-baboo'
     | '/dashboard'
-    | '/demo'
     | '/harga'
     | '/keunggulan'
     | '/kontak'
@@ -340,12 +340,12 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   BabooCadRoute: typeof BabooCadRoute
   BabooCivilRoute: typeof BabooCivilRoute
+  BabooProyekRoute: typeof BabooProyekRoute
   BackendRoute: typeof BackendRoute
   CadAgentRoute: typeof CadAgentRoute
   CaraKerjaRoute: typeof CaraKerjaRoute
   DaftarBabooRoute: typeof DaftarBabooRoute
   DashboardRoute: typeof DashboardRouteWithChildren
-  DemoRoute: typeof DemoRoute
   HargaRoute: typeof HargaRoute
   KeunggulanRoute: typeof KeunggulanRoute
   KontakRoute: typeof KontakRoute
@@ -415,13 +415,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HargaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -455,6 +448,13 @@ declare module '@tanstack/react-router' {
       path: '/backend'
       fullPath: '/backend'
       preLoaderRoute: typeof BackendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/baboo-proyek': {
+      id: '/baboo-proyek'
+      path: '/baboo-proyek'
+      fullPath: '/baboo-proyek'
+      preLoaderRoute: typeof BabooProyekRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/baboo-civil': {
@@ -581,12 +581,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   BabooCadRoute: BabooCadRoute,
   BabooCivilRoute: BabooCivilRoute,
+  BabooProyekRoute: BabooProyekRoute,
   BackendRoute: BackendRoute,
   CadAgentRoute: CadAgentRoute,
   CaraKerjaRoute: CaraKerjaRoute,
   DaftarBabooRoute: DaftarBabooRoute,
   DashboardRoute: DashboardRouteWithChildren,
-  DemoRoute: DemoRoute,
   HargaRoute: HargaRoute,
   KeunggulanRoute: KeunggulanRoute,
   KontakRoute: KontakRoute,

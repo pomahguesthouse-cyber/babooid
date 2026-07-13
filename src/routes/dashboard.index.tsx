@@ -216,7 +216,7 @@ function ProjectsPage() {
               Buat proyek baru
             </span>
             <span className="mt-0.5 block text-xs leading-relaxed text-navy/60">
-              Siapkan ruang kerja dan konteks untuk Baboo Mandor.
+              Siapkan ruang kerja dan konteks untuk Baboo Proyek.
             </span>
           </span>
           <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-navy/45 transition group-hover:translate-x-1 group-hover:text-navy" />
@@ -362,7 +362,7 @@ function ProjectsPage() {
                 </h3>
                 <p className="mx-auto mt-1 max-w-md text-sm text-navy/65">
                   Buat proyek pertama, tambahkan konteks dan file pendukung, lalu
-                  mulai berdiskusi dengan Baboo Mandor.
+                  mulai berdiskusi dengan Baboo Proyek.
                 </p>
               </div>
               <CartoonButton onClick={openCreate} className="relative">
@@ -478,7 +478,7 @@ function ProjectsPage() {
                 {editing ? "Edit proyek" : "Buat proyek baru"}
               </DialogTitle>
               <DialogDescription>
-                Beri nama dan deskripsi singkat agar Baboo Mandor memahami
+                Beri nama dan deskripsi singkat agar Baboo Proyek memahami
                 konteks pekerjaan.
               </DialogDescription>
             </DialogHeader>
