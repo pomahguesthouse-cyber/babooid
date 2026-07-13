@@ -13,7 +13,6 @@ import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as StudiKasusRouteImport } from './routes/studi-kasus'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MasukRouteImport } from './routes/masuk'
-import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as KeunggulanRouteImport } from './routes/keunggulan'
 import { Route as HargaRouteImport } from './routes/harga'
@@ -54,11 +53,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const MasukRoute = MasukRouteImport.update({
   id: '/masuk',
   path: '/masuk',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LayananRoute = LayananRouteImport.update({
-  id: '/layanan',
-  path: '/layanan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KontakRoute = KontakRouteImport.update({
@@ -181,7 +175,6 @@ export interface FileRoutesByFullPath {
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
-  '/layanan': typeof LayananRoute
   '/masuk': typeof MasukRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
@@ -207,7 +200,6 @@ export interface FileRoutesByTo {
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
-  '/layanan': typeof LayananRoute
   '/masuk': typeof MasukRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
@@ -236,7 +228,6 @@ export interface FileRoutesById {
   '/harga': typeof HargaRoute
   '/keunggulan': typeof KeunggulanRoute
   '/kontak': typeof KontakRoute
-  '/layanan': typeof LayananRoute
   '/masuk': typeof MasukRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/studi-kasus': typeof StudiKasusRoute
@@ -266,7 +257,6 @@ export interface FileRouteTypes {
     | '/harga'
     | '/keunggulan'
     | '/kontak'
-    | '/layanan'
     | '/masuk'
     | '/sitemap.xml'
     | '/studi-kasus'
@@ -292,7 +282,6 @@ export interface FileRouteTypes {
     | '/harga'
     | '/keunggulan'
     | '/kontak'
-    | '/layanan'
     | '/masuk'
     | '/sitemap.xml'
     | '/studi-kasus'
@@ -320,7 +309,6 @@ export interface FileRouteTypes {
     | '/harga'
     | '/keunggulan'
     | '/kontak'
-    | '/layanan'
     | '/masuk'
     | '/sitemap.xml'
     | '/studi-kasus'
@@ -349,7 +337,6 @@ export interface RootRouteChildren {
   HargaRoute: typeof HargaRoute
   KeunggulanRoute: typeof KeunggulanRoute
   KontakRoute: typeof KontakRoute
-  LayananRoute: typeof LayananRoute
   MasukRoute: typeof MasukRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StudiKasusRoute: typeof StudiKasusRoute
@@ -385,13 +372,6 @@ declare module '@tanstack/react-router' {
       path: '/masuk'
       fullPath: '/masuk'
       preLoaderRoute: typeof MasukRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/layanan': {
-      id: '/layanan'
-      path: '/layanan'
-      fullPath: '/layanan'
-      preLoaderRoute: typeof LayananRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kontak': {
@@ -590,7 +570,6 @@ const rootRouteChildren: RootRouteChildren = {
   HargaRoute: HargaRoute,
   KeunggulanRoute: KeunggulanRoute,
   KontakRoute: KontakRoute,
-  LayananRoute: LayananRoute,
   MasukRoute: MasukRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StudiKasusRoute: StudiKasusRoute,

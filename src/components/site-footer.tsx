@@ -22,22 +22,22 @@ export const SiteFooter = () => {
             <h5 className="mb-3 font-display text-[15px] text-cream">Produk</h5>
             <ul className="space-y-2 text-sm opacity-75">
               <li>
-                <Link to="/layanan" className="hover:text-mint">
+                <Link to="/" className="hover:text-mint">
                   AI Customer Service
                 </Link>
               </li>
               <li>
-                <Link to="/layanan" className="hover:text-mint">
+                <Link to="/" className="hover:text-mint">
                   AI Sales Agent
                 </Link>
               </li>
               <li>
-                <Link to="/layanan" className="hover:text-mint">
+                <Link to="/" className="hover:text-mint">
                   AI Booking Agent
                 </Link>
               </li>
               <li>
-                <Link to="/layanan" className="hover:text-mint">
+                <Link to="/" className="hover:text-mint">
                   AI Agent Kustom
                 </Link>
               </li>

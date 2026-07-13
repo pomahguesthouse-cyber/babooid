@@ -138,8 +138,8 @@ function HomePage() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3.5">
               <CartoonLink to="/kontak">Coba demo Bibi →</CartoonLink>
-              <CartoonLink to="/layanan" variant="ghost">
-                Lihat layanan
+              <CartoonLink to="/baboo-proyek" variant="ghost">
+                Lihat Baboo Proyek
               </CartoonLink>
             </div>
             <div className="mt-7 flex flex-wrap gap-5">
